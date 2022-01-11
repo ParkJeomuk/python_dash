@@ -8,6 +8,7 @@ import plotly.express as px
 
 from sklearn.cluster import KMeans
 
+
 @app.callback(
     Output("cluster-graph", "figure"),
     [ Input("x-variable",    "value"),

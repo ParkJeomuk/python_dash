@@ -23,10 +23,11 @@ subitems = [
 ]
 sideMenu = 	dac.SidebarMenu(
     [
-        dac.SidebarHeader(children="Cards"),
-        dac.SidebarMenuItem(id='menu_basic_cards',  label='Basic cards',  icon='box'),
-        dac.SidebarMenuItem(id='menu_social_cards', label='Social cards', icon='id-card'),
-        dac.SidebarMenuItem(id='menu_tab_cards',    label='Tab cards',    icon='image'),
+        dac.SidebarHeader(children="Data"),
+        dac.SidebarMenuItem(id='menu_dash_pages'   ,label='Dash'        , icon='th-large'),
+        dac.SidebarMenuItem(id='menu_basic_cards'  ,label='Basic cards' , icon='box'),
+        dac.SidebarMenuItem(id='menu_social_cards' ,label='Social cards', icon='id-card'),
+        dac.SidebarMenuItem(id='menu_tab_cards'    ,label='Tab cards'   , icon='image'),
 
         dac.SidebarHeader(children="Boxes"),
         dac.SidebarMenuItem(id='menu_basic_boxes', label='Basic boxes',      icon='desktop'),
@@ -39,11 +40,11 @@ sideMenu = 	dac.SidebarMenu(
 )
 sidebar = dac.Sidebar(
     sideMenu,
-    title='Alyx Admin',
+    title='Becom',
 	skin="dark",
     color="primary",
 	brand_color="primary",
-    url="https://quantee.ai",
+    url="http://127.0.0.1:8066/dash/",
     #src="https://adminlte.io/themes/AdminLTE/dist/img/user2-160x160.jpg",
     src="assets/user-01.jpg",
     elevation=3,
