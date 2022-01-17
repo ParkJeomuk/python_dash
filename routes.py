@@ -6,6 +6,9 @@ from pages.tab_cards.callbacks   import display_tabbox1
 from pages.gallery_1.callbacks import make_graph
 from pages.gallery_2.callbacks import update_figure
 
+
+
+
 # @app.callback(
 #     Output("page-content", "children"),
 #     [Input("url", "pathname")] )  

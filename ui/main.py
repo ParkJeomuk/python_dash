@@ -29,6 +29,9 @@ navbar = dac.Navbar(id= "mybread",
                     text = os.environ.get("WELCOME"), 
                     children = top_right_ui)
 
+
+
+import pages.dash_pages.view
 ### Cards ----
 import pages.basic_cards.view
 import pages.social_cards.view
@@ -43,6 +46,7 @@ import pages.gallery_2.view
 body = dac.Body(
     dac.TabItems([
         #pages.home.view.content,
+        pages.dash_pages.view.content,
 
         pages.basic_cards.view.content,
         pages.social_cards.view.content,

@@ -8,6 +8,8 @@ import time
 from datetime import datetime
 import plotly.graph_objs as go
 
+from pages.dash_pages.model import df_dash_data
+
 def blank_fig():
     fig = go.Figure(go.Scatter(x=[], y = []))
     fig.update_layout(template = None)
@@ -16,15 +18,7 @@ def blank_fig():
     
     return fig
 
-@app.callback(Output('dash_df', 'data'),
-              Input('dash_btn_load', 'n_clicks') )
-def dash_data_load(n_clicks):
-    if n_clicks is None:
-        raise PreventUpdate
-    
-    data = pd.read_csv('./apps/sample_data/ppp.csv')
-    data = data[data.rack_no < 800+n_clicks]
-    return data.to_json(date_format='iso' , orient='split')
+
 #--------------------------------------------------------------------------------------------------------------
 
 
@@ -45,7 +39,13 @@ def dash_data_load(n_clicks):
 #     return data.to_json(date_format='iso' , orient='split')
 # #--------------------------------------------------------------------------------------------------------------
 
-
+@app.callback(Output('dash_df', 'data'),
+              Input('dash_btn_load', 'n_clicks') )
+def dash_data_load(n_clicks):
+    if n_clicks is None:
+        raise PreventUpdate
+    
+    return df_dash_data()
 
 
 @app.callback(Output('dash_plot_1'       , 'figure'),
@@ -59,7 +59,6 @@ def dash_plot1_render_click(ts, plot_type, data):
         raise PreventUpdate
     
     data = pd.read_json(data, orient='split')
-    # data = data[data['rack_no'].isin([1,2])]
     data = data.sort_values(by=['rack_no','serial_dt'])
     
     pio.templates.default = "plotly_white"
@@ -79,54 +78,54 @@ def dash_plot1_render_click(ts, plot_type, data):
         fig.update_traces(mode="lines")           
     elif(plot_type == 'P'):
         fig =  px.scatter(
-        data_frame=data, 
-        x='dtime', 
-		y='voltage', 
-		color='rack_no', 
-		symbol='3', 
-		size=None, 
-		hover_name=None, 
-		hover_data=None, 
-		custom_data=None, 
-		text=None, 
-		facet_row=None, 
-		facet_col=None, 
-		facet_col_wrap=0, 
-		facet_row_spacing=None, 
-		facet_col_spacing=None, 
-		error_x=None, 
-		error_x_minus=None, 
-		error_y=None, 
-		error_y_minus=None, 
-		animation_frame=None, 
-		animation_group=None, 
-		category_orders=None, 
-		labels=None, 
-		orientation=None, 
-		color_discrete_sequence=None, 
-		color_discrete_map=None, 
-		color_continuous_scale=None, 
-		range_color=None, 
-		color_continuous_midpoint=None, 
-		symbol_sequence=None, 
-		symbol_map=None, 
-		opacity=None, 
-		size_max=None, 
-		marginal_x=None, 
-		marginal_y=None, 
-		trendline=None, 
-		trendline_options=None, 
-		trendline_color_override=None, 
-		trendline_scope='trace', 
-		log_x=False, 
-		log_y=False, 
-		range_x=None, 
-		range_y=None, 
-		render_mode='auto', 
-		title='Voltage Info', 
-		template=None, 
-		width=None, 
-		height=500
+                data_frame=data, 
+                x='dtime', 
+                y='voltage', 
+                color='rack_no', 
+                symbol='3', 
+                size=None, 
+                hover_name=None, 
+                hover_data=None, 
+                custom_data=None, 
+                text=None, 
+                facet_row=None, 
+                facet_col=None, 
+                facet_col_wrap=0, 
+                facet_row_spacing=None, 
+                facet_col_spacing=None, 
+                error_x=None, 
+                error_x_minus=None, 
+                error_y=None, 
+                error_y_minus=None, 
+                animation_frame=None, 
+                animation_group=None, 
+                category_orders=None, 
+                labels=None, 
+                orientation=None, 
+                color_discrete_sequence=None, 
+                color_discrete_map=None, 
+                color_continuous_scale=None, 
+                range_color=None, 
+                color_continuous_midpoint=None, 
+                symbol_sequence=None, 
+                symbol_map=None, 
+                opacity=None, 
+                size_max=None, 
+                marginal_x=None, 
+                marginal_y=None, 
+                trendline=None, 
+                trendline_options=None, 
+                trendline_color_override=None, 
+                trendline_scope='trace', 
+                log_x=False, 
+                log_y=False, 
+                range_x=None, 
+                range_y=None, 
+                render_mode='auto', 
+                title='Voltage Info', 
+                template=None, 
+                width=None, 
+                height=400
 		)   
         # fig.update_traces(mode="markers")           
     else:
@@ -336,7 +335,7 @@ def dash_plot2_render(ts, plot_type, data):
     fig.update_yaxes(showspikes=False, spikecolor="orange", spikethickness=2)
 
     # fig.update_layout(width='100%')
-    fig.update_layout(height=500)
+    fig.update_layout(height=400)
 
     return fig
 
