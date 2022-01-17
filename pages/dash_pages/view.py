@@ -6,6 +6,7 @@ from components.table import make_dash_table
 from pages.dash_pages.model import df_bank
 from datetime import date
 
+
 condi_1 = dbc.Card(
     [
         #dbc.FormGroup(
@@ -187,16 +188,19 @@ content = dac.TabItem(id='content_dash_pages',
                                     
                                    
                                 ),
+                             
                                 dcc.Tab(label='Tab two', children=[
                                     dcc.Store(id='dash_raw_data',storage_type='session'),
                                     dcc.Loading(id="dash_plot_5_loading", type="default",
                                                 children=dcc.Graph(
                                                     id="dash_plot_5")
+
                                                 ),
                                     html.Br(),
                                     html.Div(children=[
                                         dbc.Button("Load Data", id="dash_btn_load_raw_data", className="me-2"),
                                         html.Label('Plot Type', style={"padding-left":"10px", "padding-right":"10px"}),
+
                                         dcc.RadioItems(id='dash_rdo_plot5_type',
                                                    options=[
                                                        {'label': 'Line','value': 'L'},
@@ -209,6 +213,7 @@ content = dac.TabItem(id='content_dash_pages',
                                         
                                     ],style={'display': 'flex'})
                                 ]),
+
                             ])
                         ],
                         style={'width': '100%'}
