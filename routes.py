@@ -5,11 +5,17 @@ from pages.tab_cards.callbacks   import display_tabbox1
 
 from pages.gallery_1.callbacks import make_graph
 from pages.gallery_2.callbacks import update_figure
-# Dash Page --------------------------------------------------------------------------------
-from pages.dash_pages.callbacks import dash_data_load
-from pages.dash_pages.callbacks import dash_plot1_render_click
-from pages.dash_pages.callbacks import dash_plot2_render
 
+
+
+
+# Dash Page --------------------------------------------------------------------------------
+# from pages.dash_pages.callbacks import dash_data_load
+from pages.dash_pages.callbacks import dash_plot1_render
+from pages.dash_pages.callbacks import dash_plot2_render
+from pages.dash_pages.callbacks import dash_plot3_render
+from pages.dash_pages.callbacks import dash_plot4_render
+from pages.dash_pages.callbacks import dash_plot5_render
 
 # @app.callback(
 #     Output("page-content", "children"),

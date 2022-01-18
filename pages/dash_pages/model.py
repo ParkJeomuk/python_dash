@@ -14,14 +14,24 @@ def df_bank():
 
 
 def df_dash_data():   
-    data = pd.read_csv('./apps/sample_data/ppp.csv')
-    return data.to_json(date_format='iso' , orient='split')
+    data = pd.read_csv('./data/ppp.csv')
+    # return data.to_json(date_format='iso' , orient='split')
+    return data
+
+def df_dash_raw_data():   
+    data = pd.read_csv('./data/raw_data.csv')
+    # return data.to_json(date_format='iso' , orient='split')
+    return data
+
+def df_dash_q_data():   
+    data = pd.read_csv('./data/q_data.csv')
+    # return data.to_json(date_format='iso' , orient='split')
+    return data
 
 
-
-
-
-
+def df_dash_polar_data():   
+    data = pd.read_csv('./data/gradar.csv')
+    return data
 
 
 

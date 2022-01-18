@@ -25,14 +25,15 @@ condi_1 = dbc.Card(
             [
                 dbc.Label("StandDate"),
                 html.Div(children=[
-                    dcc.DatePickerSingle(
+                    html.Td([ dcc.DatePickerSingle(
                         id='dtp_dash_stand',
                         min_date_allowed=date(2019, 12, 13),
                         max_date_allowed=date.today(),
                         initial_visible_month=date.today(),
                         date=date.today(),
                         display_format='YYYY-MM-DD'
-                    ),
+                    ) ], 
+                    style = {'height': "25px"}),
                     html.P('  '),
                     dcc.DatePickerSingle(
                         id='dtp_dash_compare',
@@ -63,20 +64,30 @@ condi_1 = dbc.Card(
             ]
         ),
     ],
+    style={"height": "240px"},
     body=True,
 )
 
 condi_2 = dbc.Card(
     [
-        #dbc.FormGroup(
         dbc.Row(
             [
-                dbc.Label("Middle Plot"), 
+                dcc.Loading(id="dash_plot_5_loading", type="default",
+                    children=dcc.Graph(
+                        id="dash_plot_5",
+                        figure={
+                            'data': [{'y': [0, 0] }],
+                            'layout': {'height': 200}
+                        })
+                )
             ]
         ),
     ],
+    style={"height": "240px"},
     body=True,
 )
+
+
 
 condi_3 = dbc.Card(
     [
@@ -87,6 +98,7 @@ condi_3 = dbc.Card(
             ]
         ),
     ],
+    style={"height": "240px"},
     body=True,
 )
 
@@ -95,6 +107,7 @@ dash_control_1 = dbc.Card(
         #dbc.FormGroup(
         dbc.Row(
             [
+                dcc.Store(id='dash_df',storage_type='session'),
                 dbc.Label("Voltage by Rack"),
                 dcc.Loading(id="dash_plot_1_loading", type="default",
                     children=dcc.Graph(id="dash_plot_1")
@@ -161,11 +174,12 @@ content = dac.TabItem(id='content_dash_pages',
                                             dbc.Row([html.Br(),]),
                                             dbc.Row(
                                                     [
-                                                        dbc.Col(condi_1, md=4),
-                                                        dbc.Col(condi_2, md=4),
-                                                        dbc.Col(condi_3, md=4),
+                                                        dbc.Col(condi_1, md=3, style={"height": "100%"},),
+                                                        dbc.Col(condi_2, md=3, style={"height": "100%"},),
+                                                        dbc.Col(condi_3, md=6, style={"height": "100%"},),
                                                     ],
                                                     align="center",
+                                                    style={"height": "220"},
                                             ),
                                             dbc.Row(
                                                     [
@@ -191,11 +205,11 @@ content = dac.TabItem(id='content_dash_pages',
                              
                                 dcc.Tab(label='Tab two', children=[
                                     dcc.Store(id='dash_raw_data',storage_type='session'),
-                                    dcc.Loading(id="dash_plot_5_loading", type="default",
-                                                children=dcc.Graph(
-                                                    id="dash_plot_5")
+                                    # dcc.Loading(id="dash_plot_5_loading", type="default",
+                                    #             children=dcc.Graph(
+                                    #                 id="dash_plot_5")
 
-                                                ),
+                                    #             ),
                                     html.Br(),
                                     html.Div(children=[
                                         dbc.Button("Load Data", id="dash_btn_load_raw_data", className="me-2"),
