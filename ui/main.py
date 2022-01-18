@@ -83,7 +83,7 @@ footer = dac.Footer(
 		href = "https://onesixx.com", 
 		target = "_blank", 
 	),
-	right_text = "2019 fxxk"
+	right_text = "2022 SK"
 )
 
 # =============================================================================
