@@ -68,13 +68,12 @@ def dash_q_data(sBankNo):
 
 
 @app.callback(Output('dash_plot_1'       , 'figure'),
-              Input('dash_btn_load'      , 'n_clicks'),
-              Input('dash_rdo_plot_type' , 'value') )
-def dash_plot1_render(n_clicks, plot_type):
+              Input('dash_btn_load'      , 'n_clicks') )
+def dash_plot1_render(n_clicks ):
     if n_clicks is None:
         raise PreventUpdate
-    if plot_type is None:
-        raise PreventUpdate
+    # if plot_type is None:
+    #     raise PreventUpdate
     
     # data = pd.read_json(data, orient='split')
     # data = data[data["rack_no"] == 1] --> subset
@@ -87,6 +86,8 @@ def dash_plot1_render(n_clicks, plot_type):
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         return fig
     
+    plot_type = 'L'
+
     if(plot_type == 'L'):
         fig =  px.line(data, 
                        x = 'dtime',
@@ -239,13 +240,14 @@ def dash_plot1_render(n_clicks, plot_type):
 
 #---------- Plot 2 Render -----------------------------------------------------------------------
 @app.callback(Output('dash_plot_2'       , 'figure'),
-              Input('dash_btn_load'      , 'n_clicks'),
-              Input('dash_rdo_plot_type' , 'value') )
-def dash_plot2_render(n_clicks, plot_type):
+              Input('dash_btn_load'      , 'n_clicks'))
+            #   Input('dash_rdo_plot_type' , 'value') )
+# def dash_plot2_render(n_clicks, plot_type):
+def dash_plot2_render(n_clicks):
     if n_clicks is None:
         raise PreventUpdate
-    if plot_type is None:
-        raise PreventUpdate
+    # if plot_type is None:
+    #     raise PreventUpdate
     
     data = dash_summary_data()
     
@@ -256,6 +258,7 @@ def dash_plot2_render(n_clicks, plot_type):
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         return fig
 
+    plot_type = 'L'
     
     if(plot_type == 'L'):
         fig =  px.line(data, 
@@ -363,14 +366,11 @@ def dash_plot2_render(n_clicks, plot_type):
 
 #---------- Plot 3 Render -----------------------------------------------------------------------
 @app.callback(Output('dash_plot_3'       , 'figure'),
-              Input('dash_btn_load'      , 'n_clicks'),
-              Input('dash_rdo_plot_type' , 'value') )
-def dash_plot3_render(n_clicks, plot_type):
+              Input('dash_btn_load'      , 'n_clicks')  )
+def dash_plot3_render(n_clicks ):
     if n_clicks is None:
         raise PreventUpdate
-    if plot_type is None:
-        raise PreventUpdate
-    
+
     data = dash_summary_data()
     
     pio.templates.default = "plotly_white"
@@ -379,8 +379,9 @@ def dash_plot3_render(n_clicks, plot_type):
     if data is None:
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         return fig
+     
+    plot_type = 'L'    
 
-    
     if(plot_type == 'L'):
         fig =  px.line(data, 
                        x = 'dtime',

@@ -12,6 +12,12 @@ def df_bank():
     df = pd.DataFrame(data)   
     return df
 
+def df_data_type():   
+    # assign data of lists.  
+    data = {'name': ['Comparison', 'Period'], 'code': ['C','P']}  
+      # Create DataFrame  
+    df = pd.DataFrame(data)   
+    return df
 
 def df_dash_data():   
     data = pd.read_csv('./data/ppp.csv')

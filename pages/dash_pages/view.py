@@ -3,7 +3,7 @@ from dash import dcc
 from dash import html 
 import dash_admin_components as dac
 from components.table import make_dash_table
-from pages.dash_pages.model import df_bank
+from pages.dash_pages.model import df_bank, df_data_type
 from datetime import date
 
 
@@ -12,56 +12,76 @@ condi_1 = dbc.Card(
         #dbc.FormGroup(
         dbc.Row(
             [
-                dbc.Label("Bank"),
-                dcc.Dropdown(id="cbo_dash_bank",
-                    options=[
-                        {"label": col, "value": col} for col in df_bank().code
-                    ],
-                    value="sepal length (cm)",
-                ),
-            ]
-        ),
-        dbc.Row(
-            [
-                dbc.Label("StandDate"),
-                html.Div(children=[
-                    html.Td([ dcc.DatePickerSingle(
-                        id='dtp_dash_stand',
-                        min_date_allowed=date(2019, 12, 13),
-                        max_date_allowed=date.today(),
-                        initial_visible_month=date.today(),
-                        date=date.today(),
-                        display_format='YYYY-MM-DD'
-                    ) ], 
-                    style = {'height': "25px"}),
-                    html.P('  '),
-                    dcc.DatePickerSingle(
-                        id='dtp_dash_compare',
-                        min_date_allowed=date(2019, 12, 13),
-                        max_date_allowed=date.today(),
-                        initial_visible_month=date.today(),
-                        date=date.today(),
-                        display_format='YYYY-MM-DD'
-                    )
-                ],style={'display': 'flex'}),
-            ]
-        ),
-        dbc.Row(
-            [
-                html.Div(children=[
-                dbc.Button("Load", id="dash_btn_load", className="me-2"),
-                html.Label('Plot Type', style={"padding-left":"10px", "padding-right":"10px"}),
-                dcc.RadioItems(id='dash_rdo_plot_type',
+                dbc.Col(children=[dbc.Label("Bank")], width=5),
+                dbc.Col(children=[
+                   dcc.Dropdown(id="cbo_dash_bank",
                         options=[
-                            {'label': 'Line','value': 'L'},
-                            {'label': 'Point','value': 'P'},
-                            {'label': 'Line+Point','value': 'LP'}
+                            {"label": col, "value": col} for col in df_bank().code
                         ],
-                        value='L',
-                        labelStyle={'display': 'inline-block'}
-                    ),
-                ],style={'display': 'flex'}),
-            ]
+                        value="1",
+                    )
+                ], width=7),
+            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
+        ),
+        dbc.Row(
+            [
+                dbc.Col(children=[dbc.Label("Data Type")], width=5),
+                dbc.Col(children=[
+                   dcc.Dropdown(id="cbo_dash_data_type",
+                        options=[
+                            {"label": item, "value": item} for item in df_data_type().name
+                        ],
+                        value="Comparison",
+                    )
+                ], width=7),
+            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
+        ),
+        dbc.Row(
+            [
+                dbc.Col(children=[
+                    dbc.Label("Stand Date"),
+                    dcc.DatePickerSingle(
+                            id='dtp_dash_stand',
+                            min_date_allowed=date(2019, 12, 13),
+                            max_date_allowed=date.today(),
+                            initial_visible_month=date.today(),
+                            date=date.today(),
+                            display_format='YYYY-MM-DD'
+                        ) 
+                ], width=6),
+                dbc.Col(children=[
+                    dbc.Label("Compare Date"),
+                    dcc.DatePickerSingle(
+                            id='dtp_dash_compare',
+                            min_date_allowed=date(2019, 12, 13),
+                            max_date_allowed=date.today(),
+                            initial_visible_month=date.today(),
+                            date=date.today(),
+                            display_format='YYYY-MM-DD'
+                    )
+                ], width=6)
+            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
+        ),
+        dbc.Row(
+            [
+                dbc.Col(children=[
+                    dbc.Button("Load", id="dash_btn_load", className="me-2")
+                ], width=12),
+                # dbc.Col(children=[
+                #     html.Div(children=[
+                #         html.Label('Plot Type', style={"padding-left":"10px", "padding-right":"10px"}),
+                #         dcc.RadioItems(id='dash_rdo_plot_type',
+                #                 options=[
+                #                     {'label': 'Line','value': 'L'},
+                #                     {'label': 'Point','value': 'P'},
+                #                     {'label': 'Line+Point','value': 'LP'}
+                #                 ],
+                #                 value='L',
+                #                 labelStyle={'display': 'inline-block'}
+                #             ),
+                #     ],style={'display': 'flex'}),
+                # ], width=9),
+            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
     ],
     style={"height": "240px"},
@@ -174,9 +194,9 @@ content = dac.TabItem(id='content_dash_pages',
                                             dbc.Row([html.Br(),]),
                                             dbc.Row(
                                                     [
-                                                        dbc.Col(condi_1, md=3, style={"height": "100%"},),
+                                                        dbc.Col(condi_1, md=2, style={"height": "100%"},),
                                                         dbc.Col(condi_2, md=3, style={"height": "100%"},),
-                                                        dbc.Col(condi_3, md=6, style={"height": "100%"},),
+                                                        dbc.Col(condi_3, md=7, style={"height": "100%"},),
                                                     ],
                                                     align="center",
                                                     style={"height": "220"},
