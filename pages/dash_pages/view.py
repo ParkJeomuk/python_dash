@@ -4,7 +4,7 @@ from dash import html
 import dash_admin_components as dac
 from components.table import make_dash_table
 from pages.dash_pages.model import df_bank, df_data_type
-from datetime import date
+from datetime import date,timedelta
 
 
 condi_1 = dbc.Card(
@@ -45,7 +45,7 @@ condi_1 = dbc.Card(
                             min_date_allowed=date(2019, 12, 13),
                             max_date_allowed=date.today(),
                             initial_visible_month=date.today(),
-                            date=date.today(),
+                            date=date.today()-timedelta(days=1),
                             display_format='YYYY-MM-DD'
                         ) 
                 ], width=6),
@@ -56,7 +56,7 @@ condi_1 = dbc.Card(
                             min_date_allowed=date(2019, 12, 13),
                             max_date_allowed=date.today(),
                             initial_visible_month=date.today(),
-                            date=date.today(),
+                            date=date.today()-timedelta(days=1),
                             display_format='YYYY-MM-DD'
                     )
                 ], width=6)
@@ -194,9 +194,9 @@ content = dac.TabItem(id='content_dash_pages',
                                             dbc.Row([html.Br(),]),
                                             dbc.Row(
                                                     [
-                                                        dbc.Col(condi_1, md=2, style={"height": "100%"},),
+                                                        dbc.Col(condi_1, md=3, style={"height": "100%"},),
                                                         dbc.Col(condi_2, md=3, style={"height": "100%"},),
-                                                        dbc.Col(condi_3, md=7, style={"height": "100%"},),
+                                                        dbc.Col(condi_3, md=6, style={"height": "100%"},),
                                                     ],
                                                     align="center",
                                                     style={"height": "220"},
