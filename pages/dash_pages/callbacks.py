@@ -28,7 +28,10 @@ def blank_fig():
 def dash_summary_data():
     data = df_dash_data()
     data = data[data["rack_no"]<100]
+    data['dtime'] = pd.to_datetime(data['serial_dt'],unit='s')
     data = data.sort_values(by=['rack_no','serial_dt'])
+    data["s_date"]   = data["s_date"].apply(str)
+    data["cyc_date"] = data["cyc_date"].apply(str)
     return data
 
 def dash_q_data(sBankNo):
@@ -68,16 +71,19 @@ def dash_q_data(sBankNo):
 
 
 @app.callback(Output('dash_plot_1'       , 'figure'),
+              Input('dtp_dash_stand'     , 'date' ),
               Input('dash_btn_load'      , 'n_clicks') )
-def dash_plot1_render(n_clicks ):
+def dash_plot1_render(stand_date, n_clicks ):
     if n_clicks is None:
         raise PreventUpdate
-    # if plot_type is None:
-    #     raise PreventUpdate
+    if stand_date is None:
+        raise PreventUpdate
     
     # data = pd.read_json(data, orient='split')
     # data = data[data["rack_no"] == 1] --> subset
     data = dash_summary_data()
+    data = data[data["s_date"] == stand_date.replace('-','')]
+    
     
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
@@ -240,16 +246,16 @@ def dash_plot1_render(n_clicks ):
 
 #---------- Plot 2 Render -----------------------------------------------------------------------
 @app.callback(Output('dash_plot_2'       , 'figure'),
-              Input('dash_btn_load'      , 'n_clicks'))
-            #   Input('dash_rdo_plot_type' , 'value') )
-# def dash_plot2_render(n_clicks, plot_type):
-def dash_plot2_render(n_clicks):
+              Input('dtp_dash_stand'     , 'date' ),
+              Input('dash_btn_load'      , 'n_clicks') )
+def dash_plot2_render(stand_date, n_clicks ):
     if n_clicks is None:
         raise PreventUpdate
-    # if plot_type is None:
-    #     raise PreventUpdate
+    if stand_date is None:
+        raise PreventUpdate
     
     data = dash_summary_data()
+    data = data[data["s_date"] == stand_date.replace('-','')]
     
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
@@ -366,12 +372,16 @@ def dash_plot2_render(n_clicks):
 
 #---------- Plot 3 Render -----------------------------------------------------------------------
 @app.callback(Output('dash_plot_3'       , 'figure'),
-              Input('dash_btn_load'      , 'n_clicks')  )
-def dash_plot3_render(n_clicks ):
+              Input('dtp_dash_stand'     , 'date' ),
+              Input('dash_btn_load'      , 'n_clicks') )
+def dash_plot3_render(stand_date, n_clicks ):
     if n_clicks is None:
         raise PreventUpdate
-
+    if stand_date is None:
+        raise PreventUpdate
+    
     data = dash_summary_data()
+    data = data[data["s_date"] == stand_date.replace('-','')]
     
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
