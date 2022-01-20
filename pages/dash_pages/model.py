@@ -40,4 +40,6 @@ def df_dash_polar_data():
     return data
 
 
-
+def df_dash_data_table_list():   
+    data = pd.read_csv('./data/data_table.csv')
+    return data
