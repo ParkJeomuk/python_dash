@@ -1,12 +1,13 @@
 import dash_bootstrap_components as dbc
-from dash import dcc 
-from dash import html 
+from dash import dcc
+from dash import html
 import dash_admin_components as dac
 from components.table import make_dash_table
-from pages.dash_pages.model import df_bank, df_data_type
 import pandas as pd
 from datetime import date,timedelta
 import dash_table
+
+from pages.dash_pages.model import df_bank, df_data_type, df_dash_data_box
 
 
 dataTable_column = pd.DataFrame({
@@ -131,54 +132,52 @@ condi_3 = dbc.Card(
                 html.Div([
                     dac.ValueBox(
                         id="dash_box_voltage",
-                        value=150,
-                        subtitle="New orders",
+                        value= str(df_dash_data_box().iloc[0]['voltage']) + " V",
+                        subtitle="Voltage [" + str(df_dash_data_box().iloc[0]['voltage_per']) + "%]" ,
                         color = "primary",
-                        icon = "shopping-cart",
-                        href = "#" ,
+                        icon = "chart-line",
                         width=4
                     ),
                     dac.ValueBox(
                         id="dash_box_cq",
-                        value = "53%",
-                        subtitle = "New orders",
-                        color = "danger",
-                        icon = "cogs",
+                        value = str(df_dash_data_box().iloc[0]['charge_q']) + " Ah",
+                        subtitle = "Charge Q [" + str(df_dash_data_box().iloc[0]['charge_q_per']) + "%]" ,
+                        color = "info",
+                        icon = "charging-station",
                         width=4
                     ),
                     dac.ValueBox(
                         id="dash_box_datacount",
-                        value = "44",
-                        subtitle = "User Registrations",
+                        value = str(df_dash_data_box().iloc[0]['datacount']),
+                        subtitle = "Data Count [" + str(df_dash_data_box().iloc[0]['datacount_per']) + "%]" ,
                         color = "warning",
-                        icon = "suitcase",
+                        icon = "database",
                         width=4
                     )
                 ], className='row'),
                 html.Div([
                     dac.ValueBox(
                         id="dash_box_fail",
-                        value=150,
-                        subtitle="New orders",
-                        color = "primary",
-                        icon = "shopping-cart",
-                        href = "#" ,
+                        value=df_dash_data_box().iloc[0]['datafail'],
+                        subtitle="Data Fail [" + str(df_dash_data_box().iloc[0]['datafail_per']) + "%]" ,
+                        color = "danger",
+                        icon = "frown",
                         width=4
                     ),
                     dac.ValueBox(
                         id="dash_box_current_c",
-                        value = "53%",
-                        subtitle = "New orders",
-                        color = "danger",
-                        icon = "cogs",
+                        value = str(df_dash_data_box().iloc[0]['current_c']) + " A",
+                        subtitle = "Current(C) [" + str(df_dash_data_box().iloc[0]['current_c_per']) + "%]" ,
+                        color = "success",
+                        icon = "wave-square",
                         width=4
                     ),
                     dac.ValueBox(
                         id="dash_box_current_d",
-                        value = "44",
-                        subtitle = "User Registrations",
-                        color = "warning",
-                        icon = "suitcase",
+                        value = str(df_dash_data_box().iloc[0]['current_d']) + " A",
+                        subtitle = "Current(D) [" + str(df_dash_data_box().iloc[0]['current_d_per']) + "%]" ,
+                        color = "secondary",
+                        icon = "wave-square",
                         width=4
                     )
                 ], className='row'),

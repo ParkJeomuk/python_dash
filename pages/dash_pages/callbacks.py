@@ -8,6 +8,8 @@ import plotly.io as pio
 import plotly.express as px
 import time
 import plotly.graph_objs as go
+import json
+import dash as html
 
 from pages.dash_pages.model import df_dash_data
 from pages.dash_pages.model import df_dash_q_data
@@ -45,15 +47,16 @@ def dash_q_data(sBankNo):
 
 def dash_data_table(sBankNo, sStartDate, sEndDate):
     data = df_dash_data_table_list()
-    data["s_date"]   = data["s_date"].apply(str)
+    data["cyc_date"]   = data["cyc_date"].apply(str)
 
     data = data[(data["bank_no"]== int(sBankNo)) & 
-                (data["s_date"] >= sStartDate.replace('-','')) & 
-                (data["s_date"] <= sEndDate.replace('-',''))]
+                (data["cyc_date"] >= sStartDate.replace('-','')) & 
+                (data["cyc_date"] <= sEndDate.replace('-',''))]
 
-    data = data.sort_values(by=['bank_no','s_date'], ascending=False)
-    data.columns = ['Date','Bank','WeekDay','Voltage','Current','ChargeQ','DataCount','DataFail','UseYN','UseDesc']
-    return data
+    data = data.sort_values(by=['bank_no','cyc_date'], ascending=False)
+    data.columns = ['a','Date','Bank','Voltage','Current','ChargeQ','SunShine', 'DataCount','DataFail','UseYN','UseDesc','DTime', 'WeekDay','sid']
+    
+    return data[['Date','WeekDay','Bank','Voltage','Current','ChargeQ','DataCount','DataFail','UseYN','UseDesc']]
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -78,15 +81,15 @@ def dash_data_table(sBankNo, sStartDate, sEndDate):
               Input('dash_btn_load'    , 'n_clicks') ,
               State('cbo_dash_bank'    , 'value') ,
               State('dtp_dash_stand'   , 'date') )
-def dash_data_load(n_clicks, bank_no, date ):
+def dash_data_load(n_clicks, bank_no, sDate ):
     if n_clicks is None:
         raise PreventUpdate
     if bank_no is None:
         raise PreventUpdate
-    if date is None:
+    if sDate is None:
         raise PreventUpdate    
 
-    data = dash_summary_data(bank_no, date)
+    data = dash_summary_data(bank_no, sDate)
     return data.to_json(date_format='iso' , orient='split')
 
 
@@ -94,7 +97,7 @@ def dash_data_load(n_clicks, bank_no, date ):
               Input('dash_btn_load_check_data', 'n_clicks') ,
               State('dash_tab2_date_range'    , 'start_date'),
               State('dash_tab2_date_range'    , 'end_date'))
-def dash_data_load(n_clicks, start_date, end_date ):
+def dash_data_table_load(n_clicks, start_date, end_date ):
     if n_clicks is None:
         raise PreventUpdate
     if start_date is None:
@@ -742,13 +745,32 @@ def dash_plot5_render(n_clicks):
 
 
 
+
+# @app.callback(
+#     Output('dash_box_voltage', 'children'),
+#     Input('dash_btn_load'      , 'n_clicks'))
+# def dash_render_valuebox_voltage(n_clicks):
+#     if n_clicks is None:
+#         raise PreventUpdate
+    
+#     ctx_msg = json.dumps(
+#         {"value": "1030", "subtitle": "modify value"},
+#     )
+                        
+#     return html.Pre(ctx_msg)
+
+
+
+
+
+
 @app.callback(
     Output('dash_DT', 'data'),
     Input('dash_store_data_table', 'modified_timestamp'),
     Input('dash_DT', "page_current"),
     Input('dash_DT', "page_size"),
     State('dash_store_data_table', 'data'))
-def update_table(ts, page_current, page_size, data):
+def dash_render_datatable(ts, page_current, page_size, data):
     if ts is None:
         raise PreventUpdate
     if data is None:

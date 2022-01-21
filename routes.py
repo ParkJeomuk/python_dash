@@ -16,6 +16,12 @@ from pages.dash_pages.callbacks import dash_plot2_render
 from pages.dash_pages.callbacks import dash_plot3_render
 from pages.dash_pages.callbacks import dash_plot4_render
 from pages.dash_pages.callbacks import dash_plot5_render
+from pages.dash_pages.callbacks import dash_data_load
+from pages.dash_pages.callbacks import dash_data_table_load
+from pages.dash_pages.callbacks import dash_render_datatable
+# from pages.dash_pages.callbacks import dash_render_valuebox_voltage
+
+
 
 # @app.callback(
 #     Output("page-content", "children"),
