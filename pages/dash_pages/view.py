@@ -55,6 +55,7 @@ condi_1 = dbc.Card(
             [
                 dbc.Col(children=[
                     dbc.Label("Stand Date"),
+                    html.Br(),
                     dcc.DatePickerSingle(
                             id='dtp_dash_stand',
                             min_date_allowed=date(2019, 12, 13),
@@ -62,21 +63,22 @@ condi_1 = dbc.Card(
                             initial_visible_month=date.today(),
                             date=date.today()-timedelta(days=1),
                             display_format='YYYY-MM-DD' ,
-                            style={'font-size': 7}
+                            style={"font-size": 8}
                         ) 
-                ],style={'width':'100%'}, width=5),
-                dbc.Col(html.Div(" "), width=2),
+                ],style={"padding-right": "5px"}, width=6),
                 dbc.Col(children=[
                     dbc.Label("CompareDate"),
+                     html.Br(),
                     dcc.DatePickerSingle(
                             id='dtp_dash_compare',
                             min_date_allowed=date(2019, 12, 13),
                             max_date_allowed=date.today(),
                             initial_visible_month=date.today(),
                             date=date.today()-timedelta(days=1),
-                            display_format='YYYY-MM-DD'
+                            display_format='YYYY-MM-DD',
+                            style={ "font-size": 8}
                     )
-                ],style={'width':'100%'}, width=5),
+                ],style={"align":"right", "padding-left": "5px"}, width=6),
             ], style={'width':'100%','padding-top': '5px', 'padding-bottom': '5px'}, 
             
         ),
@@ -187,7 +189,12 @@ dash_control_1 = dbc.Card(
                 
                 dbc.Label("Voltage by Rack"),
                 dcc.Loading(id="dash_plot_1_loading", type="default",
-                    children=dcc.Graph(id="dash_plot_1")
+                    children=dcc.Graph(
+                        id="dash_plot_1",
+                        figure={
+                            'data': [{'y': [0, 0] }],
+                            'layout': {'height': 400}
+                        })
                 )
             ]
         ),
@@ -203,7 +210,12 @@ dash_control_2 = dbc.Card(
             [
                 dbc.Label("Current by Rack"),
                 dcc.Loading(id="dash_plot_2_loading", type="default",
-                    children=dcc.Graph(id="dash_plot_2")
+                    children=dcc.Graph(
+                        id="dash_plot_2",
+                        figure={
+                            'data': [{'y': [0, 0] }],
+                            'layout': {'height': 400}
+                        })
                 )
             ]
         ),
@@ -219,7 +231,12 @@ dash_control_3 = dbc.Card(
             [
                 dbc.Label("Temperature by Rack"),
                 dcc.Loading(id="dash_plot_3_loading", type="default",
-                    children=dcc.Graph(id="dash_plot_3")
+                    children=dcc.Graph(
+                        id="dash_plot_3",
+                        figure={
+                            'data': [{'y': [0, 0] }],
+                            'layout': {'height': 400}
+                        })
                 )
             ]
         ),
@@ -235,7 +252,12 @@ dash_control_4 = dbc.Card(
             [
                 dbc.Label("Charge/Discharge Q by Rack"),
                 dcc.Loading(id="dash_plot_4_loading", type="default",
-                    children=dcc.Graph(id="dash_plot_4")
+                    children=dcc.Graph(
+                        id="dash_plot_4",
+                        figure={
+                            'data': [{'y': [0, 0] }],
+                            'layout': {'height': 400}
+                        })
                 )
             ]
         ),
