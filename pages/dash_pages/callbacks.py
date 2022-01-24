@@ -655,7 +655,7 @@ def dash_plot5_render(n_clicks):
     
     if data is None:
         fig =  blank_fig() #px.scatter(x=None, y=None)        
-        fig.update_layout(height=200)
+        fig.update_layout(height=230)
         return fig
 
     

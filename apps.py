@@ -20,7 +20,8 @@ app = dash.Dash(
 
     suppress_callback_exceptions=True, 
     external_stylesheets=[
-        dbc.themes.CYBORG, 
+        # dbc.themes.CYBORG, 
+        dbc.themes.CERULEAN,
         FONT_AWSOME,
         #EXTERNAL_STYLESHEETS
     ],

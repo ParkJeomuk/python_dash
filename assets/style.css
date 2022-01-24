@@ -209,7 +209,7 @@ pre {
 
 .DateInput_input, .DateInput_input_1 {
     Height: 34px !important;
-    /* Width: 100% !important; */
+    Width: 90% !important;
     border-radius: inherit;
 }
 

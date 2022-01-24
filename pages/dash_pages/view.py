@@ -61,11 +61,13 @@ condi_1 = dbc.Card(
                             max_date_allowed=date.today(),
                             initial_visible_month=date.today(),
                             date=date.today()-timedelta(days=1),
-                            display_format='YYYY-MM-DD' 
+                            display_format='YYYY-MM-DD' ,
+                            style={'font-size': 7}
                         ) 
-                ],style={'width':'100%'}, width=6),
+                ],style={'width':'100%'}, width=5),
+                dbc.Col(html.Div(" "), width=2),
                 dbc.Col(children=[
-                    dbc.Label("Compare Date"),
+                    dbc.Label("CompareDate"),
                     dcc.DatePickerSingle(
                             id='dtp_dash_compare',
                             min_date_allowed=date(2019, 12, 13),
@@ -74,29 +76,18 @@ condi_1 = dbc.Card(
                             date=date.today()-timedelta(days=1),
                             display_format='YYYY-MM-DD'
                     )
-                ], width=6)
-            ],style={'width':'100%','padding-top': '5px', 'padding-bottom': '5px'}
+                ],style={'width':'100%'}, width=5),
+            ], style={'width':'100%','padding-top': '5px', 'padding-bottom': '5px'}, 
+            
         ),
         dbc.Row(
             [
-                dbc.Col(children=[
-                    dbc.Button("Load", id="dash_btn_load",color="dark")
-                ], width=12,className="d-grid gap-2",),
-                # dbc.Col(children=[
-                #     html.Div(children=[
-                #         html.Label('Plot Type', style={"padding-left":"10px", "padding-right":"10px"}),
-                #         dcc.RadioItems(id='dash_rdo_plot_type',
-                #                 options=[
-                #                     {'label': 'Line','value': 'L'},
-                #                     {'label': 'Point','value': 'P'},
-                #                     {'label': 'Line+Point','value': 'LP'}
-                #                 ],
-                #                 value='L',
-                #                 labelStyle={'display': 'inline-block'}
-                #             ),
-                #     ],style={'display': 'flex'}),
-                # ], width=9),
-            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
+                dbc.Col(children=html.Div([
+                    dbc.Button(html.Span(["Load", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
+                               id="dash_btn_load",
+                               color="dark")
+                ],className="d-grid gap-2",) , width=12,),
+            ],style={'padding-top': '5px', 'padding-bottom': '5px'},
         ),
     ],
     style={"height": "280px"},
@@ -112,7 +103,7 @@ condi_2 = dbc.Card(
                         id="dash_plot_5",
                         figure={
                             'data': [{'y': [0, 0] }],
-                            'layout': {'height': 200}
+                            'layout': {'height': 230}
                         })
                 )
             ]
@@ -201,6 +192,7 @@ dash_control_1 = dbc.Card(
             ]
         ),
     ],
+    style={"height": "460px"},
     body=True,
 )
 
@@ -216,6 +208,7 @@ dash_control_2 = dbc.Card(
             ]
         ),
     ],
+    style={"height": "460px"},
     body=True,
 )
 
@@ -231,6 +224,7 @@ dash_control_3 = dbc.Card(
             ]
         ),
     ],
+    style={"height": "460px"},
     body=True,
 )
 
@@ -246,6 +240,7 @@ dash_control_4 = dbc.Card(
             ]
         ),
     ],
+    style={"height": "460px"},
     body=True,
 )
 
