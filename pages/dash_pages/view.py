@@ -27,7 +27,7 @@ condi_1 = dbc.Card(
         #dbc.FormGroup(
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Bank")], width=5),
+                dbc.Col(children=[dbc.Label("Bank")], width={"size":5, "offset":0 }),
                 dbc.Col(children=[
                    dcc.Dropdown(id="cbo_dash_bank",
                         options=[
@@ -35,7 +35,7 @@ condi_1 = dbc.Card(
                         ],
                         value="1",
                     )
-                ], width=7),
+                ], width={"size":7, "offset":0 }),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
         dbc.Row(
@@ -54,7 +54,8 @@ condi_1 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=[
-                    dbc.Label("Stand Date"),
+                    # dbc.Label("Stand Date"),
+                    dbc.Label(id="lbl_date1"),
                     html.Br(),
                     dcc.DatePickerSingle(
                             id='dtp_dash_stand',
@@ -67,8 +68,8 @@ condi_1 = dbc.Card(
                         ) 
                 ],style={"padding-right": "5px"}, width=6),
                 dbc.Col(children=[
-                    dbc.Label("CompareDate"),
-                     html.Br(),
+                    dbc.Label(id="lbl_date2"),
+                    html.Br(),
                     dcc.DatePickerSingle(
                             id='dtp_dash_compare',
                             min_date_allowed=date(2019, 12, 13),
@@ -85,6 +86,7 @@ condi_1 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=html.Div([
+                    html.Br(),
                     dbc.Button(html.Span(["Load", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="dash_btn_load",
                                color="dark")
@@ -298,8 +300,10 @@ dash_control_4 = dbc.Card(
 
 content = dac.TabItem(id='content_dash_pages',
                         children=html.Div([
-                            dcc.Tabs([
-                                dcc.Tab(label='Validation Raw Data ',  
+                            dbc.Tabs([
+                                dbc.Tab(label="Validation Raw Data",
+                                        active_label_class_name="fw-bold",
+                                        tab_class_name="flex-grow-1 text-center",
                                     children=html.Div(
                                         [
                                             dcc.Store(id='dash_store_df',storage_type='session'),
@@ -327,15 +331,14 @@ content = dac.TabItem(id='content_dash_pages',
                                                     ],
                                                     align="center",
                                             ),
-                                            
                                         ], 
                                         className='row'
                                     )
-                                    
-                                   
                                 ),
-                             
-                                dcc.Tab(label='Validation Calendar', children=[
+                                dbc.Tab(label='Validation Calendar', 
+                                        active_label_class_name="fw-bold",
+                                        tab_class_name="flex-grow-1 text-center",
+                                children=[
                                     html.Br(),
                                     html.Div(children=[
                                         dcc.DatePickerRange(

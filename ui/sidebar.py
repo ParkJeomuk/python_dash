@@ -46,7 +46,7 @@ sidebar = dac.Sidebar(
 	brand_color="primary",
     url="http://127.0.0.1:8066/dash/",
     #src="https://adminlte.io/themes/AdminLTE/dist/img/user2-160x160.jpg",
-    src="assets/user-01.jpg",
-    elevation=3,
-    opacity=0.8
+    src="assets/logo1.png",
+    elevation=0,
+    opacity=1
 )

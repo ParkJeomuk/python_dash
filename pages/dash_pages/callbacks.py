@@ -27,12 +27,17 @@ def blank_fig():
     return fig
 
 
-def dash_summary_data(sBankNo, sDate):
+def dash_summary_data(sDataType, sBankNo, sDate, eDate ):
     data = df_dash_data()
     data = data[data["rack_no"]<100]
     data["s_date"]   = data["s_date"].apply(str)
     data["cyc_date"] = data["cyc_date"].apply(str)
-    data = data[(data["bank_no"]==int(sBankNo)) & (data["s_date"]==sDate.replace('-','')) ]
+
+    if sDataType == "Comparison":
+        data = data[(data["bank_no"]==int(sBankNo)) & (data["s_date"]==sDate.replace('-','')) ]
+    else:    
+        data = data[(data["bank_no"] == int(sBankNo)) & ((data["s_date"] >= sDate.replace('-','')) & (data["s_date"] <= eDate.replace('-',''))  )]
+
     data['dtime'] = pd.to_datetime(data['serial_dt'],unit='s')
     data = data.sort_values(by=['rack_no','serial_dt'])
     return data
@@ -60,6 +65,25 @@ def dash_data_table(sBankNo, sStartDate, sEndDate):
 
 #--------------------------------------------------------------------------------------------------------------
 
+#---- Label 1 Change
+@app.callback(Output("lbl_date1", "children"), 
+              Output("lbl_date2", "children"), 
+             [Input("cbo_dash_data_type", "value")])
+def lbl_date1_output_text(value):
+    if value is None:
+        raise PreventUpdate
+
+    if value == 'Comparison':
+        rtn_val1 = 'Stand Date'
+        rtn_val2 = 'Compare Date'
+    else:
+        rtn_val1 = 'Start Date'
+        rtn_val2 = 'End Date'
+
+    return rtn_val1, rtn_val2
+
+
+ 
 
 
 
@@ -77,19 +101,26 @@ def dash_data_table(sBankNo, sStartDate, sEndDate):
 #     # data = pd.read_csv('./apps/sample_data/raw_data.csv')
 #     return data.to_json(date_format='iso' , orient='split')
 # #--------------------------------------------------------------------------------------------------------------
-@app.callback(Output('dash_store_df'   , 'data'),
-              Input('dash_btn_load'    , 'n_clicks') ,
-              State('cbo_dash_bank'    , 'value') ,
-              State('dtp_dash_stand'   , 'date') )
-def dash_data_load(n_clicks, bank_no, sDate ):
+@app.callback(Output('dash_store_df'     , 'data' ),
+              Input('dash_btn_load'      , 'n_clicks') ,
+              State('cbo_dash_data_type' , 'value') ,
+              State('cbo_dash_bank'      , 'value') ,
+              State('dtp_dash_stand'     , 'date' ) ,
+              State('dtp_dash_compare'   , 'date' ) 
+              )
+def dash_data_load(n_clicks, data_type, bank_no, sDate, eDate ):
     if n_clicks is None:
         raise PreventUpdate
+    if data_type is None:
+        raise PreventUpdate    
     if bank_no is None:
         raise PreventUpdate
     if sDate is None:
         raise PreventUpdate    
+    if eDate is None:
+        raise PreventUpdate    
 
-    data = dash_summary_data(bank_no, sDate)
+    data = dash_summary_data(data_type, bank_no, sDate, eDate)
     return data.to_json(date_format='iso' , orient='split')
 
 
@@ -142,6 +173,9 @@ def dash_plot1_render(ts, data ):
                        text=data['rack_no']
                        )    
         fig.update_traces(mode="lines")           
+
+        # fig = px.scatter(data, x="dtime", y="voltage", color='rack_no', render_mode='webgl')
+
     elif(plot_type == 'P'):
         fig =  px.scatter(
                 data_frame=data, 
@@ -556,12 +590,18 @@ def dash_plot4_render(stand_date, sBank_no, n_clicks):
         return fig
 
     
+
+
     fig = px.bar(data, 
                  x="rack_no", 
                  y="q_amt", 
                  color="data_type", 
-                 barmode="group") 
-                        
+                 barmode="group" ,
+                 text=data['data_type']
+                ) 
+
+    y_min = data["q_amt"].min()                        
+    y_max = data["q_amt"].max()                        
     # fig.update_layout(title=dict(text="Current Info",
     #                              font=dict(color="blue", size=16),
     #                              pad=dict(t=0,l=0,b=0,r=0)
@@ -576,15 +616,14 @@ def dash_plot4_render(stand_date, sBank_no, n_clicks):
     #                                        )
     #                              ),
     #                  selector=dict(mode='markers'))               
-
+ 
     # fig.update_traces(mode="lines")           
 
     fig.update_layout(hovermode="closest") # ( "x" | "y" | "closest" | False | "x unified" | "y unified" )
 
-    # fig.update_traces(
-    #                   hovertemplate="<b>Rack:%{text} </b><br><br>"+
-    #                                 "DateTime: %{x} <br>" +
-    #                                 "Voltage: %{y}") 
+    fig.update_traces(hovertemplate="<b>Rack: %{x} <br>" +
+                                    "DataType: %{text} <br>" +
+                                    "Q Amount: %{y}</b>") 
     
    
 
@@ -594,31 +633,33 @@ def dash_plot4_render(stand_date, sBank_no, n_clicks):
     #                  )
 
 
-    fig.update_layout(showlegend=False)
+    # fig.update_layout(showlegend=False)
 
     # remove facet/subplot labels
     # fig.update_layout(annotations=[], overwrite=True)
 
-    # fig.update_layout(
-    #     showlegend=True,
-    #     legend=dict(title=dict(side='left',
-    #                            text='Rack',
-    #                            font=dict(size=10) ) ,
-    #                 font=dict(size=10), #font:color,family,size           
-    #                 bgcolor='white',
-    #                 bordercolor='black',
-    #                 borderwidth=0 ,
-    #                 traceorder = 'normal', #"reversed", "grouped", "reversed+grouped", "normal"
-    #                 itemwidth=30,
-    #                 itemsizing='constant' , # ( "trace" | "constant" )
-    #                 orientation = 'h' , # ( "v" | "h" ) ,
-    #                 valign= 'bottom', # ( "top" | "middle" | "bottom" )
-    #                 x=0.5 ,
-    #                 y=-0.2 ,
-    #                 xanchor='center', #( "auto" | "left" | "center" | "right" )
-    #                 yanchor='top'  #( "auto" | "top" | "middle" | "bottom" )
-    #                 )
-    #     )
+
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(
+                    title=dict(side='left',
+                               text='Data Type',
+                               font=dict(size=10) ) ,
+                    font=dict(size=10), #font:color,family,size           
+                    bgcolor='white',
+                    bordercolor='black',
+                    borderwidth=0.3 ,
+                    traceorder = 'normal', #"reversed", "grouped", "reversed+grouped", "normal"
+                    itemwidth=30,
+                    itemsizing='constant' , # ( "trace" | "constant" )
+                    orientation = 'h' , # ( "v" | "h" ) ,
+                    valign= 'bottom', # ( "top" | "middle" | "bottom" )
+                    x=1 ,
+                    y=0.99 ,
+                    xanchor='right', #( "auto" | "left" | "center" | "right" )
+                    yanchor='middle'  #( "auto" | "top" | "middle" | "bottom" )
+                    )
+        )
 
     # strip down the rest of the plot
     fig.update_layout(
@@ -629,6 +670,7 @@ def dash_plot4_render(stand_date, sBank_no, n_clicks):
 
     # hide and lock down axes
     # fig.update_xaxes(visible=True, fixedrange=True)
+    fig.update_yaxes(visible=True, fixedrange=True,range=[y_min-20,y_max+10])
     # fig.update_yaxes(visible=True, fixedrange=True)
     # 마우스 오버시 x , y 라인을 보여줌.
     fig.update_xaxes(showspikes=False, spikecolor="green", spikesnap="cursor", spikemode="across")
