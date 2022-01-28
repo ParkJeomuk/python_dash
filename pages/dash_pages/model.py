@@ -25,7 +25,9 @@ def df_dash_data():
     return data
 
 def df_dash_raw_data():   
-    data = pd.read_csv('./data/raw_data.csv')
+    # data = pd.read_csv('./data/raw_data.csv')
+    data = pd.read_csv('./data/big_data.csv')
+    data = data.iloc[0:6000000, [3,4,5,6,7,15,21,30]]
     # return data.to_json(date_format='iso' , orient='split')
     return data
 

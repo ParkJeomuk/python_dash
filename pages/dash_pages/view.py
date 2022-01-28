@@ -194,7 +194,7 @@ dash_control_1 = dbc.Card(
             [
                 
                 dbc.Label("Voltage by Rack"),
-                dcc.Loading(id="dash_plot_1_loading", type="default",
+                dcc.Loading(id="dash_plot_1_loading", type="cube",
                     children=dcc.Graph(
                         id="dash_plot_1",
                         figure={
@@ -236,7 +236,7 @@ dash_control_3 = dbc.Card(
         dbc.Row(
             [
                 dbc.Label("Temperature by Rack"),
-                dcc.Loading(id="dash_plot_3_loading", type="default",
+                dcc.Loading(id="dash_plot_3_loading", type="dot",
                     children=dcc.Graph(
                         id="dash_plot_3",
                         figure={
@@ -257,7 +257,7 @@ dash_control_4 = dbc.Card(
         dbc.Row(
             [
                 dbc.Label("Charge/Discharge Q by Rack"),
-                dcc.Loading(id="dash_plot_4_loading", type="default",
+                dcc.Loading(id="dash_plot_4_loading", type="circle",
                     children=dcc.Graph(
                         id="dash_plot_4",
                         figure={
@@ -405,7 +405,7 @@ content = dac.TabItem(id='content_dash_pages',
                                         tab_class_name="flex-grow-1 text-center",
                                     children=html.Div(
                                         [
-                                            dcc.Store(id='dash_store_df',storage_type='session'),
+                                            dcc.Store(id='dash_store_df',storage_type='memory'),
                                             dbc.Row([html.Br(),]),
                                             dbc.Row(
                                                     [
@@ -456,7 +456,9 @@ content = dac.TabItem(id='content_dash_pages',
                                      html.Br(),
                                      html.Div(children=[    
                                         dcc.Store(id='dash_store_data_table',storage_type='session'),
-                                        dash_DataTable_1
+                                        dcc.Loading(id="dash_DT_1_loading", type="default",
+                                        children=[dash_DataTable_1],
+                                        )
                                         ])
                                     ])
                                 ,

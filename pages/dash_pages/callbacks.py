@@ -12,6 +12,7 @@ import json
 import dash as html
 
 from pages.dash_pages.model import df_dash_data
+from pages.dash_pages.model import df_dash_raw_data
 from pages.dash_pages.model import df_dash_q_data
 from pages.dash_pages.model import df_dash_polar_data
 from pages.dash_pages.model import df_dash_data_table_list
@@ -28,15 +29,16 @@ def blank_fig():
 
 
 def dash_summary_data(sDataType, sBankNo, sDate, eDate ):
-    data = df_dash_data()
+    # data = df_dash_data()
+    data = df_dash_raw_data()
     data = data[data["rack_no"]<100]
     data["s_date"]   = data["s_date"].apply(str)
     data["cyc_date"] = data["cyc_date"].apply(str)
 
-    if sDataType == "Comparison":
-        data = data[(data["bank_no"]==int(sBankNo)) & (data["s_date"]==sDate.replace('-','')) ]
-    else:    
-        data = data[(data["bank_no"] == int(sBankNo)) & ((data["s_date"] >= sDate.replace('-','')) & (data["s_date"] <= eDate.replace('-',''))  )]
+    # if sDataType == "Comparison":
+    #     data = data[(data["bank_no"]==int(sBankNo)) & (data["s_date"]==sDate.replace('-','')) ]
+    # else:    
+    #     data = data[(data["bank_no"] == int(sBankNo)) & ((data["s_date"] >= sDate.replace('-','')) & (data["s_date"] <= eDate.replace('-',''))  )]
 
     data['dtime'] = pd.to_datetime(data['serial_dt'],unit='s')
     data = data.sort_values(by=['rack_no','serial_dt'])
@@ -154,7 +156,7 @@ def dash_plot1_render(ts, data ):
     # data = pd.read_json(data, orient='split')
     # data = data[data["rack_no"] == 1] --> subset
     data = pd.read_json(data, orient='split')
-    
+    data = data.iloc[1:1000]
     
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
@@ -329,7 +331,8 @@ def dash_plot2_render(ts, data ):
         raise PreventUpdate
 
     data = pd.read_json(data, orient='split')
-    
+    data = data.iloc[1:1000]
+
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
     
@@ -454,6 +457,7 @@ def dash_plot3_render(ts, data ):
         raise PreventUpdate
 
     data = pd.read_json(data, orient='split')
+    data = data.iloc[1:1000]
     
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
