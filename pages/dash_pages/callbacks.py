@@ -11,6 +11,9 @@ import plotly.graph_objs as go
 import json
 import dash as html
 
+
+from utils.server_function import *
+
 from pages.dash_pages.model import df_dash_data
 from pages.dash_pages.model import df_dash_raw_data
 from pages.dash_pages.model import df_dash_q_data
@@ -19,13 +22,7 @@ from pages.dash_pages.model import df_dash_data_table_list
 
 
 
-def blank_fig():
-    fig = go.Figure(go.Scatter(x=[], y = []))
-    fig.update_layout(template = None)
-    fig.update_xaxes(showgrid = False, showticklabels = False, zeroline=False)
-    fig.update_yaxes(showgrid = False, showticklabels = False, zeroline=False)
-    
-    return fig
+
 
 
 def dash_summary_data(sDataType, sBankNo, sDate, eDate ):

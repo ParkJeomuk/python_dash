@@ -24,11 +24,12 @@ subitems = [
 sideMenu = 	dac.SidebarMenu(
     [
         dac.SidebarHeader(children="Data"),
-        dac.SidebarMenuItem(id='menu_dash_pages'     ,label='Dash'        , icon='heartbeat'),
-        dac.SidebarMenuItem(id='menu_dataset_pages'  ,label='Data Set'    , icon='box'),
+        dac.SidebarMenuItem(id='menu_dash_pages'     ,label='Dash'            , icon='heartbeat'),
+        dac.SidebarMenuItem(id='menu_dataset_pages'  ,label='Data Set'        , icon='box'),
+        dac.SidebarMenuItem(id='menu_linermd_pages'  ,label='Liner Model'     , icon='box'),
         # dac.SidebarMenuItem(id='menu_basic_cards'  ,label='Basic cards' , icon='box'),
-        dac.SidebarMenuItem(id='menu_social_cards' ,label='Social cards', icon='id-card'),
-        dac.SidebarMenuItem(id='menu_tab_cards'    ,label='Tab cards'   , icon='image'),
+        dac.SidebarMenuItem(id='menu_social_cards' ,label='Social cards'      , icon='id-card'),
+        dac.SidebarMenuItem(id='menu_tab_cards'    ,label='Tab cards'         , icon='image'),
 
         dac.SidebarHeader(children="Boxes"),
         dac.SidebarMenuItem(id='menu_basic_boxes', label='Basic boxes',      icon='desktop'),

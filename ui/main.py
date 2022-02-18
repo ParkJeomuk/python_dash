@@ -30,25 +30,32 @@ navbar = dac.Navbar(id= "mybread",
                     children = top_right_ui)
 
 
-
+### Becom----------
 import pages.dash_pages.view
 import pages.dataset_pages.view
+import pages.linermd_pages.view
+
+
 ### Cards ----
 # import pages.basic_cards.view
 import pages.social_cards.view
 import pages.tab_cards.view
+
 ### Boxes ----
 import pages.basic_boxes.view
 import pages.value_boxes.view
+
 ### Gallery ----
 import pages.gallery_1.view
 import pages.gallery_2.view
+
 # Body
 body = dac.Body(
     dac.TabItems([
         #pages.home.view.content,
         pages.dash_pages.view.content,
         pages.dataset_pages.view.content,
+        pages.linermd_pages.view.content,
 
         # pages.basic_cards.view.content,
         pages.social_cards.view.content,

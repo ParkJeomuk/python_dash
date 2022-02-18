@@ -5,13 +5,8 @@ from utils.constants import TIMEOUT
 import pandas as pd
 
 
-def df_bank():   
-    # assign data of lists.  
-    data = {'name': ['1', '2', '3'], 'code': [1, 2, 3]}  
-      # Create DataFrame  
-    df = pd.DataFrame(data)   
-    return df
 
+    
 def df_data_type():   
     # assign data of lists.  
     data = {'name': ['Comparison', 'Period'], 'code': ['C','P']}  

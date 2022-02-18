@@ -8,8 +8,8 @@ from datetime import date,timedelta
 import dash_table
 from dash_table.Format import Format, Group, Scheme
 
-
-from pages.dash_pages.model import df_bank, df_data_type, df_dash_data_box
+from utils.server_function import *
+from pages.dash_pages.model import *
 
 
 dataTable_column = pd.DataFrame(columns = ['Date','Bank','WeekDay','Voltage','Current','ChargeQ','DataCount','DataFail','UseYN','UseDesc']) 

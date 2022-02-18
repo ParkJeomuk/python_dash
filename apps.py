@@ -1,30 +1,18 @@
 import dash
 import dash_bootstrap_components as dbc
-# import uvicorn as uvicorn
-# from fastapi import FastAPI
 
 from utils.external_assets import ROOT, EXTERNAL_STYLESHEETS, FONT_AWSOME
 
 #-------- Flask --------------------------------------------
 import flask
-# from flask_caching import Cache
-
-#-------- FastAPI ------------------------------------------
-# from fastapi import FastAPI
-# from starlette.middleware.wsgi import WSGIMiddleware
-
-
 
 from ui.main import layout
 # =============================================================================
 # Dash App and Flask Server
 # =============================================================================
-
-
-
 server = flask.Flask(__name__)
 
-# server = FastAPI()
+
 
 
 app = dash.Dash(
@@ -45,8 +33,6 @@ app = dash.Dash(
     ]
 )
 
-# server.mount("/dash", WSGIMiddleware(app.server))
-# uvicorn.run(server)
 
 # cfg = {
 #     'DEBUG' : True,
