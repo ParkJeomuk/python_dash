@@ -299,7 +299,7 @@ dataset_control_4 = dbc.Card(
     [
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Trani/Test Data Set")], width=8),
+                dbc.Col(children=[dbc.Label("Train/Test Data Set")], width=8),
                 dbc.Col(children=[
                    dbc.Button(html.Span(["Data Split", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="btn_dataset_split_data",
