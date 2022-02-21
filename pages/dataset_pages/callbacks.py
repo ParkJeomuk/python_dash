@@ -166,6 +166,8 @@ def cb_dataset_DT_2(data_view_type ,ts, data ):
 @app.callback(Output('dataset_DT_Train'      , 'children' ),
               Output('dataset_DT_Test'       , 'children' ),
               Output('ds_train_test_file'    , 'data' ),
+              Output('dataset_DT_3'          , 'children' ),
+              Output('dataset_DT_4'          , 'children' ),
               Input('btn_dataset_split_data' , 'n_clicks'),
               State('ds_dataset_df'          , 'data'))
 def cb_dataset_DT_2(n_clicks , data ):
@@ -190,6 +192,96 @@ def cb_dataset_DT_2(n_clicks , data ):
 
     file_data = {'train':[train_file_name], 'test':[test_file_name]}
     f_data = pd.DataFrame(file_data) 
-
-    return train_str, test_str ,f_data.to_json(date_format='iso' , orient='split')
+    
+    
+    
+    columns = [{"name": i, "id": i, } for i in train_df.columns]
+    train_df = train_df.head(30).to_dict('rows')
+    dataset_DataTable_3 = dash_table.DataTable(
+                    data=train_df,
+                    columns = columns,
+                    editable=False,
+                    style_table={'height': '400px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
+                            # data_bars(dataTable_column, 'ChargeQ')  +
+                            # data_bars(dataTable_column, 'Voltage'),
+                        },
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+    
+    columns4 = [{"name": i, "id": i, } for i in test_df.columns]
+    test_df = test_df.head(30).to_dict('rows')
+    dataset_DataTable_4 = dash_table.DataTable(
+                    data=test_df,
+                    columns = columns4,
+                    editable=False,
+                    style_table={'height': '400px','overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
+                            # data_bars(dataTable_column, 'ChargeQ')  +
+                            # data_bars(dataTable_column, 'Voltage'),
+                        },
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+    
+    return train_str, test_str ,f_data.to_json(date_format='iso' , orient='split') , dataset_DataTable_3 , dataset_DataTable_4
   
+  
+  
+  
+@app.callback(
+    Output("dataset_modal_data"  , "is_open"),
+    Input("btn_dataset_data_view", "n_clicks"),
+    State("dataset_modal_data", "is_open"),
+)
+def cb_dataset_toggle_modal(n, is_open):
+    if n:
+        return not is_open
+    return is_open

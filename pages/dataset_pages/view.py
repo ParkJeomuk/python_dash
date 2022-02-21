@@ -299,12 +299,17 @@ dataset_control_4 = dbc.Card(
     [
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Train/Test Data Set")], width=8),
+                dbc.Col(children=[dbc.Label("Train/Test Data Set")], width=6),
                 dbc.Col(children=[
                    dbc.Button(html.Span(["Data Split", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="btn_dataset_split_data",
                                color="dark")
-                ], width=4),
+                ], width=3),
+                dbc.Col(children=[
+                   dbc.Button(html.Span(["Data View", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
+                               id="btn_dataset_data_view",
+                               color="dark")
+                ], width=3),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
         dbc.Row(
@@ -324,7 +329,22 @@ dataset_control_4 = dbc.Card(
     # body=True,
 )
 
- 
+dataset_dataview = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Train/Test Data")),
+        dbc.ModalBody(
+            children=[
+                dbc.Label("Train Data"),
+                 html.H1(id='dataset_DT_3') ,
+                 html.Br(),
+                 dbc.Label("Test Data"),
+                 html.H1(id='dataset_DT_4')
+            ]),
+    ],
+    id="dataset_modal_data",
+    size="xl",
+    fullscreen=True,
+)
 
 
 content = dac.TabItem(id='content_dataset_pages',
@@ -332,6 +352,7 @@ content = dac.TabItem(id='content_dataset_pages',
  
                                             dbc.Row(
                                                     [
+                                                        dataset_dataview, 
                                                         dbc.Col([ 
                                                             dbc.Row([
                                                                  dbc.Col([ condi_1 ], md=12, style={"padding-left": "10px","padding-right": "10px"},),
@@ -351,8 +372,11 @@ content = dac.TabItem(id='content_dataset_pages',
                                                             md=4, 
                                                         ),
                                                         dbc.Col([
+                                                            
                                                             dbc.Row([
-                                                               dbc.Col([ dataset_control_3 ], md=12, style={"padding-left": "10px","padding-right": "10px"},),
+                                                               dbc.Col([
+                                                                   dataset_control_3 
+                                                               ], md=12, style={"padding-left": "10px","padding-right": "10px"},),
                                                             ]),
                                                             dbc.Row([
                                                                dbc.Col([ dataset_control_4 ], md=12, style={"padding-left": "10px","padding-right": "10px"},),
