@@ -13,6 +13,7 @@ from pages.dash_pages.model import *
 
 
 
+
  
 linerdm_condi_2 = dbc.Card(
     [
@@ -68,6 +69,7 @@ linerdm_control_1 = dbc.Card([
 
 linerdm_control_2 = dbc.Card([
     dbc.Row([
+        dbc.Label("LM Model"),
         dcc.Loading(id="linerdm_plot_1_loading", type="dot",
                     children=dcc.Graph(
                         id="linerdm_plot_1",
@@ -120,6 +122,7 @@ linerdm_control_4 = dbc.Card([
 
 linerdm_control_5 = dbc.Card([
     dbc.Row([
+        dbc.Label("LM Model Actually/Predict"),
         dcc.Loading(id="linerdm_plot_2_loading", type="dot",
                     children=dcc.Graph(
                         id="linerdm_plot_2",
@@ -149,7 +152,13 @@ linerdm_control_7 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Choice Model"),
-            dcc.Dropdown(id="cbo_linerdm_model_choice",options=[{"label": 'MODEL', "value": 'MODEL'}],value="MODEL",multi=True)
+            dcc.Dropdown(
+                id="cbo_linerdm_model_choice",
+                options=[
+                    {"label": md_name, "value": md_name} for md_name in uf_load_model_list().md_name
+                ],
+                value="MODEL",
+                multi=True)
         ], width=3),
         
         dbc.Col(children=[
@@ -176,6 +185,7 @@ linerdm_control_7 = dbc.Card([
 
 linerdm_control_8 = dbc.Card([
     dbc.Row([
+        dbc.Label("Model Predict Result"),
         dcc.Loading(id="linerdm_plot_3_loading", type="dot",
                     children=dcc.Graph(
                         id="linerdm_plot_3",
@@ -200,6 +210,27 @@ linerdm_control_9 = dbc.Card([
     style={"height": "500px"},
 )
 
+
+linerdm_control_10 = dbc.Card([  
+    dbc.Row([
+        dbc.Col(children=[
+            dbc.Label("Model Desc")
+        ], width=12),
+    ],style={'height': '100%'},),
+    ],style={"height": "120px"},
+    body=True,
+)
+
+
+linerdm_control_11 = dbc.Card([  
+    dbc.Row([
+        dbc.Col(children=[
+            dbc.Label("Data Desc")
+        ], width=12),
+    ],style={'height': '100%'},),
+    ],style={"height": "120px"},
+    body=True,
+)
 
 
 
@@ -237,19 +268,25 @@ content = dac.TabItem(id='content_linermd_pages',
                                     dbc.Row([
                                                 dbc.Col([
                                                     dbc.Row([
-                                                        dbc.Col([ linerdm_control_7 
-                                                                 
-                                                                ],md=12, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                        dbc.Col([ 
+                                                            linerdm_control_7 
+                                                        ],md=12, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                                     ]),
                                                     dbc.Row([
                                                         dbc.Col([ 
-                                                                 linerdm_control_8 
-                                                                 
-                                                                 ],md=6, style={"padding-left": "10px","padding-right": "10px", },),
+                                                            linerdm_control_10
+                                                        ],md=6, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                                         dbc.Col([ 
-                                                                 linerdm_control_9 
-                                                                 
-                                                                 ],md=6, style={"padding-left": "10px","padding-right": "10px", }, ),
+                                                            linerdm_control_11
+                                                        ],md=6, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                    ]),
+                                                    dbc.Row([
+                                                        dbc.Col([ 
+                                                            linerdm_control_8 
+                                                        ],md=6, style={"padding-left": "10px","padding-right": "10px", },),
+                                                        dbc.Col([ 
+                                                            linerdm_control_9 
+                                                        ],md=6, style={"padding-left": "10px","padding-right": "10px", }, ),
                                                     ])
                                                 ],md=12, style={"height": "100%"},),
                                             ],),

@@ -44,3 +44,38 @@ def df_cell():
       # Create DataFrame  
     df = pd.DataFrame(data)   
     return df
+
+
+def uf_load_model_list():   
+    data = pd.read_csv('./data/model_list.csv')
+    return data    
+
+
+
+
+def uf_save_model_list(dModel):   
+    data = pd.read_csv('./data/model_list.csv')
+
+    r = (data.md_name == dModel['md_name'])
+
+    if isinstance(dModel['md_x_var'], list) :
+        x_str = ','.join(map(str,dModel['md_x_var']))
+    else:
+        x_str = dModel['md_x_var']
+    
+
+    if(len(data.loc[r,:]) < 1) : 
+        a_df = pd.DataFrame({'md_name':[dModel['md_name']], 
+                             'md_path':[dModel['md_path']],
+                             'md_filename':[dModel['md_filename']],
+                             'md_x_var':[x_str],
+                             'md_y_var':[dModel['md_y_var']],
+                             'md_desc':[dModel['md_desc']]
+                             })
+        data = pd.concat(data, a_df)                     
+    else:
+        data.loc[r,['md_path','md_filename','md_x_var','md_y_var','md_desc']]=[dModel['md_path'],dModel['md_filename'],x_str,dModel['md_y_var'],dModel['md_desc']]
+
+    
+    data.to_csv('./data/model_list.csv')
+    return True

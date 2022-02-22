@@ -40,7 +40,7 @@ def cb_linerdm_data_load(n_clicks, data):
     # if data is None:
     #     raise PreventUpdate    
 
-    data = pd.read_json(data, orient='split')
+    # data = pd.read_json(data, orient='split')
 
     # train_data = linerdm_load_train_data(DATA_PATH+data['train'].iloc[0] )
     # test_data  = linerdm_load_train_data(DATA_PATH+data['test'].iloc[0] )
@@ -80,9 +80,12 @@ def cb_linerdm_data_info(ts, data ):
 
 @app.callback(Output('linderdm_div_save_model_name', 'children' ),
               Output("cbo_linerdm_model_choice" , "options" ), 
-              Input('btn_linerdm_model_save' , 'n_clicks'),
-              State('ds_linerdm_train_data'  , 'data'))
-def cb_linerdm_data_info(ts, data ):
+              Input('btn_linerdm_model_save'    , 'n_clicks'),
+              State('ds_linerdm_train_data'     , 'data'),
+              State('cbo_linerdm_x'             , 'value'   ),
+              State('cbo_linerdm_y'             , 'value'   )
+              )
+def cb_linerdm_data_info(ts, data, x_var, y_var ):
     if ts is None:
         raise PreventUpdate
     if data is None:
@@ -92,30 +95,33 @@ def cb_linerdm_data_info(ts, data ):
     loaded_model = pickle.load(open(md_file  , 'rb'))
     
     #기존 파일 삭제
-    os.remove(md_file)
+    try:
+      os.remove(md_file)
+    except:
+        print('Not Exists File')
     
+    sFileName = "lm_model_" + str(date.today()) + ".sav"
+    pickle.dump(loaded_model, open('./model/'+sFileName, 'wb'))
+
+    dModel = {'md_name': re.sub('.sav','',sFileName), 
+              'md_path': './model/', 
+              'md_filename': sFileName, 
+              'md_x_var': x_var, 
+              'md_y_var': y_var, 
+              'md_desc':'desc'}
     
-    sFiieName = "lm_model_" + str(date.today()) + ".sav"
-    pickle.dump(loaded_model, open('./model/'+sFiieName, 'wb'))
+    uf_save_model_list(dModel)
   
     md_list = os.listdir('./model/')
-    opt = [{'label': re.sub('.sav','',col), 'value': col} for col in md_list]
+    opt = [{'label': re.sub('.sav','',col), 'value': re.sub('.sav','',col)} for col in md_list]
     
-    return sFiieName , opt
+    return sFileName , opt
 
 
 
 
 
- 
-
-# @app.callback(
-#     Output("modal-alert"            , "is_open" ),
-#     [State("modal-backdrop", "is_open")],
-# )
-# def toggle_modal(is_open):
-#     return is_open
-
+  
 @app.callback(Output('linerdm_plot_1'         , 'figure'  ),
               Output('linerdm_plot_2'         , 'figure'  ),
               Output('div_linerdm_model_info' , 'children'),
@@ -141,7 +147,7 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
         raise PreventUpdate    
 
 
-
+   
 
     data = pd.read_json(data, orient='split')
     data = data.dropna(axis=0)
@@ -160,6 +166,15 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
 
     y_data = data[y_var]
 
+    #----- Column Not Number Type  Cast Float Type ----
+    x_data = pd.DataFrame(x_data)
+    col_type = x_data.dtypes
+
+    for key,value in col_type.items():
+        if value != 'int64' and value != 'float64':
+            x_data[key] = x_data[key].apply(float)
+    #----- Column Not Number Type  Cast Float Type ----
+
     line_fitter = LinearRegression()
     lm = line_fitter.fit(x_data, y_data)
 
@@ -172,7 +187,7 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     
 
     compare_data = pd.concat([test_data.reset_index(drop=True), pd.DataFrame(test_pred, columns=['pred']),pd.DataFrame(range(1,len(test_data)+1),columns=['seq'])], axis=1)
-    com_data = pd.DataFrame({'seq':compare_data['seq'], 'value':compare_data[y_var], 'type':'act'}).append(pd.DataFrame({'seq':compare_data['seq'], 'value':compare_data['pred'], 'type':'pred'}))
+    com_data = pd.DataFrame({'cyc_date':compare_data['cyc_date'],'seq':compare_data['seq'], 'value':compare_data[y_var], 'type':'act'}).append(pd.DataFrame({'cyc_date':compare_data['cyc_date'], 'seq':compare_data['seq'], 'value':compare_data['pred'], 'type':'pred'}))
 
     line_x = pd.DataFrame(x_data).iloc[:,0]
     line_y = pd.DataFrame(data_pred).iloc[:,0]
@@ -181,6 +196,9 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     nIntercept = lm.intercept_
 
     #-----------StatsMOdels --------------------------------------------------------
+    if len(x_data.columns) == 1 :
+        x_data = x_data.to_numpy()
+
     result = sm.OLS(y_data, sm.add_constant(x_data)).fit()
     str_fit_result =(result.summary().as_text())
 
@@ -233,11 +251,12 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     
     if(x_var[0]=='cyc_date'):
         data["cyc_date"] = data["cyc_date"].apply(str)
+        com_data["cyc_date"] = com_data["cyc_date"].apply(str)
         line_x = line_x.apply(str)
 
 
-    fig = px.scatter(data, x=x_var[0], y=y_var, 
-                    title="LM Model")
+    fig = px.scatter(data, x=x_var[0], y=y_var )
+    fig.update_traces(marker=dict(size=14, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
 
     fig.add_trace(
         go.Scatter(
@@ -251,15 +270,120 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     fig.update_layout(showlegend=False)
     fig.update_layout(height=450)
 
-    #---------- Plot 2 ------------------------------------------------------
-    fig1 = px.scatter(com_data, x="seq", y="value", color="type",
-                    title="LM Model")
 
+
+    #---------- Plot 2 ------------------------------------------------------
+    fig1 = px.scatter(com_data, x=x_var[0], y="value", color="type" )
+    fig1.update_traces(marker=dict(size=14, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
     fig1.update_layout(showlegend=True)
     fig1.update_layout(height=450)
     
-    
-    
-    
 
     return fig, fig1, str_fit_result, linerdm_DataTable_1
+
+
+
+
+
+
+
+
+
+@app.callback(Output('linerdm_plot_3'         , 'figure'  ),
+              Output('linerdm_DT_2'           , 'children'),
+              Input('btn_linerdm_model_predict', 'n_clicks'),
+              State('cbo_linerdm_model_choice', 'value'   ),
+              State('ds_linerdm_train_data'   , 'data'    )
+              )
+def cb_linerdm_predict(n_clicks, model_name, data ):
+    if data is None:
+        raise PreventUpdate
+    if n_clicks is None:
+        raise PreventUpdate    
+    if model_name is None:
+        raise PreventUpdate  
+
+    data = linerdm_load_predict_data('./data/predict_soh.csv')
+
+    data = data.dropna(axis=0)
+    # data = data.sort_values("cyc_date",   ascending = True )
+
+    md_list = uf_load_model_list()
+    r = (md_list.md_name == model_name[0])
+
+    md = md_list.loc[r,:]
+   
+
+
+    model_path = md['md_path'][0]  + md['md_filename'][0]
+    lm_model = pickle.load(open(model_path, 'rb'))
+
+
+    if lm_model.n_features_in_ == 1 :
+        feature_column = md['md_x_var'][0]
+        p_data = data[[feature_column]].values.reshape(-1,1)
+    else :    
+        feature_column =  lm_model.feature_names_in_  #md['md_x_var'][0]
+        p_data = data[feature_column]
+
+    data_pred= lm_model.predict(p_data)
+    
+
+    result_data = pd.concat([data.reset_index(drop=True), pd.DataFrame(data_pred, columns=['pred'])] , axis=1)
+   
+    #----------- Test/Prediction Data Table -----------------------------------------
+    columns = [{"name": i, "id": i, } for i in result_data.columns]
+
+    linerdm_DataTable_1 = dash_table.DataTable(
+                    data = result_data.to_dict('rows'),
+                    columns = columns,
+                    editable=False,
+                    style_table={'height': '450px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
+                            # data_bars(dataTable_column, 'ChargeQ')  +
+                            # data_bars(dataTable_column, 'Voltage'),
+                        },
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+    #----------- Test/Prediction Data Table -----------------------------------------
+
+    pio.templates.default = "plotly_white"
+    plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
+    
+    if isinstance(feature_column, str) :
+        f_column = feature_column
+    else :    
+        f_column = "cyc_date"
+
+    result_data[f_column] = result_data[f_column].apply(str)
+
+    fig = px.scatter(result_data, x=f_column , y='pred', title="LM Model Predict Result")
+    fig.update_traces(marker=dict(size=14, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
+    fig.update_layout(showlegend=False)
+    fig.update_layout(height=450)
+
+    return fig, linerdm_DataTable_1

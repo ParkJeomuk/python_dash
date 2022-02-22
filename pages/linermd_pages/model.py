@@ -24,3 +24,15 @@ def linerdm_load_test_data(sFilePath):
     data = pd.read_pickle(sFilePath)
     
     return data
+
+
+
+def linerdm_load_predict_data(sFilePath):   
+    if sFilePath is None:
+        raise PreventUpdate
+
+    data = pd.read_csv(sFilePath)
+    
+    return data
+
+
