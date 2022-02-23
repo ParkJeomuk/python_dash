@@ -1,0 +1,3 @@
+md_name,md_path,md_filename,md_x_var,md_y_var,md_desc
+lm_model_2022-02-22,./model/,lm_model_2022-02-22.sav,"cyc_date,q_u,avg_cur",soh,
+lm_model_2022-02-21,./model/,lm_model_2022-02-21.sav,"cyc_date,q_a,avg_cur",soh,

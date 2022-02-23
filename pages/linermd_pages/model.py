@@ -3,6 +3,7 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from pyparsing import null_debug_action
 from utils.constants import TIMEOUT
+
 import pandas as pd
 
  
@@ -34,5 +35,4 @@ def linerdm_load_predict_data(sFilePath):
     data = pd.read_csv(sFilePath)
     
     return data
-
 

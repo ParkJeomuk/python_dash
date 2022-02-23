@@ -59,7 +59,7 @@ linerdm_control_1 = dbc.Card([
         dbc.Col(children=[
             html.Br(), 
             dbc.Button(html.Span(["Calc", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_model_apply", color="dark") 
-        ], width=1),
+        ], width=1,style={'padding-top': '7px'},),
     ],style={'height': '100%'},),
     ],style={"height": "120px"},
     body=True,
@@ -160,23 +160,18 @@ linerdm_control_7 = dbc.Card([
                 value="MODEL",
                 multi=True)
         ], width=3),
-        
         dbc.Col(children=[
-            dbc.Label("Prediction Period"),html.Br(),
-            dcc.DatePickerRange(
-                id='date_range_predict_linerdm',
-                min_date_allowed=date(2019, 12, 13),
-                max_date_allowed=date.today()-timedelta(days=1),
-                initial_visible_month=date.today()-timedelta(days=30),
-                start_date=date.today()-timedelta(days=30),
-                end_date=date.today()-timedelta(days=1),
-                display_format='YYYY-MM-DD'
-            )
-        ], width=5),
+            dbc.Label("Predict File"),html.Br(),
+            html.Div(id='linerdm_predict_filname', style={'height':'35px','width':'100%', 'whiteSpace':'pre-line','border':'1px #E8EBEB solid','overflow':'auto'}) ,
+        ], width=4),
+        dbc.Col(children=[
+            html.Br(), 
+            dbc.Button(html.Span(["File Choice", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_model_file", color="dark") 
+        ], width=2,style={'padding-top': '7px'},),
         dbc.Col(children=[
             html.Br(), 
             dbc.Button(html.Span(["Predict", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_model_predict", color="dark") 
-        ], width=4),
+        ], width=3,style={'padding-top': '7px'},),
     ],style={'height': '100%'},),
     ],style={"height": "120px"},
     body=True,

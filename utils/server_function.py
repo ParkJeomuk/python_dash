@@ -48,6 +48,7 @@ def df_cell():
 
 def uf_load_model_list():   
     data = pd.read_csv('./data/model_list.csv')
+    data = data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_desc']]
     return data    
 
 
@@ -72,10 +73,11 @@ def uf_save_model_list(dModel):
                              'md_y_var':[dModel['md_y_var']],
                              'md_desc':[dModel['md_desc']]
                              })
-        data = pd.concat(data, a_df)                     
+        data = pd.concat([pd.DataFrame(data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_desc']]) ,pd.DataFrame(a_df)], axis=0)
     else:
         data.loc[r,['md_path','md_filename','md_x_var','md_y_var','md_desc']]=[dModel['md_path'],dModel['md_filename'],x_str,dModel['md_y_var'],dModel['md_desc']]
 
-    
+    data = pd.DataFrame(data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_desc']])
+
     data.to_csv('./data/model_list.csv')
     return True

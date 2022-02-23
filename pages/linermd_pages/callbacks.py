@@ -4,6 +4,8 @@ from dash.exceptions import PreventUpdate
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from datetime import date,timedelta
+from tkinter import *
+from tkinter import filedialog
 
 import os
 import statsmodels.api as sm
@@ -24,7 +26,32 @@ from utils.constants  import *
 from pages.linermd_pages.model import *
 
 
- 
+
+
+@app.callback(Output('linerdm_predict_filname' , 'children'),
+              Input('btn_linerdm_model_file', 'n_clicks') )
+def cb_linerdm_file_open(n_clicks  ):
+    if n_clicks is None:
+        raise PreventUpdate 
+
+    global gTestFilePath
+
+    root = Tk()
+    root.withdraw()
+    # root.iconbitmap(default='Extras/transparent.ico')
+
+
+    filename = filedialog.askopenfilename(initialdir='/')
+    gTestFilePath = filename
+    print('***', filename)
+
+    root.destroy()  # <--- SOLUTION
+
+    return filename
+
+
+
+
 
 
 @app.callback(Output('ds_linerdm_train_data'     , 'data'      ),
@@ -94,12 +121,7 @@ def cb_linerdm_data_info(ts, data, x_var, y_var ):
     md_file = './model/lm_model.sav'
     loaded_model = pickle.load(open(md_file  , 'rb'))
     
-    #기존 파일 삭제
-    try:
-      os.remove(md_file)
-    except:
-        print('Not Exists File')
-    
+
     sFileName = "lm_model_" + str(date.today()) + ".sav"
     pickle.dump(loaded_model, open('./model/'+sFileName, 'wb'))
 
@@ -111,6 +133,12 @@ def cb_linerdm_data_info(ts, data, x_var, y_var ):
               'md_desc':'desc'}
     
     uf_save_model_list(dModel)
+
+    # #기존 파일 삭제
+    # try:
+    #   os.remove(md_file)
+    # except:
+    #     print('Not Exists File')
   
     md_list = os.listdir('./model/')
     opt = [{'label': re.sub('.sav','',col), 'value': re.sub('.sav','',col)} for col in md_list]
@@ -289,6 +317,8 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
 
 
 
+
+
 @app.callback(Output('linerdm_plot_3'         , 'figure'  ),
               Output('linerdm_DT_2'           , 'children'),
               Input('btn_linerdm_model_predict', 'n_clicks'),
@@ -302,25 +332,24 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
         raise PreventUpdate    
     if model_name is None:
         raise PreventUpdate  
+    if gTestFilePath is None:
+        raise PreventUpdate  
 
-    data = linerdm_load_predict_data('./data/predict_soh.csv')
+    data = linerdm_load_predict_data(gTestFilePath)
 
     data = data.dropna(axis=0)
-    # data = data.sort_values("cyc_date",   ascending = True )
 
     md_list = uf_load_model_list()
     r = (md_list.md_name == model_name[0])
 
     md = md_list.loc[r,:]
-   
 
-
-    model_path = md['md_path'][0]  + md['md_filename'][0]
+    model_path = md['md_path'].item()  + md['md_filename'].item()
     lm_model = pickle.load(open(model_path, 'rb'))
-
+    # lm_model = pickle.load(open( './model/lm_model_2022-02-23.sav'  , 'rb'))
 
     if lm_model.n_features_in_ == 1 :
-        feature_column = md['md_x_var'][0]
+        feature_column = md['md_x_var'].item()
         p_data = data[[feature_column]].values.reshape(-1,1)
     else :    
         feature_column =  lm_model.feature_names_in_  #md['md_x_var'][0]
@@ -330,6 +359,18 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
     
 
     result_data = pd.concat([data.reset_index(drop=True), pd.DataFrame(data_pred, columns=['pred'])] , axis=1)
+    # plot_data = pd.concat([data.reset_index(drop=True), pd.DataFrame(data_pred, columns=['pred'])] , axis=1)
+    
+    if isinstance(md['md_y_var'], str) :
+        y_val = md['md_y_var'].item()
+    else:
+        y_val = md['md_y_var'].item()
+
+    plot_data = pd.DataFrame({'cyc_date':result_data['cyc_date'],
+                              'value':result_data[y_val],
+                               'type':'act'}).append(pd.DataFrame({'cyc_date':result_data['cyc_date'], 
+                                                                   'value':result_data['pred'], 
+                                                                   'type':'pred'}))
    
     #----------- Test/Prediction Data Table -----------------------------------------
     columns = [{"name": i, "id": i, } for i in result_data.columns]
@@ -379,11 +420,11 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
     else :    
         f_column = "cyc_date"
 
-    result_data[f_column] = result_data[f_column].apply(str)
+    plot_data[f_column] = plot_data[f_column].apply(str)
 
-    fig = px.scatter(result_data, x=f_column , y='pred', title="LM Model Predict Result")
+    fig = px.scatter(plot_data, x=f_column , y='value', color='type', title="LM Model Predict Result")
     fig.update_traces(marker=dict(size=14, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
-    fig.update_layout(showlegend=False)
+    fig.update_layout(showlegend=True)
     fig.update_layout(height=450)
 
     return fig, linerdm_DataTable_1

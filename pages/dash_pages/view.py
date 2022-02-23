@@ -4,7 +4,7 @@ from dash import html
 import dash_admin_components as dac
 from components.table import make_dash_table
 import pandas as pd
-from datetime import date,timedelta
+from datetime import date,timedelta, datetime
 import dash_table
 from dash_table.Format import Format, Group, Scheme
 
@@ -66,7 +66,8 @@ condi_1 = dbc.Card(
                             min_date_allowed=date(2019, 12, 13),
                             max_date_allowed=date.today(),
                             initial_visible_month=date.today(),
-                            date=date.today()-timedelta(days=1),
+                            # date=date.today()-timedelta(days=1),
+                            date = datetime.strptime('2022-01-05', '%Y-%m-%d').date(),
                             display_format='YYYY-MM-DD' ,
                             style={"font-size": 8}
                         ) 
