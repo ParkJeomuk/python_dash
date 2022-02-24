@@ -2,6 +2,7 @@ from apps import app
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from datetime import datetime
+import dash_admin_components as dac
 
 import pandas as pd
 import plotly.io as pio
@@ -13,12 +14,8 @@ import dash as html
 
 
 from utils.server_function import *
+from pages.dash_pages.model import *
 
-from pages.dash_pages.model import df_dash_data
-from pages.dash_pages.model import df_dash_raw_data
-from pages.dash_pages.model import df_dash_q_data
-from pages.dash_pages.model import df_dash_polar_data
-from pages.dash_pages.model import df_dash_data_table_list
 
 
 
@@ -26,9 +23,7 @@ from pages.dash_pages.model import df_dash_data_table_list
 
 
 def dash_summary_data(sDataType, sBankNo, sDate, eDate ):
-    # data = df_dash_data()
-    data = df_dash_raw_data()
-    # data = data[data["rack_no"]<100]
+    data = df_dash_data()
 
     data["cyc_date"] = data["cyc_date"].apply(str)
 
@@ -67,7 +62,20 @@ def dash_data_table(sBankNo, sStartDate, sEndDate):
     
     return data[['Date','WeekDay','Bank','Voltage','Current','ChargeQ','DataCount','DataFail','UseYN','UseDesc']]
 
+
+def dash_box_data(sCysDate, sBankNo):
+    data = df_dash_data_box(sCysDate.replace('-',''), sBankNo)
+    return data
+
+
 #--------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
 
 #---- Label 1 Change
 @app.callback(Output("lbl_date1", "children"), 
@@ -106,6 +114,12 @@ def lbl_date1_output_text(value):
 #     return data.to_json(date_format='iso' , orient='split')
 # #--------------------------------------------------------------------------------------------------------------
 @app.callback(Output('dash_store_df'     , 'data' ),
+              Output('dash_box_voltage'  , 'children'),
+              Output('dash_box_cq'       , 'children'),
+              Output('dash_box_datacount', 'children'),
+              Output('dash_box_fail'     , 'children'),
+              Output('dash_box_current_c', 'children'),
+              Output('dash_box_current_d', 'children'),
               Input('dash_btn_load'      , 'n_clicks') ,
               State('cbo_dash_data_type' , 'value') ,
               State('cbo_dash_bank'      , 'value') ,
@@ -125,7 +139,45 @@ def dash_data_load(n_clicks, data_type, bank_no, sDate, eDate ):
         raise PreventUpdate    
 
     data = dash_summary_data(data_type, bank_no, sDate, eDate)
-    return data.to_json(date_format='iso' , orient='split')
+
+    box_data = dash_box_data(sDate, bank_no)
+
+    box_voltage = dac.ValueBox(
+                        value= str(box_data.iloc[0]['voltage']) + " V",
+                        subtitle="Voltage [" + str(box_data.iloc[0]['voltage_per']) + "%]" ,
+                        color = "primary",icon = "chart-line",width=12)
+    box_cq    = dac.ValueBox(
+                        value = str(box_data.iloc[0]['charge_q']) + " Ah",
+                        subtitle = "Charge Q [" + str(box_data.iloc[0]['charge_q_per']) + "%]" ,
+                        color = "info",icon = "charging-station",width=12)
+
+    box_cnt   = dac.ValueBox(  
+                        value = str(box_data.iloc[0]['data_count'])  ,
+                        subtitle = "Data Count [" + str(box_data.iloc[0]['datacount_per']) + "%]" ,
+                        color = "warning",icon = "database",width=12)
+
+    box_fail  = dac.ValueBox(  
+                        value = str(box_data.iloc[0]['datafail'])  ,
+                        subtitle = "Data Fail [" + str(box_data.iloc[0]['datafail_per']) + "%]" ,
+                        color = "danger",icon = "frown",width=12)
+
+    box_curc  = dac.ValueBox(  
+                        value = str(box_data.iloc[0]['current_c']) + " A" ,
+                        subtitle = "Current(C) [" + str(box_data.iloc[0]['current_c_per']) + "%]" ,
+                        color = "success",icon = "wave-square",width=12)                        
+
+    box_curd  = dac.ValueBox(  
+                        value = str(box_data.iloc[0]['current_d']) + " A" ,
+                        subtitle = "Current(D) [" + str(box_data.iloc[0]['current_c_per']) + "%]" ,
+                        color = "secondary",icon = "wave-square",width=12)                        
+
+    return data.to_json(date_format='iso' , orient='split') , box_voltage, box_cq, box_cnt, box_fail, box_curc, box_curd
+
+
+
+
+
+
 
 
 @app.callback(Output('dash_store_data_table'  , 'data'),
@@ -141,7 +193,14 @@ def dash_data_table_load(n_clicks, start_date, end_date ):
         raise PreventUpdate    
 
     data = dash_data_table('1', start_date, end_date)
+
     return data.to_json(date_format='iso' , orient='split')
+
+
+
+
+
+
 
 
 
@@ -705,71 +764,15 @@ def dash_plot5_render(n_clicks):
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         fig.update_layout(height=230)
         return fig
-
     
     fig = px.line_polar(data, 
                         r='value', 
                         theta='item', 
                         line_close=False)
     fig.update_traces(fill='toself')
-                        
-    # fig.update_layout(title=dict(text="Current Info",
-    #                              font=dict(color="blue", size=16),
-    #                              pad=dict(t=0,l=0,b=0,r=0)
-    #                             ) 
-    #                   )
-       
-    # markers style
-    # fig.update_traces(marker=dict(size=12,
-    #                               opacity=0.5 ,
-    #                               line=dict(width=1
-    #                                     #    , color='DarkSlateGrey'
-    #                                        )
-    #                              ),
-    #                  selector=dict(mode='markers'))               
-
-    # fig.update_traces(mode="lines")           
-
-    fig.update_layout(hovermode="closest") # ( "x" | "y" | "closest" | False | "x unified" | "y unified" )
-
-    # fig.update_traces(
-    #                   hovertemplate="<b>Rack:%{text} </b><br><br>"+
-    #                                 "DateTime: %{x} <br>" +
-    #                                 "Voltage: %{y}") 
     
-   
-
-    # fig.update_layout(hoverlabel=dict(bgcolor="#F1FFFF",
-    #                                   font_size=11,
-    #                                   font_family="Rockwell")
-    #                  )
-
-
+    fig.update_layout(hovermode="closest") # ( "x" | "y" | "closest" | False | "x unified" | "y unified" )
     fig.update_layout(showlegend=False)
-
-    # remove facet/subplot labels
-    # fig.update_layout(annotations=[], overwrite=True)
-
-    # fig.update_layout(
-    #     showlegend=True,
-    #     legend=dict(title=dict(side='left',
-    #                            text='Rack',
-    #                            font=dict(size=10) ) ,
-    #                 font=dict(size=10), #font:color,family,size           
-    #                 bgcolor='white',
-    #                 bordercolor='black',
-    #                 borderwidth=0 ,
-    #                 traceorder = 'normal', #"reversed", "grouped", "reversed+grouped", "normal"
-    #                 itemwidth=30,
-    #                 itemsizing='constant' , # ( "trace" | "constant" )
-    #                 orientation = 'h' , # ( "v" | "h" ) ,
-    #                 valign= 'bottom', # ( "top" | "middle" | "bottom" )
-    #                 x=0.5 ,
-    #                 y=-0.2 ,
-    #                 xanchor='center', #( "auto" | "left" | "center" | "right" )
-    #                 yanchor='top'  #( "auto" | "top" | "middle" | "bottom" )
-    #                 )
-    #     )
 
     # strip down the rest of the plot
     fig.update_layout(
@@ -777,15 +780,6 @@ def dash_plot5_render(n_clicks):
         plot_bgcolor  = 'white',
         margin=dict(autoexpand=True,t=15,l=10,b=15,r=10)
     )
-
-    # hide and lock down axes
-    # fig.update_xaxes(visible=True, fixedrange=True)
-    # fig.update_yaxes(visible=True, fixedrange=True)
-    # 마우스 오버시 x , y 라인을 보여줌.
-    # fig.update_xaxes(showspikes=False, spikecolor="green", spikesnap="cursor", spikemode="across")
-    # fig.update_yaxes(showspikes=False, spikecolor="orange", spikethickness=2)
-
-    # fig.update_layout(width='100%')
     fig.update_layout(height=230)
 
     return fig
@@ -817,8 +811,7 @@ def dash_render_datatable(ts, page_current, page_size, data):
     data = pd.read_json(data, orient='split')
     # data = data.sort_values(by=['rack_no','serial_dt'])
 
-    return data.iloc[
-        page_current*page_size:(page_current+ 1)*page_size
-    ].to_dict('records')
+    # return data.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
+    return data.to_dict('records')
 
-  
+

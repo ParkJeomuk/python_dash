@@ -129,60 +129,69 @@ condi_3 = dbc.Card(
         #dbc.FormGroup(
         dbc.Row(
             [
-                html.Div([
-                    dac.ValueBox(
-                        id="dash_box_voltage",
-                        value= str(df_dash_data_box().iloc[0]['voltage']) + " V",
-                        subtitle="Voltage [" + str(df_dash_data_box().iloc[0]['voltage_per']) + "%]" ,
-                        color = "primary",
-                        icon = "chart-line",
-                        width=4
+                 dbc.Col(
+                    html.H4(id='dash_box_voltage',
+                        children=dac.ValueBox( value= "0 V",
+                                                subtitle="Voltage [0%]" ,
+                                                color = "primary",
+                                                icon = "chart-line",
+                                                width=12)
                     ),
-                    dac.ValueBox(
-                        id="dash_box_cq",
-                        value = str(df_dash_data_box().iloc[0]['charge_q']) + " Ah",
-                        subtitle = "Charge Q [" + str(df_dash_data_box().iloc[0]['charge_q_per']) + "%]" ,
-                        color = "info",
-                        icon = "charging-station",
-                        width=4
+                 md=4),
+                 dbc.Col(
+                    html.H4(id='dash_box_cq',
+                        children=dac.ValueBox(  value = "0 Ah",
+                                                subtitle = "Charge Q [0%]" ,
+                                                color = "info",
+                                                icon = "charging-station",
+                                                width=12)
                     ),
-                    dac.ValueBox(
-                        id="dash_box_datacount",
-                        value = str(df_dash_data_box().iloc[0]['datacount']),
-                        subtitle = "Data Count [" + str(df_dash_data_box().iloc[0]['datacount_per']) + "%]" ,
-                        color = "warning",
-                        icon = "database",
-                        width=4
-                    )
-                ], className='row'),
-                html.Div([
-                    dac.ValueBox(
-                        id="dash_box_fail",
-                        value=df_dash_data_box().iloc[0]['datafail'],
-                        subtitle="Data Fail [" + str(df_dash_data_box().iloc[0]['datafail_per']) + "%]" ,
-                        color = "danger",
-                        icon = "frown",
-                        width=4
+                 md=4),
+                 dbc.Col(
+                    html.H4(id='dash_box_datacount',
+                        children=dac.ValueBox(  value = "0",
+                                                subtitle = "Data Count [0%]" ,
+                                                color = "warning",
+                                                icon = "database",
+                                                width=12)
                     ),
-                    dac.ValueBox(
-                        id="dash_box_current_c",
-                        value = str(df_dash_data_box().iloc[0]['current_c']) + " A",
-                        subtitle = "Current(C) [" + str(df_dash_data_box().iloc[0]['current_c_per']) + "%]" ,
-                        color = "success",
-                        icon = "wave-square",
-                        width=4
+                 md=4),
+            ]),     
+            dbc.Row(
+            [
+                 
+                 dbc.Col(
+                    html.H4(id='dash_box_current_c',
+                        children=dac.ValueBox(  value =  "0 A",
+                                                subtitle = "Current(C) [0%]" ,
+                                                color = "success",
+                                                icon = "wave-square",
+                                                width=12
+                                            )
                     ),
-                    dac.ValueBox(
-                        id="dash_box_current_d",
-                        value = str(df_dash_data_box().iloc[0]['current_d']) + " A",
-                        subtitle = "Current(D) [" + str(df_dash_data_box().iloc[0]['current_d_per']) + "%]" ,
-                        color = "secondary",
-                        icon = "wave-square",
-                        width=4
-                    )
-                ], className='row'),
-            ]
-        ),
+                 md=4),
+                 dbc.Col(
+                    html.H4(id='dash_box_current_d',
+                        children=dac.ValueBox(  value =  "0 A",
+                                                subtitle = "Current(D) [0%]" ,
+                                                color = "secondary",
+                                                icon = "wave-square",
+                                                width=12
+                                            )
+                    ), 
+                 md=4),                
+                 dbc.Col(
+                    html.H4(id='dash_box_fail',
+                        children=dac.ValueBox(  value= "0",
+                                                subtitle= "Data Fail [0%]" ,
+                                                color = "danger",
+                                                icon = "frown",
+                                                width=12
+                                            )
+                    ),
+                 md=4),
+                   
+            ]),
     ],
     style={"height": "280px"},
     body=True,
@@ -209,6 +218,9 @@ dash_control_1 = dbc.Card(
     style={"height": "460px"},
     body=True,
 )
+
+
+
 
 dash_control_2 = dbc.Card(
     [
@@ -274,68 +286,6 @@ dash_control_4 = dbc.Card(
 )
 
 
-# dash_DT = dash_table.DataTable(
-#     id='dash_dt',
-#     columns=[{"name": i, "id": i}  for i in dataTable_column.columns],
-#     data = dataTable_column,
-#     style_as_list_view=True,
-#     style_cell={'padding': '2px'},
-#     style_table={'height': '600px', 'overflowY': 'auto'},
-#     style_cell_conditional=[
-#         { 'if': {'column_id': 'date'   }, 'textAlign': 'center' },
-#         { 'if': {'column_id': 'voltage'}, 'textAlign': 'right'  },
-#         { 'if': {'column_id': 'current'}, 'textAlign': 'right'  },
-#         { 'if': {'column_id': 'cq'     }, 'textAlign': 'right'  },
-#     ],
-#     style_data_conditional=[
-#         {
-#             'if': {'row_index': 0},
-#             'backgroundColor': '#FFF2CC',
-#         },
-#     ],
-#     style_header={
-#         'backgroundColor': 'white',
-#         'fontWeight': 'bold',
-#         'textAlign': 'center'
-#     },
-# )
-
-# def data_bars(df, column):
-#     # if len(df) == 0 :
-#     #     return '' 
-#     n_bins = 100
-#     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
-#     ranges = [
-#         ((df[column].max() - df[column].min()) * i) + df[column].min()
-#         for i in bounds
-#     ]
-#     styles = []
-#     for i in range(1, len(bounds)):
-#         min_bound = ranges[i - 1]
-#         max_bound = ranges[i]
-#         max_bound_percentage = bounds[i] * 100
-#         styles.append({
-#             'if': {
-#                 'filter_query': (
-#                     '{{{column}}} >= {min_bound}' +
-#                     (' && {{{column}}} < {max_bound}' if (i < len(bounds) - 1) else '')
-#                 ).format(column=column, min_bound=min_bound, max_bound=max_bound),
-#                 'column_id': column
-#             },
-#             'background': (
-#                 """
-#                     linear-gradient(90deg,
-#                     #0074D9 0%,
-#                     #0074D9 {max_bound_percentage}%,
-#                     white {max_bound_percentage}%,
-#                     white 100%)
-#                 """.format(max_bound_percentage=max_bound_percentage)
-#             ),
-#             'paddingBottom': 2,
-#             'paddingTop': 2
-#         })
-
-#     return styles
 
 dash_DataTable_1_columns = [
     dict(id='Date'     , name='Date'      , type='text'), 
@@ -353,15 +303,20 @@ dash_DataTable_1_columns = [
 
 dash_DataTable_1 = dash_table.DataTable(
                 id='dash_DT',
+                
                 columns = dash_DataTable_1_columns,
+                
                 style_table={'height': '800px', 'overflowY': 'auto', 'overflowX': 'auto'},
                 style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
-                page_action='custom',
-                page_current=0,
-                page_size=25,
+                
                 sort_action='custom',
                 sort_mode='multi',
                 sort_by=[],
+                
+                page_action='native',
+                page_current=0,
+                page_size=25,
+                
                 # fixed_columns={'headers': True, 'data': 1}, 
                 # style_as_list_view=True,
                 
@@ -378,21 +333,21 @@ dash_DataTable_1 = dash_table.DataTable(
                     { 'if': {'column_id': 'UseYN'    }, 'textAlign': 'center', 'width': '6%' },
                     { 'if': {'column_id': 'UseDesc'  }, 'textAlign': 'left'  , 'width': '25%' },
                 ],
-                style_data_conditional=[
-                    {
-                        'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
-                        # data_bars(dataTable_column, 'ChargeQ')  +
-                        # data_bars(dataTable_column, 'Voltage'),
-                    },
-                ],
+                # style_data_conditional=[
+                #     {
+                #         'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
+                #         # data_bars(dataTable_column, 'ChargeQ')  +
+                #         # data_bars(dataTable_column, 'Voltage'),
+                #     },
+                # ],
                 style_header={
-                    'backgroundColor': '#929494',
+                    'backgroundColor': '#626464',
                     'fontWeight': 'bold',
                     'textAlign': 'center',
                     'height':'40px'
                 },
-                export_format='xlsx',
-                export_headers='display',
+                # export_format='xlsx',
+                # export_headers='display',
             )
 
 
@@ -407,6 +362,7 @@ content = dac.TabItem(id='content_dash_pages',
                                     children=html.Div(
                                         [
                                             dcc.Store(id='dash_store_df',storage_type='memory'),
+                                            dcc.Store(id='ds_dash_box_data',storage_type='memory'),
                                             dbc.Row([html.Br(),]),
                                             dbc.Row(
                                                     [
@@ -446,6 +402,7 @@ content = dac.TabItem(id='content_dash_pages',
                                             min_date_allowed=date(2019, 12, 13),
                                             max_date_allowed=date.today()-timedelta(days=1),
                                             initial_visible_month=date.today()-timedelta(days=30),
+                                            start_date=datetime.strptime('2020-01-05', '%Y-%m-%d').date(),
                                             end_date=date.today()-timedelta(days=1),
                                             display_format='YYYY-MM-DD'
                                         ),
@@ -456,7 +413,7 @@ content = dac.TabItem(id='content_dash_pages',
                                      ]),
                                      html.Br(),
                                      html.Div(children=[    
-                                        dcc.Store(id='dash_store_data_table',storage_type='session'),
+                                        dcc.Store(id='dash_store_data_table',storage_type='memory'),
                                         dcc.Loading(id="dash_DT_1_loading", type="default",
                                         children=[dash_DataTable_1],
                                         )
