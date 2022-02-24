@@ -15,7 +15,7 @@ import dash as html
 
 from utils.server_function import *
 from pages.dash_pages.model import *
-
+from utils.constants import RACK_COLOR
 
 
 
@@ -99,21 +99,8 @@ def lbl_date1_output_text(value):
 
 
 
-# #------------ Raw Data Data Store -----------------------------------------------------------------------------
-# @app.callback(Output('dash_raw_data', 'data'),
-#               Input('dash_btn_load_raw_data', 'n_clicks') )
-# def dash_raw_data_load(n_clicks):
-#     if n_clicks is None:
-#         # prevent the None callbacks is important with the store component.
-#         # you don't want to update the store for nothing.
-#         raise PreventUpdate
-#     # data.to_parquet('d:/python_test/apps/sample_data/raw_data.parquet', compression='gzip')
-                
-#     data = pd.read_parquet('d:/python_test/apps/sample_data/raw_data.parquet')
-#     # data = pd.read_csv('./apps/sample_data/raw_data.csv')
-#     return data.to_json(date_format='iso' , orient='split')
-# #--------------------------------------------------------------------------------------------------------------
-@app.callback(Output('dash_store_df'     , 'data' ),
+@app.callback(Output('ds_dash_df'        , 'data' ),
+              Output('ds_dash_compare_df', 'data' ),
               Output('dash_box_voltage'  , 'children'),
               Output('dash_box_cq'       , 'children'),
               Output('dash_box_datacount', 'children'),
@@ -138,7 +125,19 @@ def dash_data_load(n_clicks, data_type, bank_no, sDate, eDate ):
     if eDate is None:
         raise PreventUpdate    
 
-    data = dash_summary_data(data_type, bank_no, sDate, eDate)
+
+    if data_type == "Comparison":
+        data         = dash_summary_data(data_type, bank_no, sDate, sDate)
+        compare_data = dash_summary_data(data_type, bank_no, eDate, eDate)
+        compare_data = compare_data[['serial_dt','bank_no','current','voltage','avg_temp']].groupby(['serial_dt','bank_no'],as_index=False).mean()
+        #----- 비교 데이타의 시간 맞추기
+        cha_time     = data['serial_dt'].min()-compare_data['serial_dt'].min()
+        compare_data['serial_dt'] = compare_data['serial_dt'] + cha_time
+        compare_data['dtime'] = compare_data['serial_dt'].map(lambda x : datetime.utcfromtimestamp(x).strftime('%Y-%m-%d %H:%M:%S'))
+    else:    
+        data         = dash_summary_data(data_type, bank_no, sDate, eDate)
+        compare_data = None
+
 
     box_data = dash_box_data(sDate, bank_no)
 
@@ -170,8 +169,12 @@ def dash_data_load(n_clicks, data_type, bank_no, sDate, eDate ):
                         value = str(box_data.iloc[0]['current_d']) + " A" ,
                         subtitle = "Current(D) [" + str(box_data.iloc[0]['current_c_per']) + "%]" ,
                         color = "secondary",icon = "wave-square",width=12)                        
+    if compare_data is None:
+        compare_data = None
+    else :   
+        compare_data = compare_data.to_json(date_format='iso' , orient='split')
 
-    return data.to_json(date_format='iso' , orient='split') , box_voltage, box_cq, box_cnt, box_fail, box_curc, box_curd
+    return data.to_json(date_format='iso' , orient='split') , compare_data , box_voltage, box_cq, box_cnt, box_fail, box_curc, box_curd
 
 
 
@@ -204,21 +207,20 @@ def dash_data_table_load(n_clicks, start_date, end_date ):
 
 
 
-@app.callback(Output('dash_plot_1'  , 'figure'),
-              Input('dash_store_df' , 'modified_timestamp'),
-              State('dash_store_df' , 'data'))
-def dash_plot1_render(ts, data ):
-    if ts is None:
-        raise PreventUpdate
+@app.callback(Output('dash_plot_1'        , 'figure'),
+              Input('ds_dash_df'          , 'modified_timestamp'),
+              Input('ds_dash_compare_df'  , 'modified_timestamp'),
+              State('ds_dash_df'          , 'data'  ),
+              State('ds_dash_compare_df'  , 'data'  ))
+def dash_plot1_render(ts,compare_ts, data , compare_data ):
     if data is None:
         raise PreventUpdate
-        
     
-    # data = pd.read_json(data, orient='split')
-    # data = data[data["rack_no"] == 1] --> subset
     data = pd.read_json(data, orient='split')
-    # data = data.iloc[1:1000]
     
+    if compare_data is not None :
+        compare_data = pd.read_json(compare_data, orient='split')
+
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
     
@@ -228,16 +230,33 @@ def dash_plot1_render(ts, data ):
     
     plot_type = 'L'
 
+
+
     if(plot_type == 'L'):
+
+
+        # fig = go.Figure()
+
         fig =  px.line(data, 
                        x = 'dtime',
                        y = 'voltage', 
                        color = 'rack_no',
+                       line_group='rack_no',
                        text=data['rack_no']
                        )    
+
         fig.update_traces(mode="lines")           
 
-        # fig = px.scatter(data, x="dtime", y="voltage", color='rack_no', render_mode='webgl')
+        #compare data       
+        if compare_data is not None :
+            fig.add_trace(go.Scatter(
+                x= compare_data['dtime'], 
+                y= compare_data['voltage'] ,
+                line = dict(color='royalblue', width=4, dash='dot')
+                )
+            )
+
+
 
     elif(plot_type == 'P'):
         fig =  px.scatter(
@@ -382,17 +401,21 @@ def dash_plot1_render(ts, data ):
 
 
 #---------- Plot 2 Render -----------------------------------------------------------------------
-@app.callback(Output('dash_plot_2'  , 'figure'),
-              Input('dash_store_df' , 'modified_timestamp'),
-              State('dash_store_df' , 'data'))
-def dash_plot2_render(ts, data ):
+@app.callback(Output('dash_plot_2'        , 'figure'),
+              Input('ds_dash_df'          , 'modified_timestamp'),
+              Input('ds_dash_compare_df'  , 'modified_timestamp'),
+              State('ds_dash_df'          , 'data'),
+              State('ds_dash_compare_df'  , 'data'  ))
+def dash_plot2_render(ts,compare_ts, data, compare_data ):
     if ts is None:
         raise PreventUpdate
     if data is None:
         raise PreventUpdate
 
     data = pd.read_json(data, orient='split')
-    data = data.iloc[1:1000]
+
+    if compare_data is not None :
+        compare_data = pd.read_json(compare_data, orient='split')
 
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
@@ -403,28 +426,22 @@ def dash_plot2_render(ts, data ):
 
     plot_type = 'L'
     
-    if(plot_type == 'L'):
-        fig =  px.line(data, 
-                       x = 'dtime',
-                       y = 'current', 
-                       color = 'rack_no',
-                       text=data['rack_no']
-                       )  
-    elif(plot_type == 'P'):
-        fig =  px.scatter(data, 
-                       x = 'dtime',
-                       y = 'current', 
-                       color = 'rack_no',
-                       text=data['rack_no']
-                       )    
-    else:
-        fig =  px.line(data, 
-                       x = 'dtime',
-                       y = 'current', 
-                       color = 'rack_no',
-                       text=data['rack_no']
-                       )    
-                        
+
+    fig =  px.line(data, 
+                    x = 'dtime',
+                    y = 'current', 
+                    color = 'rack_no',
+                    text=data['rack_no']
+                    )  
+    #compare data       
+    if compare_data is not None :                
+        fig.add_trace(go.Scatter(
+            x= compare_data['dtime'], 
+            y= compare_data['current'] ,
+            line = dict(color='royalblue', width=4, dash='dot')
+            )
+        )               
+                            
     # fig.update_layout(title=dict(text="Current Info",
     #                              font=dict(color="blue", size=16),
     #                              pad=dict(t=0,l=0,b=0,r=0)
@@ -508,17 +525,21 @@ def dash_plot2_render(ts, data ):
 
 
 #---------- Plot 3 Render -----------------------------------------------------------------------
-@app.callback(Output('dash_plot_3'  , 'figure'),
-              Input('dash_store_df' , 'modified_timestamp'),
-              State('dash_store_df' , 'data'))
-def dash_plot3_render(ts, data ):
+@app.callback(Output('dash_plot_3'       , 'figure'),
+              Input('ds_dash_df'          , 'modified_timestamp'),
+              Input('ds_dash_compare_df'  , 'modified_timestamp'),
+              State('ds_dash_df'          , 'data'  ),
+              State('ds_dash_compare_df'  , 'data'  ))
+def dash_plot3_render(ts,compare_ts, data, compare_data ):
     if ts is None:
         raise PreventUpdate
     if data is None:
         raise PreventUpdate
 
-    data = pd.read_json(data, orient='split')
-    data = data.iloc[1:1000]
+    data         = pd.read_json(data, orient='split')
+
+    if compare_data is not None :
+        compare_data = pd.read_json(compare_data, orient='split')
     
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
@@ -536,6 +557,14 @@ def dash_plot3_render(ts, data ):
                        color = 'rack_no',
                        text=data['rack_no']
                        )  
+        #compare data 
+        if compare_data is not None :                      
+            fig.add_trace(go.Scatter(
+                x= compare_data['dtime'], 
+                y= compare_data['avg_temp'] ,
+                line = dict(color='royalblue', width=4, dash='dot')
+                )
+            )                  
     elif(plot_type == 'P'):
         fig =  px.scatter(data, 
                        x = 'dtime',
