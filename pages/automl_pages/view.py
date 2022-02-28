@@ -9,7 +9,6 @@ from dash import dash_table
 from dash_table.Format import Format, Group, Scheme
 
 from utils.server_function import *
-from pages.dash_pages.model import *
  
 
 automl_control_1 = dbc.Card([  
@@ -42,20 +41,20 @@ automl_control_1 = dbc.Card([
 
 
 
-# automl_control_2 = dbc.Card([
-#     dbc.Row([
-#         dbc.Label("LM Model"),
-#         dcc.Loading(id="automl_plot_1_loading", type="dot",
-#                     children=dcc.Graph(
-#                         id="automl_plot_1",
-#                         figure={'data': [{'y': [0, 0] }],'layout': {'height': 450}}
-#                     )
-#                 )
-#             ],style={'padding-top': '5px', 'padding-bottom': '5px'},
-#         ),
-#     ],
-#     style={"height":"500px"},
-# )
+automl_control_2 = dbc.Card([
+    dbc.Row([
+        dbc.Label("AutoML Model"),
+        dcc.Loading(id="automl_plot_1_loading", type="dot",
+                    children=dcc.Graph(
+                        id="automl_plot_1",
+                        figure={'data': [{'y': [0, 0] }],'layout': {'height': 450}}
+                    )
+                )
+            ],style={'padding-top': '5px', 'padding-bottom': '5px'},
+        ),
+    ],
+    style={"height":"500px"},
+)
 
 
 
@@ -129,9 +128,14 @@ content = dac.TabItem(id='content_automl_pages',
                         children=html.Div([
                             dbc.Row([
                                 dbc.Col([
-                                    
                                     automl_control_1
-                                    
+                                ],md=12, style={"padding-left": "10px","padding-right": "10px", },),    
+                            ],),
+                            dbc.Row([
+                                dbc.Col([
+                                    automl_control_2
+                                ],md=12, style={"padding-left": "10px","padding-right": "10px", },),    
+                            ],),    
                                     # dbc.Row([
                                     #     dbc.Col([ automl_control_2 ],md=7, style={"padding-left": "10px","padding-right": "10px", },),
                                     #     dbc.Col([ automl_control_3 ],md=5, style={"padding-left": "10px","padding-right": "10px", }, ),
@@ -143,8 +147,8 @@ content = dac.TabItem(id='content_automl_pages',
                                     # dbc.Row([
                                     #     dbc.Col([ automl_control_4 ],md=7, style={"padding-left": "10px","padding-right": "10px", },),
                                     # ]) 
-                                ],md=12, style={"padding-left": "10px","padding-right": "10px", },),
-                            ],),
+                                
+                            
 						] ,style={'width': '100%'} )
                             # className='flex-container'
                      )                        

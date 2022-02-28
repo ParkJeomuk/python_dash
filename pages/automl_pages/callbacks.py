@@ -23,7 +23,7 @@ import plotly.graph_objs as go
 import time
 import json
 import dash as html
-import dash_table
+from dash import dash_table
 import pickle
 import re
 import numpy as np
