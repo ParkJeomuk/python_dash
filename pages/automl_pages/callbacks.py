@@ -4,6 +4,7 @@ from dash.exceptions import PreventUpdate
 from datetime import date,timedelta,datetime
 from tkinter import *
 from tkinter import filedialog
+from dash import dash_table
 
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
@@ -11,7 +12,7 @@ from sklearn import metrics
 #h2o -----------------------
 import h2o
 from  h2o.automl import H2OAutoML
-from  h2o.estimators.gbm import H2OGradientBootingEstimator
+# from  h2o.estimators.gbm import H2OGradientBootingEstimator
 
 import os
 import statsmodels.api as sm
@@ -23,7 +24,6 @@ import plotly.graph_objs as go
 import time
 import json
 import dash as html
-from dash import dash_table
 import pickle
 import re
 import numpy as np
@@ -83,6 +83,51 @@ def cb_automl_data_load(n_clicks):
 
 
 
+
+
+@app.callback(Output('automl_plot_1'            , 'figure'  ),
+              Output("div_automl_data_info"     , "children"   ),
+              Input('btn_automl_model_apply'     , 'n_clicks'  ) 
+              )
+def cb_linerdm_data_info(n_clicks):
+    if n_clicks is None:
+        raise PreventUpdate
+
+    train_data = automl_load_train_data(DATA_PATH+'tmp_train.pkl' )
+    test_data  = automl_load_train_data(DATA_PATH+'tmp_test.pkl' )
+
+
+    max_runtime_secs = 60
+
+    automl_train = h2o.H2OFrame(train_data)
+    automl_valid = h2o.H2OFrame(test_data)
+
+    y_var = 'soh'
+    x_var = ['q_u','gap','u_vol','o_vol','n','cyc_date','cur_avg','soh'] #list(test_data.columns)
+    x_var.remove(y_var)
+
+    # For binary classification, response should be a factor
+    # automl_train[y_var] = automl_train[y_var].asfactor()
+    # automl_valid[y_var] = automl_valid[y_var].asfactor()
+    automl_train[y_var] = automl_train[y_var]
+    automl_valid[y_var] = automl_valid[y_var]
+
+    # ###############################################################    
+    # Run AutoML for 120 seconds
+    aml = H2OAutoML(max_runtime_secs=max_runtime_secs, exclude_algos =['XGBoost', 'StackedEnsemble'])
+    aml.train(x = x_var, y = y_var, training_frame=automl_train, leaderboard_frame=automl_valid)
+    
+    ###############################################################
+    ## save metric
+    # Print Leaderboard (ranked by xval metrics)
+    leaderboard = aml.leaderboard
+    performance = aml.leader.model_performance(automl_valid)  # (Optional) Evaluate performance on a test set
+
+    fig = aml.leader.varimp_plot()
+
+    strResult = "" #str(aml.leader)
+    
+    return fig , strResult
 
 
 

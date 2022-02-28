@@ -55,8 +55,8 @@ body = dac.Body(
         pages.dash_pages.view.content,
         pages.dataset_pages.view.content,
         pages.linermd_pages.view.content,
-
         pages.automl_pages.view.content,
+        
         pages.tab_cards.view.content,
 
         pages.basic_boxes.view.content,

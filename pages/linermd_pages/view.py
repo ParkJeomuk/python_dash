@@ -114,8 +114,7 @@ linerdm_control_3 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Model Summary"),
-            html.Div(id='div_linerdm_data_info', style={'height':'240px', 'whiteSpace':'pre-line','border':'1px #E8EBEB solid','overflow':'auto'}),
-            html.Div(id='div_linerdm_model_info', style={'height':'240px', 'whiteSpace':'pre-line','border':'1px #E8EBEB solid','overflow':'auto'})
+            html.Div(id='div_linerdm_model_info', style={'height':'440px', 'whiteSpace':'pre-line','border':'1px #E8EBEB solid','overflow':'auto'})
         ], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
     ]),
     ],style={"height": "500px"},

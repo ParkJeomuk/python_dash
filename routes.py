@@ -11,18 +11,9 @@ from pages.gallery_2.callbacks import update_figure
 
 # Dash Page --------------------------------------------------------------------------------
 from pages.dash_pages.callbacks import *
-# from pages.dash_pages.callbacks import dash_plot1_render
-# from pages.dash_pages.callbacks import dash_plot2_render
-# from pages.dash_pages.callbacks import dash_plot3_render
-# from pages.dash_pages.callbacks import dash_plot4_render
-# from pages.dash_pages.callbacks import dash_plot5_render
-# from pages.dash_pages.callbacks import dash_data_load
-# from pages.dash_pages.callbacks import dash_data_table_load
-# from pages.dash_pages.callbacks import dash_render_datatable
-
-
 from pages.dataset_pages.callbacks import *
 from pages.linermd_pages.callbacks import *
+from pages.automl_pages.callbacks import *
 
 
 # @app.callback(
