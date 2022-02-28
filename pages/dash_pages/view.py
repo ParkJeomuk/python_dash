@@ -5,7 +5,7 @@ import dash_admin_components as dac
 from components.table import make_dash_table
 import pandas as pd
 from datetime import date,timedelta, datetime
-import dash_table
+from dash import dash_table
 from dash_table.Format import Format, Group, Scheme
 
 from utils.server_function import *
@@ -207,10 +207,8 @@ dash_control_1 = dbc.Card(
                 dcc.Loading(id="dash_plot_1_loading", type="cube",
                     children=dcc.Graph(
                         id="dash_plot_1",
-                        figure={
-                            'data': [{'y': [0, 0] }],
-                            'layout': {'height': 400}
-                        })
+                        figure={'layout': {'height': 400}}
+                    )
                 )
             ]
         ),
@@ -285,6 +283,21 @@ dash_control_4 = dbc.Card(
     body=True,
 )
 
+
+
+dash_plot_selection_dataview = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Train/Test Data")),
+        dbc.ModalBody(
+            children=[
+                dbc.Label("Selected Data"),
+                 html.H1(id='dash_selection_DT') 
+            ]),
+    ],
+    id="dash_modal_selection_data",
+    size="xl",
+    fullscreen=False,
+)
 
 
 dash_DataTable_1_columns = [

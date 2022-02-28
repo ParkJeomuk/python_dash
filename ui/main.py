@@ -34,11 +34,10 @@ navbar = dac.Navbar(id= "mybread",
 import pages.dash_pages.view
 import pages.dataset_pages.view
 import pages.linermd_pages.view
-
+import pages.automl_pages.view
 
 ### Cards ----
-# import pages.basic_cards.view
-import pages.social_cards.view
+
 import pages.tab_cards.view
 
 ### Boxes ----
@@ -52,13 +51,12 @@ import pages.gallery_2.view
 # Body
 body = dac.Body(
     dac.TabItems([
-        #pages.home.view.content,
+        
         pages.dash_pages.view.content,
         pages.dataset_pages.view.content,
         pages.linermd_pages.view.content,
 
-        # pages.basic_cards.view.content,
-        pages.social_cards.view.content,
+        pages.automl_pages.view.content,
         pages.tab_cards.view.content,
 
         pages.basic_boxes.view.content,

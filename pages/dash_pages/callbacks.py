@@ -11,7 +11,7 @@ import time
 import plotly.graph_objs as go
 import json
 import dash as html
-
+import dash_table
 
 from utils.server_function import *
 from pages.dash_pages.model import *
@@ -221,8 +221,8 @@ def dash_plot1_render(ts,compare_ts, data , compare_data ):
     if compare_data is not None :
         compare_data = pd.read_json(compare_data, orient='split')
 
-    pio.templates.default = "plotly_white"
-    plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
+    # pio.templates.default = "plotly_white"
+    # plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
     
     if data is None:
         fig =  blank_fig() #px.scatter(x=None, y=None)        
@@ -234,9 +234,6 @@ def dash_plot1_render(ts,compare_ts, data , compare_data ):
 
     if(plot_type == 'L'):
 
-
-        # fig = go.Figure()
-
         fig =  px.line(data, 
                        x = 'dtime',
                        y = 'voltage', 
@@ -245,8 +242,9 @@ def dash_plot1_render(ts,compare_ts, data , compare_data ):
                        text=data['rack_no']
                        )    
 
-        fig.update_traces(mode="lines")           
-
+        
+        fig.update_traces(mode="lines")   
+        
         #compare data       
         if compare_data is not None :
             fig.add_trace(go.Scatter(
@@ -394,6 +392,7 @@ def dash_plot1_render(ts,compare_ts, data , compare_data ):
     # fig.update_yaxes(showspikes=False, spikecolor="orange", spikethickness=2)
 
     # # fig.update_layout(width='100%')
+
     fig.update_layout(height=400)
 
     return fig
@@ -843,4 +842,53 @@ def dash_render_datatable(ts, page_current, page_size, data):
     # return data.iloc[page_current*page_size:(page_current+ 1)*page_size].to_dict('records')
     return data.to_dict('records')
 
+
+
+
+@app.callback(
+    Output('dash_selection_DT', 'children'),
+    Input('dash_plot_1', 'selectedData'))
+def dash_plot1_selected_data(selectedData):
+
+    df = json.dumps(selectedData, indent=2)
+
+    columns = [{"name": i, "id": i, } for i in df.columns]
+
+    dash_selected_data = dash_table.DataTable(
+                    data=df,
+                    columns = columns,
+                    editable=False,
+                    style_table={'height': '400px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_data_conditional=[
+                        {
+                            'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
+                            # data_bars(dataTable_column, 'ChargeQ')  +
+                            # data_bars(dataTable_column, 'Voltage'),
+                        },
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return dash_selected_data
 

@@ -12,7 +12,27 @@ from utils.server_function import *
 from pages.dash_pages.model import *
 
 
+linerdm_model_columns = [
+    dict(id='X'     , name='X'      , type='text'), 
+    dict(id='Coefficient' , name='Coefficient' , type='numeric', format=Format(precision=30, scheme=Scheme.fixed).group(True)), 
+]
 
+
+linderdm_model_coef_DT = dash_table.DataTable(
+                id='linerdm_md_coef_DT',
+                columns = linerdm_model_columns,
+                style_table={'height': '220px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                sort_action='none',
+                page_action='native',
+                page_current=0,
+                page_size=25,
+                style_cell_conditional=[
+                    { 'if': {'column_id': 'X'     }, 'textAlign': 'center', 'width': '40%' },
+                    { 'if': {'column_id': 'Coefficient' }, 'textAlign': 'right', 'width': '60%' },
+                ],
+                style_header={'backgroundColor': '#626464','fontWeight': 'bold','textAlign': 'center','height':'40px'},
+            )
 
  
 linerdm_condi_2 = dbc.Card(
@@ -198,7 +218,7 @@ linerdm_control_9 = dbc.Card([
         dbc.Row([ 
                 dbc.Col(children=[
                      dbc.Label("Prediction Data"),
-                     html.H1(id='linerdm_DT_2'),                  
+                     html.H1(id='linerdm_DT_2'),    
                 ], width=12, style={'padding-top': '5px', 'padding-bottom': '5px'}, ),
         ],style={"height": "330px",'padding-left': '10px', 'padding-right': '10px'}, ),
     ],
@@ -209,10 +229,11 @@ linerdm_control_9 = dbc.Card([
 linerdm_control_10 = dbc.Card([  
     dbc.Row([
         dbc.Col(children=[
-            dbc.Label("Model Desc")
+            dbc.Label("Model Coefficient"),
+            linderdm_model_coef_DT
         ], width=12),
     ],style={'height': '100%'},),
-    ],style={"height": "120px"},
+    ],style={"height": "300px"},
     body=True,
 )
 
@@ -220,12 +241,26 @@ linerdm_control_10 = dbc.Card([
 linerdm_control_11 = dbc.Card([  
     dbc.Row([
         dbc.Col(children=[
-            dbc.Label("Data Desc")
+            dbc.Label("Prediction Result"),
+            html.Div(id='div_linerdm_pred_result', style={'height':'170px', 'whiteSpace':'pre-line','border':'0px #E8EBEB solid','overflow':'auto', 'padding-top':'10px','padding-left':'10px'})
         ], width=12),
     ],style={'height': '100%'},),
-    ],style={"height": "120px"},
+    ],style={"height": "300px"},
     body=True,
 )
+
+
+linerdm_control_12 = dbc.Card([  
+    dbc.Row([
+        dbc.Col(children=[
+            dbc.Label("Model Desc")
+        ], width=12),
+    ],style={'height': '100%'},),
+    ],style={"height": "300px"},
+    body=True,
+)
+
+
 
 
 
@@ -269,8 +304,11 @@ content = dac.TabItem(id='content_linermd_pages',
                                                     ]),
                                                     dbc.Row([
                                                         dbc.Col([ 
+                                                            linerdm_control_12
+                                                        ],md=3, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                        dbc.Col([ 
                                                             linerdm_control_10
-                                                        ],md=6, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                        ],md=3, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                                         dbc.Col([ 
                                                             linerdm_control_11
                                                         ],md=6, style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
