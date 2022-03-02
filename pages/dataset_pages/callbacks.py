@@ -17,13 +17,11 @@ import pickle
 from utils.server_function import *
 from pages.dash_pages.model import *
 from pages.dataset_pages.model import *
-
-
  
-
 
 @app.callback(Output('ds_dataset_original_df'    , 'data'      ),
               Output('dataset_loading_output1'   , 'children'  ),
+              Output("dataset_alert"             , "is_open"   ),
               Input('btn_dataset_dataload'       , 'n_clicks'  ),
               State('date_range_dataset'         , 'start_date'),
               State('date_range_dataset'         , 'end_date'  ),
@@ -44,7 +42,15 @@ def cb_dataset_data_load(n_clicks, sStartDate, sEndDate, sDataType, sBankNo, sRa
     # (sDataType, sDate, eDate, sBankNo, sRackNo, sModuleNo, sCellNo)?
     data = dataset_load_data(sDataType, sStartDate, sEndDate, sBankNo, sRackNo, sModuleNo, sCellNo)
 
-    return data.to_json(date_format='iso' , orient='split')  ,''
+    popup_sw = False
+    if data is None or len(data) == 0:
+        popup_sw = True
+
+    if data is None:
+        return None, '', popup_sw
+    else:    
+        return data.to_json(date_format='iso' , orient='split')  ,'', popup_sw
+    
 
 
 

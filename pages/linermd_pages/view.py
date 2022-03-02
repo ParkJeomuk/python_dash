@@ -45,7 +45,9 @@ linerdm_condi_2 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=[
-                    html.Div(id='div_linerdm_datainfo', style={'height':'440px', 'whiteSpace':'pre-line','border':'0px black solid','overflow':'auto'})
+                    html.Div(id='div_linerdm_datainfo', 
+                             style={'height':'440px', 'whiteSpace':'pre-line','border':'0px black solid','overflow':'scroll'}
+                             )
                 ], width=12)
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
@@ -99,7 +101,7 @@ linerdm_control_2 = dbc.Card([
             ],style={'padding-top': '5px', 'padding-bottom': '5px'},
         ),
     ],
-    style={"height":"500px"},
+    style={"height":"510px"},
 )
 
 
@@ -114,7 +116,7 @@ linerdm_control_3 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Model Summary"),
-            html.Div(id='div_linerdm_model_info', style={'height':'440px', 'whiteSpace':'pre-line','border':'1px #E8EBEB solid','overflow':'auto'})
+            html.Div(id='div_linerdm_model_info', style={'height':'440px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'auto'})
         ], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
     ]),
     ],style={"height": "500px"},

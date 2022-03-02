@@ -12,6 +12,19 @@ from utils.server_function import *
 from pages.dash_pages.model import *
 
 
+dataset_modal_popup = dbc.Modal(
+        [
+            dbc.ModalHeader(dbc.ModalTitle("No Data")),
+            dbc.ModalBody(
+                children=[
+                    dbc.Label("No Data"),
+                ]),
+        ],
+        id="dataset_alert",
+        size="xl",
+        fullscreen=False,
+    )
+
 
 
 dataset_DataTable_1_columns = [
@@ -216,7 +229,7 @@ dataset_control_1 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=[
-                    html.Div(id='div_dataset_datainfo', style={'height':'300px', 'whiteSpace':'pre-line','border':'1px black solid','overflow':'scroll'})
+                    html.Div(id='div_dataset_datainfo', style={'height':'300px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'scroll'})
                 ], width=12)
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
@@ -228,7 +241,7 @@ dataset_control_1 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=[
-                    html.Div(id='div_dataset_datasummary', style={'height':'170px', 'whiteSpace':'pre-line','border':'1px black solid','overflow':'scroll'})
+                    html.Div(id='div_dataset_datasummary', style={'height':'170px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'scroll'})
                 ], width=12)            
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
@@ -342,7 +355,7 @@ dataset_dataview = dbc.Modal(
             ]),
     ],
     id="dataset_modal_data",
-    size="xl",
+    # size="xl",
     fullscreen=True,
 )
 
@@ -352,6 +365,7 @@ content = dac.TabItem(id='content_dataset_pages',
  
                                             dbc.Row(
                                                     [
+                                                        dataset_modal_popup,
                                                         dataset_dataview, 
                                                         dbc.Col([ 
                                                             dbc.Row([

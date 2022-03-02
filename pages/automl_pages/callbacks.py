@@ -33,7 +33,25 @@ from utils.constants  import *
 from pages.automl_pages.model import *
 
 
+import sys
+from io import StringIO
 
+
+class RedirectedStdout:
+    def __init__(self):
+        self._stdout = None
+        self._string_io = None
+
+    def __enter__(self):
+        self._stdout = sys.stdout
+        sys.stdout = self._string_io = StringIO()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        sys.stdout = self._stdout
+
+    def __str__(self):
+        return self._string_io.getvalue()
 
 
 # @app.callback(Output('automl_predict_filname' , 'children'),
@@ -64,8 +82,8 @@ from pages.automl_pages.model import *
 
 @app.callback(Output('ds_automl_train_data'     , 'data'      ),
               Output('ds_automl_test_data'      , 'data'      ),
-            #   Output("cbo_automl_x"             , "options"   ),
-            #   Output("cbo_automl_y"             , "options"   ),
+              Output("cbo_automl_x"             , "options"   ),
+              Output("cbo_automl_y"             , "options"   ),
               Input('btn_automl_dataload'       , 'n_clicks'  ) 
               )
 def cb_automl_data_load(n_clicks):
@@ -79,19 +97,28 @@ def cb_automl_data_load(n_clicks):
 
     opt = [{'label': col, 'value': col} for col in train_data.columns]
 
-    return train_data.to_json(date_format='iso',orient='split')  ,test_data.to_json(date_format='iso',orient='split') #,  opt ,  opt 
+    return train_data.to_json(date_format='iso',orient='split')  ,test_data.to_json(date_format='iso',orient='split') ,  opt ,  opt 
 
 
 
 
 
-@app.callback(Output('automl_plot_1'            , 'figure'  ),
-              Output("div_automl_data_info"     , "children"   ),
-              Input('btn_automl_model_apply'     , 'n_clicks'  ) 
+@app.callback(Output('automl_plot_1'           , 'figure'  ),
+              Output("div_automl_data_info"    , "children"   ),
+              Output('automl_DT_1'             , 'children'),
+              Input('btn_automl_model_apply'   , 'n_clicks'  ) ,
+              State("cbo_automl_x"             , "value"   ),
+              State("cbo_automl_y"             , "value"   )
               )
-def cb_linerdm_data_info(n_clicks):
+def cb_linerdm_data_info(n_clicks, x_varlist, y_varlist):
     if n_clicks is None:
         raise PreventUpdate
+
+    if x_varlist is None:
+        raise PreventUpdate
+
+    if y_varlist is None:
+        raise PreventUpdate        
 
     train_data = automl_load_train_data(DATA_PATH+'tmp_train.pkl' )
     test_data  = automl_load_train_data(DATA_PATH+'tmp_test.pkl' )
@@ -102,9 +129,10 @@ def cb_linerdm_data_info(n_clicks):
     automl_train = h2o.H2OFrame(train_data)
     automl_valid = h2o.H2OFrame(test_data)
 
-    y_var = 'soh'
-    x_var = ['q_u','gap','u_vol','o_vol','n','cyc_date','cur_avg','soh'] #list(test_data.columns)
-    x_var.remove(y_var)
+    y_var = y_varlist #'soh'
+    x_var = x_varlist#['q_u','gap','u_vol','o_vol','n','cyc_date','cur_avg','soh'] #list(test_data.columns)
+    if y_var in x_var :
+        x_var.remove(y_var)
 
     # For binary classification, response should be a factor
     # automl_train[y_var] = automl_train[y_var].asfactor()
@@ -114,7 +142,7 @@ def cb_linerdm_data_info(n_clicks):
 
     # ###############################################################    
     # Run AutoML for 120 seconds
-    aml = H2OAutoML(max_runtime_secs=max_runtime_secs, exclude_algos =['XGBoost', 'StackedEnsemble'])
+    aml = H2OAutoML(max_runtime_secs=max_runtime_secs, exclude_algos =['XGBoost', 'StackedEnsemble','DeepLearning'])
     aml.train(x = x_var, y = y_var, training_frame=automl_train, leaderboard_frame=automl_valid)
     
     ###############################################################
@@ -123,11 +151,67 @@ def cb_linerdm_data_info(n_clicks):
     leaderboard = aml.leaderboard
     performance = aml.leader.model_performance(automl_valid)  # (Optional) Evaluate performance on a test set
 
-    fig = aml.leader.varimp_plot()
+    
+    #     return fig
+    # fig = aml.leader.varimp_plot()
 
     strResult = "" #str(aml.leader)
     
-    return fig , strResult
+    with RedirectedStdout() as out:
+        print(aml.leader)
+        strResult = str(out)
+
+    lst_vi = aml.leader.varimp()
+    df_vi = pd.DataFrame(lst_vi, columns=['variable','relative_importance','scaled_importance','percentage'])
+
+    #----------- Test/Prediction Data Table -----------------------------------------
+    columns = [{"name": i, "id": i, } for i in df_vi.columns]
+
+    automl_DataTable_1 = dash_table.DataTable(
+                    data = df_vi.to_dict('rows'),
+                    columns = columns,
+                    editable=False,
+                    style_table={'height': '350px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[  
+                        { 'if': {'column_id': 'variable'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'relative_importance'   }, 'textAlign': 'right' },
+                        { 'if': {'column_id': 'scaled_importance'     }, 'textAlign': 'right' },
+                        { 'if': {'column_id': 'percentage'            }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+    #----------- Test/Prediction Data Table -----------------------------------------
+
+
+
+
+
+    if df_vi is None:
+        fig =  blank_fig() #px.scatter(x=None, y=None)        
+    else:
+        df_vi = df_vi.sort_values(by='scaled_importance',ascending=True, ignore_index=True)
+        fig = px.bar(df_vi, x='scaled_importance', y='variable', orientation='h')
+        fig.update_layout(
+            paper_bgcolor = 'white',
+            plot_bgcolor  = 'white',
+            margin=dict(autoexpand=True,t=30,l=0,b=0,r=0)
+        )
+
+    return fig , strResult, automl_DataTable_1
 
 
 
