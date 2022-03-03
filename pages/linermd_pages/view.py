@@ -34,7 +34,45 @@ linderdm_model_coef_DT = dash_table.DataTable(
                 style_header={'backgroundColor': '#626464','fontWeight': 'bold','textAlign': 'center','height':'40px'},
             )
 
+linerdm_DT3_columns = [
+    dict(id='Error'   , name='Error'   , type='text'), 
+    dict(id='Model'   , name='Model'   , type='numeric'), 
+    dict(id='Predict' , name='Predict' , type='numeric'), 
+    dict(id='Pred/Model', name='Pred/Model[%]', type='numeric'), 
+]
+
+linerdm_DataTable_3 = dash_table.DataTable(
+            id = 'linerdm_DT_3',
+            columns = linerdm_DT3_columns,
+            editable=False,
+            style_table={'height': '450px', 'overflowY': 'auto', 'overflowX': 'auto'},
+            style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+            column_selectable="single",
+            selected_rows=[],
+            sort_action='custom',
+            sort_mode='multi',
+            sort_by=[],
+            style_cell_conditional=[
+                { 'if': {'column_id': 'Error'   }, 'textAlign': 'left'},
+                { 'if': {'column_id': 'Model'   }, 'textAlign': 'right'},
+                { 'if': {'column_id': 'Predict' }, 'textAlign': 'right'},
+                { 'if': {'column_id': 'Pred/Model'}, 'textAlign': 'right'},
+                {'fontSize' : '16px'},
+            ],
+            style_header={
+                'backgroundColor': '#929494',
+                'fontWeight': 'bold',
+                'fontSize' : '16px',
+                'textAlign': 'center',
+                'height':'40px'
+            },
+            export_headers='display',
+        )
  
+
+
+
+
 linerdm_condi_2 = dbc.Card(
     [
         dbc.Row(
@@ -202,30 +240,21 @@ linerdm_control_7 = dbc.Card([
 
 linerdm_control_8 = dbc.Card([
     dbc.Row([
-        dbc.Label("Model Predict Result"),
-        dcc.Loading(id="linerdm_plot_3_loading", type="dot",
-                    children=dcc.Graph(
-                        id="linerdm_plot_3",
-                        figure={'data': [{'y': [0, 0] }],'layout': {'height': 450}}
+        dbc.Col(children=[
+            dbc.Label("Model Predict Result"),
+            dcc.Loading(id="linerdm_plot_3_loading", type="dot",
+                        children=dcc.Graph(
+                            id="linerdm_plot_3",
+                            figure={'data': [{'y': [0, 0] }],'layout': {'height': 530}}
+                        )
                     )
-                )
-            ],style={'padding-top': '5px', 'padding-bottom': '5px'},
-        ),
-    ],
-    style={"height":"500px"},
+        ], width=12, style={'padding-top': '5px', 'padding-bottom': '5px'}, ),            
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},), #dbc.Row
+    ],style={"height":"600px"},
+    body=True,
 )
 
 
-linerdm_control_9 = dbc.Card([
-        dbc.Row([ 
-                dbc.Col(children=[
-                     dbc.Label("Prediction Data"),
-                     html.H1(id='linerdm_DT_2'),    
-                ], width=12, style={'padding-top': '5px', 'padding-bottom': '5px'}, ),
-        ],style={"height": "330px",'padding-left': '10px', 'padding-right': '10px'}, ),
-    ],
-    style={"height": "500px"},
-)
 
 
 linerdm_control_10 = dbc.Card([  
@@ -244,10 +273,21 @@ linerdm_control_11 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Prediction Result"),
-            html.Div(id='div_linerdm_pred_result', style={'height':'170px', 'whiteSpace':'pre-line','border':'0px #E8EBEB solid','overflow':'auto', 'padding-top':'10px','padding-left':'10px'})
+            linerdm_DataTable_3
         ], width=12),
     ],style={'height': '100%'},),
     ],style={"height": "300px"},
+    body=True,
+)
+
+linerdm_control_9 = dbc.Card([
+        dbc.Row([ 
+                dbc.Col(children=[
+                     dbc.Label("Prediction Data"),
+                     html.H1(id='linerdm_DT_2'),    
+                ], width=12, style={'height': '100%'}, ),
+        ],style={"height": "330px"}, ),
+    ],style={"height": "600px"},
     body=True,
 )
 

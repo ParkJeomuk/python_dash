@@ -10,9 +10,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn import metrics
 
 #h2o -----------------------
-import h2o
-from  h2o.automl import H2OAutoML
-# from  h2o.estimators.gbm import H2OGradientBootingEstimator
+# import h2o
+# from  h2o.automl import H2OAutoML
+# # from  h2o.estimators.gbm import H2OGradientBootingEstimator
 
 import os
 import statsmodels.api as sm
@@ -120,99 +120,99 @@ def cb_linerdm_data_info(n_clicks, x_varlist, y_varlist):
     if y_varlist is None:
         raise PreventUpdate        
 
-    train_data = automl_load_train_data(DATA_PATH+'tmp_train.pkl' )
-    test_data  = automl_load_train_data(DATA_PATH+'tmp_test.pkl' )
+    # train_data = automl_load_train_data(DATA_PATH+'tmp_train.pkl' )
+    # test_data  = automl_load_train_data(DATA_PATH+'tmp_test.pkl' )
 
 
-    max_runtime_secs = 60
+    # max_runtime_secs = 60
 
-    automl_train = h2o.H2OFrame(train_data)
-    automl_valid = h2o.H2OFrame(test_data)
+    # automl_train = h2o.H2OFrame(train_data)
+    # automl_valid = h2o.H2OFrame(test_data)
 
-    y_var = y_varlist #'soh'
-    x_var = x_varlist#['q_u','gap','u_vol','o_vol','n','cyc_date','cur_avg','soh'] #list(test_data.columns)
-    if y_var in x_var :
-        x_var.remove(y_var)
+    # y_var = y_varlist #'soh'
+    # x_var = x_varlist#['q_u','gap','u_vol','o_vol','n','cyc_date','cur_avg','soh'] #list(test_data.columns)
+    # if y_var in x_var :
+    #     x_var.remove(y_var)
 
-    # For binary classification, response should be a factor
-    # automl_train[y_var] = automl_train[y_var].asfactor()
-    # automl_valid[y_var] = automl_valid[y_var].asfactor()
-    automl_train[y_var] = automl_train[y_var]
-    automl_valid[y_var] = automl_valid[y_var]
+    # # For binary classification, response should be a factor
+    # # automl_train[y_var] = automl_train[y_var].asfactor()
+    # # automl_valid[y_var] = automl_valid[y_var].asfactor()
+    # automl_train[y_var] = automl_train[y_var]
+    # automl_valid[y_var] = automl_valid[y_var]
 
-    # ###############################################################    
-    # Run AutoML for 120 seconds
-    aml = H2OAutoML(max_runtime_secs=max_runtime_secs, exclude_algos =['XGBoost', 'StackedEnsemble','DeepLearning'])
-    aml.train(x = x_var, y = y_var, training_frame=automl_train, leaderboard_frame=automl_valid)
+    # # ###############################################################    
+    # # Run AutoML for 120 seconds
+    # aml = H2OAutoML(max_runtime_secs=max_runtime_secs, exclude_algos =['XGBoost', 'StackedEnsemble','DeepLearning'])
+    # aml.train(x = x_var, y = y_var, training_frame=automl_train, leaderboard_frame=automl_valid)
     
-    ###############################################################
-    ## save metric
-    # Print Leaderboard (ranked by xval metrics)
-    leaderboard = aml.leaderboard
-    performance = aml.leader.model_performance(automl_valid)  # (Optional) Evaluate performance on a test set
+    # ###############################################################
+    # ## save metric
+    # # Print Leaderboard (ranked by xval metrics)
+    # leaderboard = aml.leaderboard
+    # performance = aml.leader.model_performance(automl_valid)  # (Optional) Evaluate performance on a test set
 
     
-    #     return fig
-    # fig = aml.leader.varimp_plot()
+    # #     return fig
+    # # fig = aml.leader.varimp_plot()
 
-    strResult = "" #str(aml.leader)
+    # strResult = "" #str(aml.leader)
     
-    with RedirectedStdout() as out:
-        print(aml.leader)
-        strResult = str(out)
+    # with RedirectedStdout() as out:
+    #     print(aml.leader)
+    #     strResult = str(out)
 
-    lst_vi = aml.leader.varimp()
-    df_vi = pd.DataFrame(lst_vi, columns=['variable','relative_importance','scaled_importance','percentage'])
+    # lst_vi = aml.leader.varimp()
+    # df_vi = pd.DataFrame(lst_vi, columns=['variable','relative_importance','scaled_importance','percentage'])
 
-    #----------- Test/Prediction Data Table -----------------------------------------
-    columns = [{"name": i, "id": i, } for i in df_vi.columns]
+    # #----------- Test/Prediction Data Table -----------------------------------------
+    # columns = [{"name": i, "id": i, } for i in df_vi.columns]
 
-    automl_DataTable_1 = dash_table.DataTable(
-                    data = df_vi.to_dict('rows'),
-                    columns = columns,
-                    editable=False,
-                    style_table={'height': '350px', 'overflowY': 'auto', 'overflowX': 'auto'},
-                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
-                    column_selectable="single",
-                    selected_rows=[],
-                    sort_action='custom',
-                    sort_mode='multi',
-                    sort_by=[],
-                    style_cell_conditional=[  
-                        { 'if': {'column_id': 'variable'  }, 'textAlign': 'center'},
-                        { 'if': {'column_id': 'relative_importance'   }, 'textAlign': 'right' },
-                        { 'if': {'column_id': 'scaled_importance'     }, 'textAlign': 'right' },
-                        { 'if': {'column_id': 'percentage'            }, 'textAlign': 'right' },
-                        {'fontSize' : '16px'},
-                    ],
-                    style_header={
-                        'backgroundColor': '#929494',
-                        'fontWeight': 'bold',
-                        'fontSize' : '16px',
-                        'textAlign': 'center',
-                        'height':'40px'
-                    },
-                    export_headers='display',
-                )
-    #----------- Test/Prediction Data Table -----------------------------------------
-
-
+    # automl_DataTable_1 = dash_table.DataTable(
+    #                 data = df_vi.to_dict('rows'),
+    #                 columns = columns,
+    #                 editable=False,
+    #                 style_table={'height': '350px', 'overflowY': 'auto', 'overflowX': 'auto'},
+    #                 style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+    #                 column_selectable="single",
+    #                 selected_rows=[],
+    #                 sort_action='custom',
+    #                 sort_mode='multi',
+    #                 sort_by=[],
+    #                 style_cell_conditional=[  
+    #                     { 'if': {'column_id': 'variable'  }, 'textAlign': 'center'},
+    #                     { 'if': {'column_id': 'relative_importance'   }, 'textAlign': 'right' },
+    #                     { 'if': {'column_id': 'scaled_importance'     }, 'textAlign': 'right' },
+    #                     { 'if': {'column_id': 'percentage'            }, 'textAlign': 'right' },
+    #                     {'fontSize' : '16px'},
+    #                 ],
+    #                 style_header={
+    #                     'backgroundColor': '#929494',
+    #                     'fontWeight': 'bold',
+    #                     'fontSize' : '16px',
+    #                     'textAlign': 'center',
+    #                     'height':'40px'
+    #                 },
+    #                 export_headers='display',
+    #             )
+    # #----------- Test/Prediction Data Table -----------------------------------------
 
 
 
-    if df_vi is None:
-        fig =  blank_fig() #px.scatter(x=None, y=None)        
-    else:
-        df_vi = df_vi.sort_values(by='scaled_importance',ascending=True, ignore_index=True)
-        fig = px.bar(df_vi, x='scaled_importance', y='variable', orientation='h')
-        fig.update_layout(
-            paper_bgcolor = 'white',
-            plot_bgcolor  = 'white',
-            margin=dict(autoexpand=True,t=30,l=0,b=0,r=0)
-        )
 
-    return fig , strResult, automl_DataTable_1
 
+    # if df_vi is None:
+    #     fig =  blank_fig() #px.scatter(x=None, y=None)        
+    # else:
+    #     df_vi = df_vi.sort_values(by='scaled_importance',ascending=True, ignore_index=True)
+    #     fig = px.bar(df_vi, x='scaled_importance', y='variable', orientation='h')
+    #     fig.update_layout(
+    #         paper_bgcolor = 'white',
+    #         plot_bgcolor  = 'white',
+    #         margin=dict(autoexpand=True,t=30,l=0,b=0,r=0)
+    #     )
+
+    # return fig , strResult, automl_DataTable_1
+    return None, None, None
 
 
 # @app.callback(Output('div_automl_datainfo', 'children' ),

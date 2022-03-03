@@ -9,11 +9,6 @@ from tkinter import filedialog
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
 
-#h2o -----------------------
-import h2o
-from  h2o.automl import H2OAutoML
-# from  h2o.estimators.gbm import H2OGradientBootingEstimator
-
 import os
 import statsmodels.api as sm
 import io
@@ -33,8 +28,10 @@ from utils.server_function import *
 from utils.constants  import *
 from pages.linermd_pages.model import *
 
-h2o.init()
-h2o.no_progress()
+n_linerdm_mae = 0
+n_linerdm_mse = 0
+n_linerdm_rmse = 0
+
 
 
 @app.callback(Output('linerdm_predict_filname' , 'children'),
@@ -114,7 +111,9 @@ def cb_linerdm_data_info(ts, data ):
     return strResult
 
 
-
+######################################################################################
+## Model Save
+######################################################################################
 @app.callback(Output('linderdm_div_save_model_name', 'children' ),
               Output("cbo_linerdm_model_choice" , "options" ), 
               Input('btn_linerdm_model_save'    , 'n_clicks'),
@@ -135,12 +134,19 @@ def cb_linerdm_data_info(ts, data, x_var, y_var ):
     sFileName = "lm_model_" + str(date.today()) + ".sav"
     pickle.dump(loaded_model, open('./model/'+sFileName, 'wb'))
 
+    global n_linerdm_mae
+    global n_linerdm_mse
+    global n_linerdm_rmse
+
     dModel = {'md_name': re.sub('.sav','',sFileName), 
               'md_path': './model/', 
               'md_filename': sFileName, 
               'md_x_var': x_var, 
               'md_y_var': y_var, 
-              'md_desc':'desc'}
+              'md_mae'  : n_linerdm_mae ,
+              'md_mse'  : n_linerdm_mse ,
+              'md_rmse' : n_linerdm_rmse,
+              'md_desc' :'desc'}
     
     uf_save_model_list(dModel)
 
@@ -159,7 +165,9 @@ def cb_linerdm_data_info(ts, data, x_var, y_var ):
 
 
 
-  
+######################################################################################
+## Model Calc
+######################################################################################
 @app.callback(Output('linerdm_plot_1'         , 'figure'  ),
               Output('linerdm_plot_2'         , 'figure'  ),
               Output('div_linerdm_model_info' , 'children'),
@@ -183,9 +191,6 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     if y_var is None:
         # toggle_modal(True)
         raise PreventUpdate    
-
-
-   
 
     data = pd.read_json(data, orient='split')
     data = data.dropna(axis=0)
@@ -308,7 +313,16 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     fig.update_layout(showlegend=False)
     fig.update_layout(height=450)
 
+    y_actl = compare_data[y_var]
+    y_pred = compare_data['pred']
 
+    global n_linerdm_mae
+    global n_linerdm_mse
+    global n_linerdm_rmse
+
+    n_linerdm_mae = metrics.mean_absolute_error(y_actl, y_pred)
+    n_linerdm_mse = metrics.mean_squared_error(y_actl, y_pred)
+    n_linerdm_rmse = np.sqrt(metrics.mean_squared_error(y_actl, y_pred))
 
     #---------- Plot 2 ------------------------------------------------------
     fig1 = px.scatter(com_data, x=x_var[0], y="value", color="type" )
@@ -328,11 +342,13 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
 
 
 
-
+######################################################################################
+## Data Predict
+######################################################################################
 @app.callback(Output('linerdm_plot_3'          , 'figure'  ),
               Output('linerdm_DT_2'            , 'children'),
-              Output('linerdm_md_coef_DT'      , 'data'),
-              Output('div_linerdm_pred_result' , 'children'),
+              Output('linerdm_md_coef_DT'      , 'data'    ),
+              Output('linerdm_DT_3'            , 'data'    ),
               Input('btn_linerdm_model_predict', 'n_clicks'),
               State('cbo_linerdm_model_choice' , 'value'   ),
               State('ds_linerdm_train_data'    , 'data'    )
@@ -387,8 +403,19 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
     nMean_Absolute_Error = metrics.mean_absolute_error(y_actl, y_pred)
     nMean_Squared_Error = metrics.mean_squared_error(y_actl, y_pred)
     nRoot_Mean_Squared_Error = np.sqrt(metrics.mean_squared_error(y_actl, y_pred))
+    
+    # 불러온 기존 모델의 값
+    nOld_mae  = md['md_mae'].item()
+    nOld_mse  = md['md_mse'].item()
+    nOld_rmse = md['md_rmse'].item()
 
-    pred_result = 'Mean Absolute Error : ' + str(nMean_Absolute_Error) + '\nMean Squared Error : ' + str(nMean_Squared_Error) + '\nRoot Mean Squared Error : ' + str(nRoot_Mean_Squared_Error)
+    d = {'Error':  ['Mean Absolute Error', 'Mean Squared Error', 'Root Mean Squared Error'], 
+         'Model':  [nOld_mae,nOld_mse,nOld_rmse ] ,
+         'Predict':[nMean_Absolute_Error,nMean_Squared_Error,nRoot_Mean_Squared_Error] ,
+         'Pred/Model':[nMean_Absolute_Error/nOld_mae*100, nMean_Squared_Error/nOld_mse*100,nRoot_Mean_Squared_Error/nOld_rmse*100 ]
+         }
+    df_result = pd.DataFrame(data=d, index=[0, 1, 2])
+    # pred_result = 'Mean Absolute Error : ' + str(nMean_Absolute_Error) + '\nMean Squared Error : ' + str(nMean_Squared_Error) + '\nRoot Mean Squared Error : ' + str(nRoot_Mean_Squared_Error)
 
 
     plot_data = pd.DataFrame({'cyc_date':result_data['cyc_date'],
@@ -398,48 +425,6 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
                                                                    'type':'pred'}))
 
 
-
-
-    #----------- Model Coef -----------------------------------------
-    columns = [{"name": 'Column', "id": 'column_name'}]
-
-    linerdm_DataTable_1 = dash_table.DataTable(
-                    data = result_data.to_dict('rows'),
-                    columns = columns,
-                    editable=False,
-                    style_table={'height': '450px', 'overflowY': 'auto', 'overflowX': 'auto'},
-                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
-                    column_selectable="single",
-                    selected_rows=[],
-                    sort_action='custom',
-                    sort_mode='multi',
-                    sort_by=[],
-                    style_cell_conditional=[
-                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
-                        { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
-                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
-                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
-                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
-                        {'fontSize' : '16px'},
-                    ],
-                    style_data_conditional=[
-                        {
-                            'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
-                            # data_bars(dataTable_column, 'ChargeQ')  +
-                            # data_bars(dataTable_column, 'Voltage'),
-                        },
-                    ],
-                    style_header={
-                        'backgroundColor': '#929494',
-                        'fontWeight': 'bold',
-                        'fontSize' : '16px',
-                        'textAlign': 'center',
-                        'height':'40px'
-                    },
-                    export_headers='display',
-                )
-    #----------- Test/Prediction Data Table -----------------------------------------
-
     #----------- Test/Prediction Data Table -----------------------------------------
     columns = [{"name": i, "id": i, } for i in result_data.columns]
 
@@ -447,7 +432,7 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
                     data = result_data.to_dict('rows'),
                     columns = columns,
                     editable=False,
-                    style_table={'height': '450px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_table={'height': '535px', 'overflowY': 'auto', 'overflowX': 'auto'},
                     style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
                     column_selectable="single",
                     selected_rows=[],
@@ -488,24 +473,14 @@ def cb_linerdm_predict(n_clicks, model_name, data ):
     else :    
         f_column = "cyc_date"
 
+
     plot_data[f_column] = plot_data[f_column].apply(str)
 
-    # fig = px.line(plot_data, x=f_column , y='value', color='type', title="LM Model Predict Result", markers=True)
-    # fig.update_traces(marker=dict(size=14, line=dict(width=4)), selector=dict(mode='markers'))
-    # fig.update_traces(mode="lines")      
-    
-    # plot_data = pd.concat([plot_data.reset_index(drop=True), pd.DataFrame(plot_data['type'].replace(['act','pred'],[0,1]), columns=['color'])] , axis=1)
-    
     fig = px.line(plot_data, x=f_column , y='value', color='type', title="LM Model Predict Result")
     fig.update_traces(mode='lines+markers')
-    # fig.add_scatter(x=plot_data[f_column], y=plot_data['value'], mode='markers', marker_color=plot_data['color'], marker_size=10)
-
     fig.update_layout(showlegend=True)
-    
     fig.update_layout(hovermode="x") # ( "x" | "y" | "closest" | False | "x unified" | "y unified" )
-
     fig.update_traces(hovertemplate="<b>Value: %{y}</b>") 
-
     fig.update_layout(height=450)
 
-    return fig, linerdm_DataTable_1, model_coef.to_dict('records'), pred_result
+    return fig, linerdm_DataTable_1, model_coef.to_dict('records'), df_result.to_dict('recoreds')

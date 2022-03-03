@@ -1,3 +1,6 @@
-,md_name,md_path,md_filename,md_x_var,md_y_var,md_desc
-0,lm_model_2022-02-22,./model/,lm_model_2022-02-22.sav,cyc_date,soh,desc
-1,lm_model_2022-02-23,./model/,lm_model_2022-02-23.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,desc
+,md_name,md_path,md_filename,md_x_var,md_y_var,md_mae,md_mse,md_rmse,md_desc
+0,lm_model_2022-02-22,./model/,lm_model_2022-02-22.sav,cyc_date,soh,,,,desc
+1,lm_model_2022-02-23,./model/,lm_model_2022-02-23.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,,,,desc
+2,lm_model_2022-02-25,./model/,lm_model_2022-02-25.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,,,,desc
+3,lm_model_2022-03-02,./model/,lm_model_2022-03-02.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,,,,desc
+4,lm_model_2022-03-03,./model/,lm_model_2022-03-03.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,0.0009550359432976418,5.097771600197932e-06,0.0022578245282124853,desc

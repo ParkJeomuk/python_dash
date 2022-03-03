@@ -50,7 +50,7 @@ def df_cell():
 
 def uf_load_model_list():   
     data = pd.read_csv('./data/model_list.csv')
-    data = data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_desc']]
+    data = data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_mae','md_mse','md_rmse','md_desc']]
     return data    
 
 
@@ -73,13 +73,17 @@ def uf_save_model_list(dModel):
                              'md_filename':[dModel['md_filename']],
                              'md_x_var':[x_str],
                              'md_y_var':[dModel['md_y_var']],
-                             'md_desc':[dModel['md_desc']]
+                             'md_mae'  :[dModel['md_mae']],
+                             'md_mse'  :[dModel['md_mse']],
+                             'md_rmse' :[dModel['md_rmse']],
+                             'md_desc' :[dModel['md_desc']]
                              })
-        data = pd.concat([pd.DataFrame(data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_desc']]) ,pd.DataFrame(a_df)], axis=0)
+        data = pd.concat([pd.DataFrame(data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_mae','md_mse','md_rmse','md_desc']]) ,
+                          pd.DataFrame(a_df)], axis=0)
     else:
-        data.loc[r,['md_path','md_filename','md_x_var','md_y_var','md_desc']]=[dModel['md_path'],dModel['md_filename'],x_str,dModel['md_y_var'],dModel['md_desc']]
+        data.loc[r,['md_path','md_filename','md_x_var','md_y_var','md_mae','md_mse','md_rmse','md_desc']]=[dModel['md_path'],dModel['md_filename'],x_str,dModel['md_y_var'],dModel['md_mae'],dModel['md_mse'],dModel['md_rmse'],dModel['md_desc']]
 
-    data = pd.DataFrame(data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_desc']])
+    data = pd.DataFrame(data[['md_name','md_path','md_filename','md_x_var','md_y_var','md_mae','md_mse','md_rmse','md_desc']])
 
     data.to_csv('./data/model_list.csv')
     return True
