@@ -1,9 +1,12 @@
 from dash import html
 from dash import dcc 
+
 # https://docs-dash-admin-components.herokuapp.com/l/components
 import dash_admin_components as dac
+from dash.exceptions import PreventUpdate
 
 import sys, os
+
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from ui.sidebar import sidebar
@@ -47,6 +50,7 @@ import pages.value_boxes.view
 ### Gallery ----
 import pages.gallery_1.view
 import pages.gallery_2.view
+
 
 # Body
 body = dac.Body(
@@ -97,3 +101,8 @@ footer = dac.Footer(
 # App Layout
 # =============================================================================
 layout = dac.Page([navbar, sidebar, body, controlbar, footer])
+
+
+
+
+

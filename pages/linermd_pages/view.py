@@ -101,25 +101,30 @@ linerdm_control_1 = dbc.Card([
         dbc.Col(children=[
             dcc.Store(id='ds_linerdm_train_data' ,storage_type='memory'),
             dcc.Store(id='ds_linerdm_test_data'  ,storage_type='memory'),
+            html.Br(), 
+            dcc.Loading(id="loading_linerdm_1", type="circle", children=html.Div(id="linerdm_loading_output1")),
             dbc.Button(html.Span(["Data Load", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_dataload", color="dark"),
+        ], width=1,style={'padding-top': '7px'},),
+        dbc.Col(children=[
+            html.Br(), 
             dbc.Button(html.Span(["Data Info", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_datainfo", color="dark"),
-        ], width=2),
+        ], width=1,style={'padding-top': '7px'},),
         dbc.Col(children=[
             dbc.Label("Model"),
             dcc.Dropdown(id="cbo_linerdm_model",options=[{"label": 'LM', "value": 'LM'}],value="LM",)
         ], width=1),
         dbc.Col(children=[
             dbc.Label("Y Var"),
-            dcc.Dropdown(id="cbo_linerdm_y",options=[{"label": 'Y', "value": 'Y'}],value="1",)
+            dcc.Dropdown(id="cbo_linerdm_y",options=[{"label": '', "value": ''}],value="",)
         ], width=2),
         dbc.Col(children=[
             dbc.Label("X Var"),
-            dcc.Dropdown(id="cbo_linerdm_x",options=[{"label": 'X', "value": 'X'}],value="1",multi=True)
+            dcc.Dropdown(id="cbo_linerdm_x",options=[{"label": '', "value": ''}],value="",multi=True)
         ], width=6),
         dbc.Col(children=[
             html.Br(), 
             dbc.Button(html.Span(["Calc", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_model_apply", color="dark") 
-        ], width=1,style={'padding-top': '7px'},),
+        ], width=1,style={'padding-top': '7px', 'text-align':'right'},),
     ],style={'height': '100%'},),
     ],style={"height": "120px"},
     body=True,
@@ -148,9 +153,6 @@ linerdm_control_2 = dbc.Card([
 
 
 linerdm_control_3 = dbc.Card([
-    # dbc.Row([
-    #     dbc.Col(children=[dbc.Label("Model Summary")], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
-    # ]),
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Model Summary"),
@@ -223,7 +225,7 @@ linerdm_control_7 = dbc.Card([
         dbc.Col(children=[
             dbc.Label("Predict File"),html.Br(),
             html.Div(id='linerdm_predict_filname', style={'height':'35px','width':'100%', 'whiteSpace':'pre-line','border':'1px #E8EBEB solid','overflow':'auto'}) ,
-        ], width=4),
+        ], width=5),
         dbc.Col(children=[
             html.Br(), 
             dbc.Button(html.Span(["File Choice", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_model_file", color="dark") 
@@ -231,7 +233,7 @@ linerdm_control_7 = dbc.Card([
         dbc.Col(children=[
             html.Br(), 
             dbc.Button(html.Span(["Predict", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_linerdm_model_predict", color="dark") 
-        ], width=3,style={'padding-top': '7px'},),
+        ], width=2,style={'padding-top': '7px', 'text-align':'right'},),
     ],style={'height': '100%'},),
     ],style={"height": "120px"},
     body=True,

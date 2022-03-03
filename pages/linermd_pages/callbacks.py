@@ -27,6 +27,7 @@ import numpy as np
 from utils.server_function import *
 from utils.constants  import *
 from pages.linermd_pages.model import *
+from ui.sidebar_callbacks import uf_set_modal, uf_show_modal
 
 n_linerdm_mae = 0
 n_linerdm_mse = 0
@@ -46,7 +47,6 @@ def cb_linerdm_file_open(n_clicks  ):
     root.withdraw()
     # root.iconbitmap(default='Extras/transparent.ico')
 
-
     filename = filedialog.askopenfilename(initialdir='/')
     gTestFilePath = filename
     print('***', filename)
@@ -64,6 +64,7 @@ def cb_linerdm_file_open(n_clicks  ):
               Output('ds_linerdm_test_data'      , 'data'      ),
               Output("cbo_linerdm_x"             , "options"   ),
               Output("cbo_linerdm_y"             , "options"   ),
+              Output("linerdm_loading_output1"   , "children"  ),
               Input('btn_linerdm_dataload'       , 'n_clicks'  ),
               State('ds_train_test_file'         , 'data'      ) 
               )
@@ -86,7 +87,7 @@ def cb_linerdm_data_load(n_clicks, data):
     # opt = [{"label": col, "value": col}] for col in col_df.code
     
 
-    return train_data.to_json(date_format='iso',orient='split')  ,test_data.to_json(date_format='iso',orient='split') ,  opt ,  opt 
+    return train_data.to_json(date_format='iso',orient='split')  ,test_data.to_json(date_format='iso',orient='split') ,  opt ,  opt ,''
 
 
 
@@ -185,11 +186,10 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
         raise PreventUpdate
     if test_data is None:
         raise PreventUpdate    
-    if x_var is None:
-        # toggle_modal(True)
+    if x_var is None or x_var=='':
+        uf_set_modal('Error','X Variable Error')
         raise PreventUpdate
-    if y_var is None:
-        # toggle_modal(True)
+    if y_var is None or y_var=='':
         raise PreventUpdate    
 
     data = pd.read_json(data, orient='split')
