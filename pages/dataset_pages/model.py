@@ -22,16 +22,16 @@ def dataset_load_data(sDataType, sDate, eDate, sBankNo, sRackNo, sModuleNo, sCel
 
         data = data[((data["cyc_date"] >= sDate.replace('-','')) & (data["cyc_date"] <= eDate.replace('-',''))  ) ]
 
-        if sBankNo != None :
+        if sBankNo is not None and sBankNo != '' :
             data = data[(data["bank_no"] == str(sBankNo))]
 
-        if sRackNo != None :
+        if sRackNo is not None and sRackNo != '' :
             data = data[(data["rack_no"] == str(sRackNo))]
 
-        if sModuleNo != None :
+        if sModuleNo is not None and sModuleNo != '':
             data = data[(data["module_no"] == str(sModuleNo))]
 
-        if sCellNo != None :
+        if sCellNo is not None and sCellNo != '' :
             data = data[(data["cell_no"] == str(sCellNo))]
     else:
         data = ''

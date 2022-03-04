@@ -49,8 +49,9 @@ sideMenu = 	dac.SidebarMenu(
         dac.SidebarHeader(children="Data"),
         dac.SidebarMenuItem(id='menu_dash_pages'     ,label='Dash'            , icon='heartbeat'),
         dac.SidebarMenuItem(id='menu_dataset_pages'  ,label='Data Set'        , icon='box'),
-        dac.SidebarMenuItem(id='menu_linermd_pages'  ,label='Liner Model'     , icon='box'),
-        dac.SidebarMenuItem(id='menu_automl_pages'   ,label='H2O'             , icon='id-card'),
+        dac.SidebarMenuItem(id='menu_linermd_pages'  ,label='Liner Model'     , icon='chart-line'),
+        dac.SidebarMenuItem(id='menu_automl_pages'   ,label='H2O'             , icon='coins'),
+        dac.SidebarMenuItem(id='menu_cellsoh_pages'  ,label='SOH'             , icon='battery-half'),
         dac.SidebarMenuItem(id='menu_tab_cards'      ,label='Tab cards'       , icon='image'),
 
         dac.SidebarHeader(children="Boxes"),
