@@ -101,24 +101,25 @@ cellsoh_control_1 = dbc.Card(
         ),
     ],
     style={'height': '500px','padding-left': '10px', 'padding-right': '10px'},
-    # body=True,
+    body=True,
 )
 
 
 
 cellsoh_control_2 = dbc.Card([
     dbc.Row([
-        dbc.Label("Charge Q"),
+        dbc.Label("SOH"),
         dcc.Loading(id="cellsoh_plot_2_loading", type="dot",
                     children=dcc.Graph(
                         id="cellsoh_plot_1",
-                        figure={'data': [{'y': [0, 0] }],'layout': {'height': 450}}
+                        figure={'data': [{'y': [0, 0] }],'layout': {'height': 550}}
                     )
                 )
             ],style={'padding-top': '5px', 'padding-bottom': '5px'},
         ),
     ],
-    style={"height":"500px"},
+    style={"height":"620px"},
+    body=True,
 )
 
 

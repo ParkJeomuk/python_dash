@@ -25,6 +25,7 @@ import re
 import numpy as np
 
 from utils.server_function import *
+from utils.functions import *
 from utils.constants  import *
 from pages.cellsoh_pages.model import *
 
@@ -34,6 +35,7 @@ from pages.cellsoh_pages.model import *
 
 
 @app.callback(Output('ds_cellsoh_df'           , 'data'       ),
+              Output('loading_cellsoh_1'       , 'children'   ),
               Input('btn_cellsoh_dataload'     , 'n_clicks'   ),
               State('date_range_cellsoh'       , 'start_date' ), 
               State('date_range_cellsoh'       , 'end_date'   ), 
@@ -49,13 +51,14 @@ def cb_cellsoh_data_load(n_clicks, start_date, end_date, s_bank_no, s_rack_no, s
         raise PreventUpdate
     if end_date is None:
         raise PreventUpdate
-    if s_bank_no is None:
+    if s_bank_no is None or s_bank_no == '':
+        popupmsg("Please choose the Bank No!")
         raise PreventUpdate
     
     #------ Soh Cell Raw Data Loading ----------------
     data = cellsoh_data_load(start_date, end_date, str(s_bank_no), str(s_rack_no), str(s_module_no), str(s_cell_no) )
 
-    return data.to_json(date_format='iso',orient='split') 
+    return data.to_json(date_format='iso',orient='split') ,''
 
 
 
@@ -99,12 +102,12 @@ def cb_cellsoh_plot1_render(ts, data):
                  y="soh",
                 #  color="smoker",
                  notched=True, # used notched shape
-                 title="SOH",
+                #  title="SOH",
                  hover_data=["bank_no","rack_no","cell_no"] # add day column to hover data
                 )
 
     fig.update_layout(showlegend=False)
-    fig.update_layout(height=500)
+    fig.update_layout(height=550)
 
     return fig
 
