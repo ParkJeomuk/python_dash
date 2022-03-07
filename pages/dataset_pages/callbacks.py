@@ -290,4 +290,5 @@ def cb_dataset_DT_2(n_clicks , data ):
 def cb_dataset_toggle_modal(n, is_open):
     if n:
         return not is_open
+        
     return is_open

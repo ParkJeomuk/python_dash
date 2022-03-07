@@ -27,7 +27,7 @@ import numpy as np
 from utils.server_function import *
 from utils.constants  import *
 from pages.linermd_pages.model import *
-from ui.sidebar_callbacks import uf_set_modal, uf_show_modal
+
 
 n_linerdm_mae = 0
 n_linerdm_mse = 0

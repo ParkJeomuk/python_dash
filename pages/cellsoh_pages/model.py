@@ -15,21 +15,30 @@ def cellsoh_data_load(sStartDate, sEndDate, sBankNo, sRackNo, sModuleNo, sCellNo
     data = pd.read_csv('./data/soh_cell.csv')
 
     data['cyc_date'] = data['cyc_date'].apply(str)
-    data['bank_no'] = data['bank_no'].apply(str)
-    data['rack_no'] = data['rack_no'].apply(str)
-    data['module_no'] = data['module_no'].apply(str)
-    data['cell_no'] = data['cell_no'].apply(str)
+    data['bank_no'] = data['bank_no'].apply(int)
+    data['rack_no'] = data['rack_no'].apply(int)
+    data['module_no'] = data['module_no'].apply(int)
+    data['cell_no'] = data['cell_no'].apply(int)
     
-    data = data[(data["bank_no"]==sBankNo) & (data["cyc_date"] >= sStartDate.replace('-','')) & (data["cyc_date"] <= sEndDate.replace('-','')) ]
+    data = data[(data["bank_no"]==int(sBankNo)) & (data["cyc_date"] >= sStartDate.replace('-','')) & (data["cyc_date"] <= sEndDate.replace('-','')) ]
 
     if sRackNo is not None and sRackNo != "" :
-            data = data[(data["rack_no"] == str(sRackNo))]
+            if type(sRackNo) == str:
+                data = data[(data["rack_no"]==int(sRackNo))]
+            else:
+                data = data[data.rack_no.isin(sRackNo)]
             
     if sModuleNo is not None and sModuleNo != "" :
-            data = data[(data["module_no"] == str(sModuleNo))]
+            if type(sModuleNo) == str:
+                data = data[(data["module_no"]==int(sModuleNo))]
+            else:
+                data = data[data.module_no.isin(sModuleNo)]
             
     if sCellNo is not None and sCellNo != "" :
-            data = data[(data["cell_no"] == str(sCellNo))]
-            
+            if type(sCellNo) == str:
+                data = data[(data["cell_no"]==int(sCellNo))]
+            else:
+                data = data[data.cell_no.isin(sCellNo)]
+
     return data
     

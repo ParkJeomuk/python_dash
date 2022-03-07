@@ -8,23 +8,23 @@ from utils.constants import MENU_ITEMS
 
 
 
-common_modal = dbc.Modal(
-    [
-        dbc.ModalHeader(dbc.ModalTitle(''), close_button=True),
-        dbc.ModalBody(''),
-        dbc.ModalFooter(
-            dbc.Button(
-                "Close",
-                id="close-centered",
-                className="ms-auto",
-                n_clicks=0,
-            )
-        ),
-    ],
-    id="common_modal_popup",
-    centered=True,
-    is_open=False,
-)
+# common_modal = dbc.Modal(
+#     [
+#         dbc.ModalHeader(dbc.ModalTitle(''), close_button=True),
+#         dbc.ModalBody(''),
+#         dbc.ModalFooter(
+#             dbc.Button(
+#                 "Close",
+#                 id="close-centered",
+#                 className="ms-auto",
+#                 n_clicks=0,
+#             )
+#         ),
+#     ],
+#     id="common_modal_popup",
+#     centered=True,
+#     is_open=False,
+# )
 
 
 
@@ -45,7 +45,7 @@ subitems = [
 ]
 sideMenu = 	dac.SidebarMenu(
     [
-        dcc.Store(id='ds_modal_data' ,storage_type='session'),common_modal,
+        # dcc.Store(id='ds_modal_data' ,storage_type='session'),common_modal,
         dac.SidebarHeader(children="Data"),
         dac.SidebarMenuItem(id='menu_dash_pages'     ,label='Dash'            , icon='heartbeat'),
         dac.SidebarMenuItem(id='menu_dataset_pages'  ,label='Data Set'        , icon='box'),

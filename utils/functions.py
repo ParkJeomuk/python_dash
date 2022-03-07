@@ -20,4 +20,6 @@ def popupmsg(msg):
     B1.pack()
     popup.mainloop()
 
-			
+
+def uf_show_msg(sContent):
+    mag= tk.messagebox.showwarning("warning ", sContent)			

@@ -9,6 +9,8 @@ import datetime
 import pandas as pd
 
 
+
+
 # =============================================================================
 # Callbacks
 # =============================================================================
@@ -70,30 +72,4 @@ def update_breadcrumbs( nClick1, nClick2, nClick3, nClick4, nClick5, nClick6, nC
     return eval(input_id)
 
 
-@app.callback(Output("common_modal_popup", "children"),
-              Output("common_modal_popup", "is_open" ),
-              Input("ds_modal_data"      , "modified_timestamp"),
-              State("ds_modal_data"      , "data"))
-def uf_show_modal(ts, data):
-    if ts is None:
-        raise PreventUpdate 
-    if data is None:
-        raise PreventUpdate     
-        
-    data = pd.read_json(data, orient='split')
-    sTitle   = data['title'] 
-    sContent = data['content']
-    md = [dbc.ModalHeader(dbc.ModalTitle(sTitle), close_button=True),
-          dbc.ModalBody(html.P(sContent, id="common_p", style={'textAlign': 'center', 'padding': 10})),
-          dbc.ModalFooter(dbc.Button("Close",id="close-centered",className="ms-auto",n_clicks=0))
-         ]
-
-    return md
-
-# @app.callback(Output("ds_modal_data"      , "data"))
-def uf_set_modal(sTitle, sContent):
-    
-    d = {'title':  [sTitle], 'content':  [sContent ]}
-    data = pd.DataFrame(data=d, index=[0])
-
-    return data.to_json(date_format='iso' , orient='split')
+ 

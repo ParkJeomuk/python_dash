@@ -1,12 +1,11 @@
-
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from utils.constants import TIMEOUT
+
 import pandas as pd
 import plotly.graph_objs as go
 
- 
- 
+
 def blank_fig():
     fig = go.Figure(go.Scatter(x=[], y = []))
     fig.update_layout(template = None)
@@ -87,4 +86,6 @@ def uf_save_model_list(dModel):
 
     data.to_csv('./data/model_list.csv')
     return True
+
+
 

@@ -60,6 +60,7 @@ cellsoh_control_1 = dbc.Card(
                             {"label": col, "value": col} for col in df_rack().code
                         ],
                         value="1",
+                        multi=True
                     )
                 ], width=9),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
@@ -73,6 +74,7 @@ cellsoh_control_1 = dbc.Card(
                             {"label": col, "value": col} for col in df_module().code
                         ],
                         value="",
+                        multi=True
                     )
                 ], width=9),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
@@ -86,6 +88,7 @@ cellsoh_control_1 = dbc.Card(
                             {"label": col, "value": col} for col in df_cell().code
                         ],
                         value="",
+                        multi=True
                     )
                 ], width=9),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
@@ -108,17 +111,28 @@ cellsoh_control_1 = dbc.Card(
 
 cellsoh_control_2 = dbc.Card([
     dbc.Row([
-        dbc.Label("SOH"),
+        dbc.Col(children=html.Div([
+            dbc.Label("SOH"),
+        ],className="d-grid gap-2",) , width=4,),    
+        dbc.Col(children=html.Div([
+            dbc.Button(  html.I(className="fa fa-search") , id="btn_cellsoh_viewdata", color="dark")
+        ],) , width=8,style={'text-align':'right'},),            
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+    dbc.Row([
         dcc.Loading(id="cellsoh_plot_2_loading", type="dot",
                     children=dcc.Graph(
                         id="cellsoh_plot_1",
-                        figure={'data': [{'y': [0, 0] }],'layout': {'height': 550}}
+                        figure={'layout': {'height': 520}}
                     )
                 )
-            ],style={'padding-top': '5px', 'padding-bottom': '5px'},
-        ),
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+    dbc.Row([
+        dbc.Col(children=html.Div([
+            html.Div(id="cellsoh_label_1")
+        ],style={'text-align':'right'},) , width=12,),    
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
     ],
-    style={"height":"620px"},
+    style={"height":"640px"},
     body=True,
 )
 
@@ -139,7 +153,17 @@ cellsoh_control_3 = dbc.Card([
 
 
 
-
+cellsoh_dataview_popup = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("View Data")),
+        dbc.ModalBody(
+            children=[
+                 html.H1(id='cellsoh_DT_1') ,
+            ]),
+    ],
+    id="cellsoh_modal_1",
+    size="xl",
+)
 
 
 
@@ -151,7 +175,11 @@ content = dac.TabItem(id='content_cellsoh_pages',
                                     children=html.Div([
                                             dbc.Row([
                                                 dbc.Col([ cellsoh_control_1 ],md=3,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
-                                                dbc.Col([ cellsoh_control_2 ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                dbc.Col([ 
+                                                    cellsoh_dataview_popup,
+                                                    cellsoh_control_2
+                                                
+                                                 ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                             ],),
                                         ],
                                     ),  
