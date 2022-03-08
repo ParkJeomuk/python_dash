@@ -5,7 +5,7 @@ from pyparsing import null_debug_action
 from utils.constants import TIMEOUT
 
 import pandas as pd
-
+from utils.functions import *
  
 
 
@@ -22,19 +22,19 @@ def cellsoh_data_load(sStartDate, sEndDate, sBankNo, sRackNo, sModuleNo, sCellNo
     
     data = data[(data["bank_no"]==int(sBankNo)) & (data["cyc_date"] >= sStartDate.replace('-','')) & (data["cyc_date"] <= sEndDate.replace('-','')) ]
 
-    if sRackNo is not None and sRackNo != "" :
+    if uf_is_empty(sRackNo) == False :
             if type(sRackNo) == str:
                 data = data[(data["rack_no"]==int(sRackNo))]
             else:
                 data = data[data.rack_no.isin(sRackNo)]
             
-    if sModuleNo is not None and sModuleNo != "" :
+    if uf_is_empty(sModuleNo) == False :
             if type(sModuleNo) == str:
                 data = data[(data["module_no"]==int(sModuleNo))]
             else:
                 data = data[data.module_no.isin(sModuleNo)]
             
-    if sCellNo is not None and sCellNo != "" :
+    if uf_is_empty(sCellNo) == False :
             if type(sCellNo) == str:
                 data = data[(data["cell_no"]==int(sCellNo))]
             else:
@@ -42,3 +42,4 @@ def cellsoh_data_load(sStartDate, sEndDate, sBankNo, sRackNo, sModuleNo, sCellNo
 
     return data
     
+

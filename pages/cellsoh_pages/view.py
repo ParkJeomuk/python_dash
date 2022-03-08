@@ -1,3 +1,4 @@
+from logging import PlaceHolder
 import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import html
@@ -115,14 +116,16 @@ cellsoh_control_2 = dbc.Card([
             dbc.Label("SOH"),
         ],className="d-grid gap-2",) , width=4,),    
         dbc.Col(children=html.Div([
-            dbc.Button(  html.I(className="fa fa-search") , id="btn_cellsoh_viewdata", color="dark")
+            dbc.Button(  html.I(className="fa fa-search") , id="btn_cellsoh_viewdata", color="dark"),
+            dbc.Tooltip(" Box select Data View!",target="btn_cellsoh_viewdata",),
         ],) , width=8,style={'text-align':'right'},),            
     ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
     dbc.Row([
         dcc.Loading(id="cellsoh_plot_2_loading", type="dot",
                     children=dcc.Graph(
                         id="cellsoh_plot_1",
-                        figure={'layout': {'height': 520}}
+                        figure={'layout': {'height': 520}},
+                        config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
                     )
                 )
     ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
@@ -138,10 +141,38 @@ cellsoh_control_2 = dbc.Card([
 
 
 
-
-
-
 cellsoh_control_3 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+            dbc.Label("Y", style={'margin-left': '20px'}),
+            dcc.Dropdown(
+                id="cbo_cellsoh_y",
+                options=[  {'label': 'SOH'    , 'value': 'soh'},
+                            {'label': 'Q_A'    , 'value': 'q_a'},
+                            {'label': 'Q_U'    , 'value': 'q_u'},
+                            {'label': 'Cur Avg', 'value': 'cur_avg'},
+                            {'label': 'Time'   , 'value': 'n'},
+                            {'label': 'U_Vol'  , 'value': 'u_vol'},
+                            {'label': 'O_Vol'  , 'value': 'o_vol'},
+                            {'label': 'Gap'    , 'value': 'gap'},
+                        ],
+                value="soh",
+                style={'display':'inline','margin-left':'10px'},)
+        ], width=4, style={'disple':'inline','padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
+        dbc.Col(children=[
+            dbc.Label("Select Date"),
+            html.Div([
+                html.Span("____-__-__")
+            ],id='div_cellsoh_select_date', 
+              style={'display':'inline','margin-left': '20px','height':'24px','width':'120px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'auto', 'padding':'5px 20px 5px 20px'})
+        ], width=8, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
+    ]),
+    ],style={"height": "50px"},
+)
+
+
+
+cellsoh_control_10 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Second Page"),
@@ -162,7 +193,7 @@ cellsoh_dataview_popup = dbc.Modal(
             ]),
     ],
     id="cellsoh_modal_1",
-    size="xl",
+    size="lg",
 )
 
 
@@ -177,7 +208,8 @@ content = dac.TabItem(id='content_cellsoh_pages',
                                                 dbc.Col([ cellsoh_control_1 ],md=3,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                                 dbc.Col([ 
                                                     cellsoh_dataview_popup,
-                                                    cellsoh_control_2
+                                                    cellsoh_control_2,
+                                                    cellsoh_control_3
                                                 
                                                  ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                             ],),
@@ -190,7 +222,7 @@ content = dac.TabItem(id='content_cellsoh_pages',
                                 children=[
                                     dbc.Row([
                                         dbc.Col([
-                                              cellsoh_control_3
+                                              cellsoh_control_10
                                         ],md=12, style={"height": "100%"},),
                                     ],),
                                 ]),

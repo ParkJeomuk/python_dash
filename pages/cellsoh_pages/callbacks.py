@@ -74,17 +74,19 @@ def cb_cellsoh_data_load(n_clicks, start_date, end_date, s_bank_no, s_rack_no, s
 ######################################################################################
 ## Render Plot 1
 ######################################################################################
-@app.callback(Output('cellsoh_plot_1'  , 'figure'  ),
-              Output('cellsoh_label_1' , 'children'  ),
+@app.callback(Output('cellsoh_plot_1'  , 'figure'   ),
+              Output('cellsoh_label_1' , 'children' ),
+              Input('cbo_cellsoh_y'    , 'value'    ),
               Input('ds_cellsoh_df'    , 'modified_timestamp'),
-              State('ds_cellsoh_df'    , 'data'    )
+              State('ds_cellsoh_df'    , 'data'     )
               )
-def cb_cellsoh_plot1_render(ts, data):
+def cb_cellsoh_plot1_render(y_val, ts, data):
     if ts is None:
         raise PreventUpdate
     if data is None:
         raise PreventUpdate
-
+    if y_val is None:
+        raise PreventUpdate
 
     data = pd.read_json(data, orient='split')
     data = data.dropna(axis=0)
@@ -107,9 +109,9 @@ def cb_cellsoh_plot1_render(ts, data):
 
     fig = px.box(data, 
                  x="cyc_date",
-                 y="soh",
+                 y=y_val,
                  notched=True, # used notched shape
-                 labels={"cyc_date": "Date","soh": "SOH"},
+                 labels={"cyc_date": "Date",y_val: y_val},
                  hover_data=["bank_no","rack_no","cell_no"] # add day column to hover data
                 )
     fig.update_layout(clickmode='event+select')
@@ -121,52 +123,87 @@ def cb_cellsoh_plot1_render(ts, data):
 
  
 
-# @app.callback(Output("cellsoh_modal_1"    , "is_open"),
-#               Input("btn_cellsoh_viewdata", "n_clicks"),
-#               State("cellsoh_modal_1"     , "is_open"),
-#               Input("cellsoh_plot_1"      , "relayoutData"))
-# def cb_cellsoh_toggle_modal(n, is_open, relayoutData):
-    # if n:
-    #     return not is_open
+@app.callback(Output("cellsoh_modal_1"    , "is_open"),
+              Output("cellsoh_DT_1"       , "children"),
+              Input("btn_cellsoh_viewdata", "n_clicks"),
+              State("cellsoh_modal_1"     , "is_open"),
+              State("cellsoh_plot_1"      , "selectedData"))
+def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
+    if n_clicks is None:
+        raise PreventUpdate
    
-    # data= json.dumps(relayoutData , indent=2)
+    data= json.dumps(selectedData , indent=2)
 
-    # columns = [{"name": i, "id": i, } for i in train_df.columns]
-    # train_df = train_df.head(30).to_dict('rows')
-    # dataset_DataTable_3 = dash_table.DataTable(
-    #                 data=train_df,
-    #                 columns = columns,
-    #                 editable=False,
-    #                 style_table={'height': '400px', 'overflowY': 'auto', 'overflowX': 'auto'},
-    #                 style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
-    #                 column_selectable="single",
-    #                 selected_rows=[],
-    #                 sort_action='custom',
-    #                 sort_mode='multi',
-    #                 sort_by=[],
-    #                 style_cell_conditional=[
-    #                     { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
-    #                     { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
-    #                     { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
-    #                     { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
-    #                     { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
-    #                     {'fontSize' : '16px'},
-    #                 ],
-    #                 style_data_conditional=[
-    #                     {
-    #                         'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
-    #                         # data_bars(dataTable_column, 'ChargeQ')  +
-    #                         # data_bars(dataTable_column, 'Voltage'),
-    #                     },
-    #                 ],
-    #                 style_header={
-    #                     'backgroundColor': '#929494',
-    #                     'fontWeight': 'bold',
-    #                     'fontSize' : '16px',
-    #                     'textAlign': 'center',
-    #                     'height':'40px'
-    #                 },
-    #                 export_headers='display',
-    #             )
+    if len(selectedData['points']) > 0 :
+        df = pd.DataFrame(selectedData['points'])
 
-    # return is_open
+        ddata = df[['x','y']]
+        cdata = pd.DataFrame(df['customdata'].tolist())
+        data = pd.concat([ddata,cdata],axis=1)
+        data = data.rename(columns={'x': 'cyc_date', 'y': 'soh', 0:'bank_no', 1:'rack_no', 2:'cell_no'})
+        data = data[['cyc_date','bank_no','rack_no','cell_no','soh']]
+        data = data.to_dict('rows')
+    else:
+        data = None
+
+    cellsoh_DT1_columns = [
+                            dict(id='cyc_date', name='Date' , type='text'), 
+                            dict(id='bank_no' , name='Bank' , type='text'), 
+                            dict(id='rack_no' , name='Rack' , type='text'), 
+                            dict(id='cell_no' , name='Cell' , type='text'), 
+                            dict(id='soh'     , name='SOH'  , type='numeric'), 
+                          ]
+
+    cellsoh_DataTable_1 = dash_table.DataTable(
+                    data=data,
+                    columns = cellsoh_DT1_columns,
+                    editable=False,
+                    style_table={'height': '400px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'bank_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return not is_open, cellsoh_DataTable_1
+
+
+
+
+
+
+@app.callback(Output("div_cellsoh_select_date" , "children"),
+              Input("cellsoh_plot_1"           , "clickData"))
+def cb_cellsoh_click_date(clickData):
+    if clickData is None:
+        raise PreventUpdate
+    
+    if len(clickData)>0:
+        df =  pd.DataFrame(clickData['points'])
+        if len(df)>0:
+            selectDate = df['x'][0] #첫번째 포인트의 일자
+            selectDate = selectDate[0:4] + "-" + selectDate[4:6] + "-" + selectDate[6:8]
+        else:
+            selectDate = "____-__-__"    
+    else:
+        selectDate = "____-__-__"
+    
+    return selectDate

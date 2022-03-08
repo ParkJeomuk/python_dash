@@ -23,3 +23,11 @@ def popupmsg(msg):
 
 def uf_show_msg(sContent):
     mag= tk.messagebox.showwarning("warning ", sContent)			
+
+
+
+def uf_is_empty(sValue):
+    if sValue is not None and sValue != "" and len(sValue)>0 :    
+        return False
+    else:
+        return True    
