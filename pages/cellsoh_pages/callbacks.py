@@ -75,7 +75,7 @@ def cb_cellsoh_data_load(n_clicks, start_date, end_date, s_bank_no, s_rack_no, s
 ## Render Plot 1
 ######################################################################################
 @app.callback(Output('cellsoh_plot_1'  , 'figure'   ),
-              Output('cellsoh_label_1' , 'children' ),
+            #   Output('cellsoh_label_1' , 'children' ),
               Input('cbo_cellsoh_y'    , 'value'    ),
               Input('ds_cellsoh_df'    , 'modified_timestamp'),
               State('ds_cellsoh_df'    , 'data'     )
@@ -105,7 +105,7 @@ def cb_cellsoh_plot1_render(y_val, ts, data):
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         return fig
     
-    lbl_str = "Data Count : " + str(len(data))
+    # lbl_str = "Data Count : " + str(len(data))
 
     fig = px.box(data, 
                  x="cyc_date",
@@ -118,7 +118,90 @@ def cb_cellsoh_plot1_render(y_val, ts, data):
     fig.update_layout(showlegend=False)
     fig.update_layout(height=520)
 
-    return fig , lbl_str
+    return fig #, lbl_str
+
+
+
+
+
+######################################################################################
+## Render Plot 2
+######################################################################################
+@app.callback(Output('cellsoh_plot_2'            , 'figure'   ),
+              Input('btn_cellsoh_detailview'     , 'n_clicks' ),
+              State('cbo_cellsoh_detail'         , 'value'    ),
+              State('cbo_cellsoh_detail_rack'    , 'value'    ),
+              State('cbo_cellsoh_detail_module'  , 'value'    ),
+              State('cbo_cellsoh_detail_cell'    , 'value'    ),
+              State('ds_cellsoh_df'              , 'data'     )
+              )
+def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, data):
+    if n_clicks is None:
+        raise PreventUpdate
+    if data is None:
+        raise PreventUpdate
+
+    data = pd.read_json(data, orient='split')
+    data = data.dropna(axis=0)
+    data = data.sort_values("cyc_date",   ascending = True )
+    
+    data['cyc_date'] = data['cyc_date'].apply(str)
+    data['bank_no'] = data['bank_no'].apply(str)
+    data['rack_no'] = data['rack_no'].apply(str)
+    data['module_no'] = data['module_no'].apply(str)
+    data['cell_no'] = data['cell_no'].apply(str)
+    
+
+    if uf_is_empty(rack_no)==False:
+        data = data[(data["rack_no"]==str(rack_no))]
+
+    if uf_is_empty(module_no)==False:
+        data = data[(data["module_no"]==str(module_no))]
+
+    if uf_is_empty(cell_no)==False:
+        data = data[(data["cell_no"]==str(cell_no))]
+
+    if view_type == 'R':
+      grp = ['cyc_date','rack_no']
+      sColor = 'rack_no'
+    elif view_type == 'M':
+      grp = ['cyc_date','rack_no','module_no']
+      sColor = 'module_no'
+    else:
+      grp = ['cyc_date','rack_no','module_no','cell_no']
+      sColor = 'cell_no'
+
+    # data.groupby(['rack_no', 'module_no', 'cell_no']).mean()
+    data =  pd.concat([data[grp], data['soh']], axis=1)
+    data = data.groupby(grp, as_index=False).mean()
+
+
+    pio.templates.default = "plotly_white"
+    plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
+
+    if data is None:
+        fig =  blank_fig() #px.scatter(x=None, y=None)        
+        return fig
+    
+    # lbl_str = "Data Count : " + str(len(data))
+
+    # fig = px.box(data, 
+    #              x="cyc_date",
+    #              y="soh",
+    #              notched=True, # used notched shape
+    #              labels={"cyc_date": "Date","SOH":"soh"},
+    #              hover_data=["rack_no"] # add day column to hover data
+    #             )
+    # fig.update_layout(clickmode='event+select')
+    # fig.update_layout(showlegend=False)
+    # fig.update_layout(height=520)
+
+    fig = px.scatter(data, x='cyc_date', y="soh", color=sColor )
+    fig.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
+    fig.update_layout(showlegend=True)
+    fig.update_layout(height=460)
+
+    return fig
 
 
  
@@ -190,20 +273,20 @@ def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
 
 
 
-@app.callback(Output("div_cellsoh_select_date" , "children"),
-              Input("cellsoh_plot_1"           , "clickData"))
-def cb_cellsoh_click_date(clickData):
-    if clickData is None:
-        raise PreventUpdate
+# @app.callback(Output("div_cellsoh_select_date" , "children"),
+#               Input("cellsoh_plot_1"           , "clickData"))
+# def cb_cellsoh_click_date(clickData):
+#     if clickData is None:
+#         raise PreventUpdate
     
-    if len(clickData)>0:
-        df =  pd.DataFrame(clickData['points'])
-        if len(df)>0:
-            selectDate = df['x'][0] #첫번째 포인트의 일자
-            selectDate = selectDate[0:4] + "-" + selectDate[4:6] + "-" + selectDate[6:8]
-        else:
-            selectDate = "____-__-__"    
-    else:
-        selectDate = "____-__-__"
+#     if len(clickData)>0:
+#         df =  pd.DataFrame(clickData['points'])
+#         if len(df)>0:
+#             selectDate = df['x'][0] #첫번째 포인트의 일자
+#             selectDate = selectDate[0:4] + "-" + selectDate[4:6] + "-" + selectDate[6:8]
+#         else:
+#             selectDate = "____-__-__"    
+#     else:
+#         selectDate = "____-__-__"
     
-    return selectDate
+#     return selectDate

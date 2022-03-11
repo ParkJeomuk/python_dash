@@ -27,6 +27,9 @@ def uf_show_msg(sContent):
 
 
 def uf_is_empty(sValue):
+    if sValue is not None and not isinstance(sValue, str):
+        sValue = str(sValue)
+
     if sValue is not None and sValue != "" and len(sValue)>0 :    
         return False
     else:
