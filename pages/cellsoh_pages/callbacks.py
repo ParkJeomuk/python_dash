@@ -12,6 +12,8 @@ import tkinter
 from sklearn.linear_model import LinearRegression
 from sklearn import metrics
 
+from scipy.spatial.distance import pdist, squareform
+
 import os
 import statsmodels.api as sm
 import io
@@ -26,6 +28,11 @@ import dash_table
 import pickle
 import re
 import numpy as np
+import plotly.figure_factory as ff
+from pages.dash_pages.model import df_dash_q_data
+
+
+
 
 from utils.server_function import *
 from utils.functions import *
@@ -205,6 +212,189 @@ def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, dat
 
 
  
+
+ 
+######################################################################################
+## Render Plot 21
+######################################################################################
+@app.callback(Output('cellsoh_plot_21'         , 'figure'     ),
+              Output('cellsoh_plot_22'         , 'figure'     ),
+              Output('cellsoh_plot_23'         , 'figure'     ),
+              Input('btn_cellsoh_heatview'     , 'n_clicks'   ),
+              State('dtp_cellsoh_detail_date'  , 'date'       ), 
+              State('date_range_cellsoh'       , 'start_date' ), 
+              State('date_range_cellsoh'       , 'end_date'   ), 
+              State('cbo_cellsoh_bank'         , 'value'      ), 
+              State('cbo_cellsoh_rack'         , 'value'      ), 
+              State('cbo_cellsoh_module'       , 'value'      ), 
+              State('cbo_cellsoh_cell'         , 'value'      ) 
+              )
+def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, s_rack_no, s_module_no, s_cell_no):
+    if n_clicks is None:
+        raise PreventUpdate
+
+    
+    # # get data
+    # data = np.genfromtxt("http://files.figshare.com/2133304/ExpRawData_E_TABM_84_A_AFFY_44.tab",
+    #                     names=True,usecols=tuple(range(1,30)),dtype=float, delimiter="\t")
+    # data_array = data.view((np.float, len(data.dtype.names)))
+    # data_array = data_array.transpose()
+    # labels = data.dtype.names
+
+    # # Initialize figure by creating upper dendrogram
+    # fig = ff.create_dendrogram(data_array, orientation='bottom', labels=labels)
+    # for i in range(len(fig['data'])):
+    #     fig['data'][i]['yaxis'] = 'y2'
+
+    # # Create Side Dendrogram
+    # dendro_side = ff.create_dendrogram(data_array, orientation='right')
+    # for i in range(len(dendro_side['data'])):
+    #     dendro_side['data'][i]['xaxis'] = 'x2'
+
+    # # Add Side Dendrogram Data to Figure
+    # for data in dendro_side['data']:
+    #     fig.add_trace(data)
+
+    # # Create Heatmap
+    # dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
+    # dendro_leaves = list(map(int, dendro_leaves))
+    # data_dist = pdist(data_array)
+    # heat_data = squareform(data_dist)
+    # heat_data = heat_data[dendro_leaves,:]
+    # heat_data = heat_data[:,dendro_leaves]
+
+    # heatmap = [
+    #     go.Heatmap(
+    #         x = dendro_leaves,
+    #         y = dendro_leaves,
+    #         z = heat_data,
+    #         colorscale = 'Blues'
+    #     )
+    # ]
+
+    #------ Soh Cell Raw Data Loading ----------------
+    df = cellsoh_data_load(start_date, end_date, s_bank_no, s_rack_no, s_module_no, s_cell_no )
+    df = df[df['cyc_date']== s_date.replace('-','') ]
+    df = df[['rack_no','cell_no','soh']]
+    gb = df.groupby('cell_no')
+    ldf = [gb.get_group(x) for x in gb.groups]
+    ld = np.array([ldf[x]['soh'].tolist()  for x in range(len(ldf))])
+
+    x_list = list(range(1,29))
+    y_list = list(range(1,277))
+
+    # heatmap = [
+    #     go.Heatmap(
+    #         x = x_list,
+    #         y = y_list,
+    #         z = ld,
+    #         colorscale = 'Blues'
+    #     )
+    # ]
+
+    # fig = go.Heatmap(
+    #         x = x_list,
+    #         y = y_list,
+    #         z = ld,
+    #         colorscale = 'Blues'
+    #       )
+
+    pio.templates.default = "plotly_white"
+
+
+    fig1 = go.Figure(data=go.Heatmap( z=ld,
+                                      x=x_list,
+                                      y=y_list,
+                                      hoverongaps = False))
+    # heatmap[0]['x'] = fig['layout']['xaxis']['tickvals']
+    # heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
+
+    # Add Heatmap Data to Figure
+    # for data in heatmap:
+    #     fig.add_trace(data)
+
+    # Edit Layout
+    fig1.update_layout({'height':600,'showlegend':False, 'hovermode': 'closest',})
+
+    # # Edit xaxis
+    # fig.update_layout(xaxis={'domain': [.15, 1],
+    #                                 'mirror': False,
+    #                                 'showgrid': False,
+    #                                 'showline': False,
+    #                                 'zeroline': False,
+    #                                 'ticks':""})
+    # # Edit xaxis2
+    # fig.update_layout(xaxis2={'domain': [0, .15],
+    #                                 'mirror': False,
+    #                                 'showgrid': False,
+    #                                 'showline': False,
+    #                                 'zeroline': False,
+    #                                 'showticklabels': False,
+    #                                 'ticks':""})
+
+    # # Edit yaxis
+    # fig.update_layout(yaxis={'domain': [0, .85],
+    #                                 'mirror': False,
+    #                                 'showgrid': False,
+    #                                 'showline': False,
+    #                                 'zeroline': False,
+    #                                 'showticklabels': False,
+    #                                 'ticks': ""
+    #                         })
+    # # Edit yaxis2
+    # fig.update_layout(yaxis2={'domain':[.825, .975],
+    #                                 'mirror': False,
+    #                                 'showgrid': False,
+    #                                 'showline': False,
+    #                                 'zeroline': False,
+    #                                 'showticklabels': False,
+    #                                 'ticks':""})
+
+
+
+    fig2 = px.box(df, 
+                 x="rack_no",
+                 y="soh",
+                 title="Boxplot of SOH",
+                 notched=True, # used notched shape
+                 labels={"rack_no": "Rack","soh": "SOH"},
+                 hover_data=["rack_no","cell_no","soh"] # add day column to hover data
+                )
+    fig2.update_layout(clickmode='event+select')
+    fig2.update_layout(showlegend=False)
+    fig2.update_layout(height=450)
+
+
+
+    sum_df = df[['rack_no','soh']].groupby(['rack_no'],as_index=False).sum()
+    sum_df['minmax']=''
+
+    sum_df['minmax'][sum_df['soh'].idxmax()] = 'MAX :' + str(sum_df['soh'].max())
+    sum_df['minmax'][sum_df['soh'].idxmin()] = 'MIN :' + str(sum_df['soh'].min())
+    minmax_gap = str(sum_df['soh'].max() - sum_df['soh'].min())
+
+    fig3 =  px.line(sum_df, 
+                    x = 'rack_no',
+                    y = 'soh', 
+                    title='Rack Sums & Max Gap [ ' + minmax_gap + ' ]',
+                    labels={"rack_no": "Rack","soh": "SOH Sums"},
+                    text=sum_df['minmax'],
+                    markers=True
+                    ) 
+    fig3.update_traces(marker=dict(size=18,opacity=0.5 ,line=dict(width=1)),selector=dict(mode='markers'))               
+    # fig3.update_traces(mode="lines")           
+    fig3.update_layout(hovermode="closest")
+    fig3.update_layout(showlegend=False)
+    fig3.update_layout(height=450)
+
+
+    return fig1 , fig2 , fig3
+
+
+
+
+
+
 
 @app.callback(Output("cellsoh_modal_1"    , "is_open"),
               Output("cellsoh_DT_1"       , "children"),

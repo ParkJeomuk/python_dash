@@ -242,14 +242,84 @@ cellsoh_control_4 = dbc.Card([
 #--------------------------------------------------------------------------------------------------------------------
 #  두번재 탭의 패널
 #--------------------------------------------------------------------------------------------------------------------
-cellsoh_control_10 = dbc.Card([
+cellsoh_control_21 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[dbc.Label("Seleted Date")], width=2 ,style={'text-align':'right', 'padding-left': '20px', 'padding-top':'10px'},),
+        dbc.Col(children=[
+            dcc.DatePickerSingle(
+                            id='dtp_cellsoh_detail_date',
+                            min_date_allowed=date(2019, 12, 13),
+                            max_date_allowed=date.today(),
+                            initial_visible_month=date.today(),
+                            date = datetime.strptime('2021-12-29', '%Y-%m-%d').date(),
+                            display_format='YYYY-MM-DD' ,
+                            style={"font-size": 8}
+                        ) 
+        ], width=4, style={'text-align':'left','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+        dbc.Col(children=[
+            dbc.Button(html.Span(["Heatmap View", html.I(className="fas fa-arrow-alt-circle-down ml-2")]), id="btn_cellsoh_heatview", color="dark")
+        ], width=6, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+    ]),
+    ], style={"height":"50px"},
+)
+
+
+cellsoh_control_22 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
-            dbc.Label("Second Page"),
-            html.Div(id='div_cellsoh_model_info', style={'height':'440px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'auto'})
-        ], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
-    ]),
-    ],style={"height": "500px"},
+            dcc.Loading(id="cellsoh_plot_21_loading", type="dot",
+                        children=dcc.Graph(
+                            id="cellsoh_plot_21",
+                            figure={'layout': {'height': 600}},
+                            config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
+                        )
+                    )
+        ], width=12),        
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+    ],
+    style={"height":"700px"},
+)
+
+
+#--------------------------------------------------------------------------------------------------------------------
+#  두번재 탭의 2번째 PLOT
+#--------------------------------------------------------------------------------------------------------------------
+cellsoh_control_23 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+            dcc.Loading(id="cellsoh_plot_22_loading", type="dot",
+                        children=dcc.Graph(
+                            id="cellsoh_plot_22",
+                            figure={'layout': {'height': 460}},
+                            config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
+                        )
+                    )
+        ], width=12),        
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+    ],
+    style={"height":"500px"},
+    body=True,
+)
+
+
+#--------------------------------------------------------------------------------------------------------------------
+#  두번재 탭의 3번째 PLOT
+#--------------------------------------------------------------------------------------------------------------------
+cellsoh_control_24 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+            dcc.Loading(id="cellsoh_plot_23_loading", type="dot",
+                        children=dcc.Graph(
+                            id="cellsoh_plot_23",
+                            figure={'layout': {'height': 460}},
+                            config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
+                        )
+                    )
+        ], width=12),        
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+    ],
+    style={"height":"500px"},
+    body=True,
 )
 
 
@@ -275,34 +345,75 @@ cellsoh_dataview_popup = dbc.Modal(
 
 content = dac.TabItem(id='content_cellsoh_pages',
                         children=html.Div([
-                            dbc.Tabs([
-                                #------First Tab Start --------------------------------------------------------------------------
-                                dbc.Tab(label="SOH[Cell]", active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
-                                    children=html.Div([
+                            dbc.Row([
+
+                                dbc.Col([ cellsoh_control_1 ],md=3,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                dbc.Col([ 
+                                    dbc.Tabs([
+                                        #------First Tab Start --------------------------------------------------------------------------
+                                        dbc.Tab(label="SOH[Cell]", active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
+                                        children=html.Div([
+                                                dbc.Row([
+                                                    dbc.Col([ 
+                                                        cellsoh_dataview_popup,
+                                                        cellsoh_control_2,
+                                                        cellsoh_control_3,
+                                                        cellsoh_control_4
+                                                    ],md=12,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                ],),
+                                            ],),  
+                                        ),
+                                        #------First Tab End    --------------------------------------------------------------------------
+                                        #------Second Tab Start --------------------------------------------------------------------------
+                                        dbc.Tab(label='Second Page', active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
+                                        children=[
                                             dbc.Row([
-                                                dbc.Col([ cellsoh_control_1 ],md=3,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
-                                                dbc.Col([ 
-                                                    cellsoh_dataview_popup,
-                                                    cellsoh_control_2,
-                                                    cellsoh_control_3,
-                                                    cellsoh_control_4
-                                                 ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                                                dbc.Col([
+                                                    cellsoh_control_21 ,
+                                                    cellsoh_control_22 ,
+                                                    cellsoh_control_23 ,
+                                                    cellsoh_control_24 
+                                                ],md=12,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                             ],),
-                                        ],
-                                    ),  
-                                ),
-                                #------First Tab End    --------------------------------------------------------------------------
-                                #------Second Tab Start --------------------------------------------------------------------------
-                                dbc.Tab(label='Second Page', active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
-                                children=[
-                                    dbc.Row([
-                                        dbc.Col([
-                                              cellsoh_control_10
-                                        ],md=12, style={"height": "100%"},),
-                                    ],),
-                                ]),
-                                #------Second Tab End   --------------------------------------------------------------------------
-                            ])
+                                        ]),
+                                        #------Second Tab End   --------------------------------------------------------------------------
+                                    ])
+                                ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+
+
+                            ],),
+
+
+
+                            # dbc.Tabs([
+                            #     #------First Tab Start --------------------------------------------------------------------------
+                            #     dbc.Tab(label="SOH[Cell]", active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
+                            #         children=html.Div([
+                            #                 dbc.Row([
+                            #                     dbc.Col([ cellsoh_control_1 ],md=3,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                            #                     dbc.Col([ 
+                            #                         cellsoh_dataview_popup,
+                            #                         cellsoh_control_2,
+                            #                         cellsoh_control_3,
+                            #                         cellsoh_control_4
+                            #                      ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
+                            #                 ],),
+                            #             ],
+                            #         ),  
+                            #     ),
+                            #     #------First Tab End    --------------------------------------------------------------------------
+                            #     #------Second Tab Start --------------------------------------------------------------------------
+                            #     dbc.Tab(label='Second Page', active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
+                            #     children=[
+                            #         dbc.Row([
+                            #             dbc.Col([
+                            #                   cellsoh_control_21 ,
+                            #                   cellsoh_control_22
+                            #             ],md=12, style={"height": "100%"},),
+                            #         ],),
+                            #     ]),
+                            #     #------Second Tab End   --------------------------------------------------------------------------
+                            # ])
                                
 						] ,style={'width': '100%'} )
                             # className='flex-container'
