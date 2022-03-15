@@ -135,17 +135,19 @@ cellsoh_control_2 = dbc.Card([
                             ],
                     value="soh",),
         ],className="d-grid gap-2", width=2,style={'padding-top':'5px'},),
-        # dbc.Col(children=[
-        #     html.Div([
-        #         html.Span("Data Count : 0")
-        #     ],id='cellsoh_label_1', 
-        #     style={'height':'30px','width':'200px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'auto', 'padding':'5px 5px 5px 5px'})
-        # ],style={'text-align':'center', 'padding-top':'5px'}, width=5,),  
+        dbc.Col(children=[
+            html.Div([
+                html.Span("Selected Date : ____-__-__")
+            ],id='div_cellsoh_select_date', 
+            style={'height':'40px','width':'240px', 'whiteSpace':'pre-line','border':'0px #AEAFAF solid','overflow':'auto', 'padding':'5px 5px 5px 5px'})
+        ],style={'text-align':'center', 'padding-top':'5px'}, width=5,),  
+
         dbc.Col(children=html.Div([
             dbc.Button(  html.I(className="fa fa-search") , id="btn_cellsoh_viewdata", color="dark"),
             dbc.Tooltip(" Box select Data View!",target="btn_cellsoh_viewdata",),
-        ],) , width=7,style={'text-align':'right', 'padding-top':'5px', 'padding-right':'15px'},),            
+        ],) , width=2,style={'text-align':'right', 'padding-top':'5px', 'padding-right':'15px'},),            
     ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+
     dbc.Row([
         dbc.Col(children=[
             dcc.Loading(id="cellsoh_plot_1_loading", type="dot",

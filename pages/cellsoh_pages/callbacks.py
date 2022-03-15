@@ -119,7 +119,7 @@ def cb_cellsoh_plot1_render(y_val, ts, data):
                  y=y_val,
                  notched=True, # used notched shape
                  labels={"cyc_date": "Date",y_val: y_val},
-                 hover_data=["bank_no","rack_no","cell_no"] # add day column to hover data
+                 hover_data=["bank_no","rack_no","module_no","cell_no"] # add day column to hover data
                 )
     fig.update_layout(clickmode='event+select')
     fig.update_layout(showlegend=False)
@@ -224,12 +224,9 @@ def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, dat
               State('dtp_cellsoh_detail_date'  , 'date'       ), 
               State('date_range_cellsoh'       , 'start_date' ), 
               State('date_range_cellsoh'       , 'end_date'   ), 
-              State('cbo_cellsoh_bank'         , 'value'      ), 
-              State('cbo_cellsoh_rack'         , 'value'      ), 
-              State('cbo_cellsoh_module'       , 'value'      ), 
-              State('cbo_cellsoh_cell'         , 'value'      ) 
+              State('cbo_cellsoh_bank'         , 'value'      ) 
               )
-def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, s_rack_no, s_module_no, s_cell_no):
+def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no):
     if n_clicks is None:
         raise PreventUpdate
 
@@ -273,6 +270,9 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     # ]
 
     #------ Soh Cell Raw Data Loading ----------------
+    s_rack_no = ""
+    s_module_no = "" 
+    s_cell_no = ""
     df = cellsoh_data_load(start_date, end_date, s_bank_no, s_rack_no, s_module_no, s_cell_no )
     df = df[df['cyc_date']== s_date.replace('-','') ]
     df = df[['rack_no','cell_no','soh']]
@@ -281,6 +281,7 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     ld = np.array([ldf[x]['soh'].tolist()  for x in range(len(ldf))])
 
     x_list = list(range(1,29))
+    x_list = [str(i) for i in x_list]
     y_list = list(range(1,277))
 
     # heatmap = [
@@ -351,9 +352,9 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     #                                 'ticks':""})
 
 
-
+    df['RackNo'] = df['rack_no'].apply(str)
     fig2 = px.box(df, 
-                 x="rack_no",
+                 x="RackNo",
                  y="soh",
                  title="Boxplot of SOH",
                  notched=True, # used notched shape
@@ -372,16 +373,22 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     sum_df['minmax'][sum_df['soh'].idxmax()] = 'MAX :' + str(sum_df['soh'].max())
     sum_df['minmax'][sum_df['soh'].idxmin()] = 'MIN :' + str(sum_df['soh'].min())
     minmax_gap = str(sum_df['soh'].max() - sum_df['soh'].min())
+    sum_df['rack_color'] = sum_df['rack_no']
+    sum_df['rack_no'] = sum_df['rack_no'].apply(str)
 
     fig3 =  px.line(sum_df, 
                     x = 'rack_no',
                     y = 'soh', 
                     title='Rack Sums & Max Gap [ ' + minmax_gap + ' ]',
                     labels={"rack_no": "Rack","soh": "SOH Sums"},
-                    text=sum_df['minmax'],
-                    markers=True
+                    text=sum_df['minmax']  
                     ) 
-    fig3.update_traces(marker=dict(size=18,opacity=0.5 ,line=dict(width=1)),selector=dict(mode='markers'))               
+    fig3.add_scatter(x=sum_df['rack_no'], 
+                     y=sum_df['soh'], 
+                     mode='markers', 
+                     marker_color=sum_df['rack_color'], 
+                     marker_size=15)
+    # fig3.update_traces(marker=dict(size=18,opacity=0.5 ,line=dict(width=1)),selector=dict(mode='markers'))               
     # fig3.update_traces(mode="lines")           
     fig3.update_layout(hovermode="closest")
     fig3.update_layout(showlegend=False)
@@ -463,20 +470,36 @@ def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
 
 
 
-# @app.callback(Output("div_cellsoh_select_date" , "children"),
-#               Input("cellsoh_plot_1"           , "clickData"))
-# def cb_cellsoh_click_date(clickData):
-#     if clickData is None:
-#         raise PreventUpdate
+@app.callback(Output("div_cellsoh_select_date"  , "children"),
+              Output("cbo_cellsoh_detail_rack"  , "value") ,
+              Output("cbo_cellsoh_detail_module", "value") ,
+              Output("cbo_cellsoh_detail_cell"  , "value") ,
+              Output("dtp_cellsoh_detail_date"  , "date" ) ,
+              Input("cellsoh_plot_1"            , "clickData"))
+def cb_cellsoh_click_date(clickData):
+    if clickData is None:
+        raise PreventUpdate
     
-#     if len(clickData)>0:
-#         df =  pd.DataFrame(clickData['points'])
-#         if len(df)>0:
-#             selectDate = df['x'][0] #첫번째 포인트의 일자
-#             selectDate = selectDate[0:4] + "-" + selectDate[4:6] + "-" + selectDate[6:8]
-#         else:
-#             selectDate = "____-__-__"    
-#     else:
-#         selectDate = "____-__-__"
+    selectRack   = None
+    selectModule = None
+    selectCell   = None
+    returnDate   = None
+    if len(clickData)>0:
+        df =  pd.DataFrame(clickData['points'])
+        if len(df)>0:
+            selectDate = df['x'][0] #첫번째 포인트의 일자
+            
+            selectRack   = df['customdata'][0][1]
+            selectModule = df['customdata'][0][2]
+            selectCell   = df['customdata'][0][3]
+
+            selectDate = selectDate[0:4] + "-" + selectDate[4:6] + "-" + selectDate[6:8]
+            returnDate = datetime.strptime(selectDate, '%Y-%m-%d').date()
+            selectDate = "Selected Date : " + selectDate
+
+        else:
+            selectDate = "Selected Date : ____-__-__"    
+    else:
+        selectDate = "Selected Date : ____-__-__"
     
-#     return selectDate
+    return selectDate, selectRack, selectModule, selectCell, returnDate
