@@ -1,6 +1,9 @@
 from apps import app
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+
+import dash_bio as dashbio
+
 from datetime import datetime
 from datetime import date,timedelta
 from tkinter import *
@@ -136,17 +139,23 @@ def cb_cellsoh_plot1_render(y_val, ts, data):
 ######################################################################################
 @app.callback(Output('cellsoh_plot_2'            , 'figure'   ),
               Input('btn_cellsoh_detailview'     , 'n_clicks' ),
+              Input('btn_cellsoh_detail_predict' , 'n_clicks' ),
               State('cbo_cellsoh_detail'         , 'value'    ),
               State('cbo_cellsoh_detail_rack'    , 'value'    ),
               State('cbo_cellsoh_detail_module'  , 'value'    ),
               State('cbo_cellsoh_detail_cell'    , 'value'    ),
-              State('ds_cellsoh_df'              , 'data'     )
+              State('ds_cellsoh_df'              , 'data'     ),
+              State('pred_date_range_cellsoh'    , 'start_date'),
+              State('pred_date_range_cellsoh'    , 'end_date'  )
               )
-def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, data):
-    if n_clicks is None:
-        raise PreventUpdate
+def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no, cell_no, data, start_date, end_date ):
     if data is None:
         raise PreventUpdate
+
+    if pred_clicks is not None and (start_date is None or end_date is None) :
+        pred_clicks = None
+
+
 
     data = pd.read_json(data, orient='split')
     data = data.dropna(axis=0)
@@ -182,6 +191,19 @@ def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, dat
     data =  pd.concat([data[grp], data['soh']], axis=1)
     data = data.groupby(grp, as_index=False).mean()
 
+    #------ 기간 예측 버튼 클릭 ---------------------
+    if pred_clicks is not None :
+        lm_model = pickle.load(open( './model/lm_model_soh_test.sav'  , 'rb'))  # Model Load
+        if start_date is None or end_date is None :
+            raise PreventUpdate
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end   = datetime.strptime(end_date  , "%Y-%m-%d")
+        p_data = pd.DataFrame([(start + timedelta(days=x)).strftime("%Y%m%d") for x in range(0, (end-start).days)])
+        p_data.rename(columns = {0 : 'cyc_date'}, inplace = True)
+        data_pred= pd.DataFrame(lm_model.predict(p_data))
+        data_pred.rename(columns = {0 : 'soh'}, inplace = True)
+        p_data['soh'] = data_pred['soh']
+
 
     pio.templates.default = "plotly_white"
     plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
@@ -190,21 +212,29 @@ def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, dat
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         return fig
     
-    # lbl_str = "Data Count : " + str(len(data))
+    data["type"] = "Actually"
 
-    # fig = px.box(data, 
-    #              x="cyc_date",
-    #              y="soh",
-    #              notched=True, # used notched shape
-    #              labels={"cyc_date": "Date","SOH":"soh"},
-    #              hover_data=["rack_no"] # add day column to hover data
-    #             )
-    # fig.update_layout(clickmode='event+select')
-    # fig.update_layout(showlegend=False)
-    # fig.update_layout(height=520)
+    if pred_clicks is not None :
+        p_data["type"] = "Predict"
+        p_data['rack_no'] = data['rack_no'][0]
+        data = pd.concat([data[['type','cyc_date','rack_no','soh']],p_data[['type','cyc_date','rack_no','soh']] ],axis=0)
+    else:
+        data = data[['type','cyc_date','rack_no','soh']]
 
-    fig = px.scatter(data, x='cyc_date', y="soh", color=sColor )
+    fig = px.scatter(data, 
+                     x='cyc_date', 
+                     y="soh", 
+                     color='type' , 
+                     hover_data=["type","rack_no","cyc_date","soh"]
+                    )
     fig.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
+    # if pred_clicks is not None :
+    #     fig.add_trace(go.Scatter(x=p_data['cyc_date'], y=p_data['soh'], 
+    #                 mode='markers',
+    #                 name='Predict SOH',
+    #                 hover_data=["type","rack_no","cyc_date","soh"] # add day column to hover data )
+    #                 ))
+
     fig.update_layout(showlegend=True)
     fig.update_layout(height=460)
 
@@ -220,54 +250,20 @@ def cb_cellsoh_plot1_render(n_clicks,view_type, rack_no, module_no, cell_no, dat
 @app.callback(Output('cellsoh_plot_21'         , 'figure'     ),
               Output('cellsoh_plot_22'         , 'figure'     ),
               Output('cellsoh_plot_23'         , 'figure'     ),
+              Output('cellsoh_plot_24'         , 'figure'     ),
+              Output('cellsoh_plot_25'         , 'figure'     ),
               Input('btn_cellsoh_heatview'     , 'n_clicks'   ),
               State('dtp_cellsoh_detail_date'  , 'date'       ), 
               State('date_range_cellsoh'       , 'start_date' ), 
               State('date_range_cellsoh'       , 'end_date'   ), 
-              State('cbo_cellsoh_bank'         , 'value'      ) 
+              State('cbo_cellsoh_bank'         , 'value'      ),
+              State('rdo_cellsoh_heatmaptype'  , 'value'      ),
+              State('rdo_cellsoh_heatmap_color', 'value'      ),
               )
-def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no):
+def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, s_data_type, s_color_type):
     if n_clicks is None:
         raise PreventUpdate
 
-    
-    # # get data
-    # data = np.genfromtxt("http://files.figshare.com/2133304/ExpRawData_E_TABM_84_A_AFFY_44.tab",
-    #                     names=True,usecols=tuple(range(1,30)),dtype=float, delimiter="\t")
-    # data_array = data.view((np.float, len(data.dtype.names)))
-    # data_array = data_array.transpose()
-    # labels = data.dtype.names
-
-    # # Initialize figure by creating upper dendrogram
-    # fig = ff.create_dendrogram(data_array, orientation='bottom', labels=labels)
-    # for i in range(len(fig['data'])):
-    #     fig['data'][i]['yaxis'] = 'y2'
-
-    # # Create Side Dendrogram
-    # dendro_side = ff.create_dendrogram(data_array, orientation='right')
-    # for i in range(len(dendro_side['data'])):
-    #     dendro_side['data'][i]['xaxis'] = 'x2'
-
-    # # Add Side Dendrogram Data to Figure
-    # for data in dendro_side['data']:
-    #     fig.add_trace(data)
-
-    # # Create Heatmap
-    # dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
-    # dendro_leaves = list(map(int, dendro_leaves))
-    # data_dist = pdist(data_array)
-    # heat_data = squareform(data_dist)
-    # heat_data = heat_data[dendro_leaves,:]
-    # heat_data = heat_data[:,dendro_leaves]
-
-    # heatmap = [
-    #     go.Heatmap(
-    #         x = dendro_leaves,
-    #         y = dendro_leaves,
-    #         z = heat_data,
-    #         colorscale = 'Blues'
-    #     )
-    # ]
 
     #------ Soh Cell Raw Data Loading ----------------
     s_rack_no = ""
@@ -275,81 +271,38 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no):
     s_cell_no = ""
     df = cellsoh_data_load(start_date, end_date, s_bank_no, s_rack_no, s_module_no, s_cell_no )
     df = df[df['cyc_date']== s_date.replace('-','') ]
-    df = df[['rack_no','cell_no','soh']]
-    gb = df.groupby('cell_no')
-    ldf = [gb.get_group(x) for x in gb.groups]
-    ld = np.array([ldf[x]['soh'].tolist()  for x in range(len(ldf))])
-
-    x_list = list(range(1,29))
-    x_list = [str(i) for i in x_list]
-    y_list = list(range(1,277))
-
-    # heatmap = [
-    #     go.Heatmap(
-    #         x = x_list,
-    #         y = y_list,
-    #         z = ld,
-    #         colorscale = 'Blues'
-    #     )
-    # ]
-
-    # fig = go.Heatmap(
-    #         x = x_list,
-    #         y = y_list,
-    #         z = ld,
-    #         colorscale = 'Blues'
-    #       )
+    
+    if s_data_type == "C":
+        tmp_df = df[['rack_no','cell_no','soh']].pivot('cell_no','rack_no','soh')
+    else:    
+        tmp_df = df[['rack_no','module_no','soh']].groupby(['rack_no','module_no'],as_index=False).mean()
+        tmp_df = tmp_df[['rack_no','module_no','soh']].pivot('module_no','rack_no','soh')
 
     pio.templates.default = "plotly_white"
+    plot_template = ('plotly','ggplot2', 'seaborn', 'simple_white', 'plotly_white', 'plotly_dark', 'presentation', 'xgridoff','ygridoff', 'gridon', 'none')
+    
+    if df is None:
+        fig =  blank_fig() #px.scatter(x=None, y=None)        
+        return fig
 
+    if s_color_type == 'D':
+        colorMap =  [[0.0, '#FEFDFB'],[0.2, '#FCD82D'],[1.0, '#921205']]
+    else:    
+        colorMap =  [[0.0, '#921205'],[0.8, '#FCD82D'],[1.0, '#FEFDFB']]
 
-    fig1 = go.Figure(data=go.Heatmap( z=ld,
-                                      x=x_list,
-                                      y=y_list,
-                                      hoverongaps = False))
-    # heatmap[0]['x'] = fig['layout']['xaxis']['tickvals']
-    # heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
+    columns = list(tmp_df.columns.values)
+    rows = list(tmp_df.index)
 
-    # Add Heatmap Data to Figure
-    # for data in heatmap:
-    #     fig.add_trace(data)
-
-    # Edit Layout
-    fig1.update_layout({'height':600,'showlegend':False, 'hovermode': 'closest',})
-
-    # # Edit xaxis
-    # fig.update_layout(xaxis={'domain': [.15, 1],
-    #                                 'mirror': False,
-    #                                 'showgrid': False,
-    #                                 'showline': False,
-    #                                 'zeroline': False,
-    #                                 'ticks':""})
-    # # Edit xaxis2
-    # fig.update_layout(xaxis2={'domain': [0, .15],
-    #                                 'mirror': False,
-    #                                 'showgrid': False,
-    #                                 'showline': False,
-    #                                 'zeroline': False,
-    #                                 'showticklabels': False,
-    #                                 'ticks':""})
-
-    # # Edit yaxis
-    # fig.update_layout(yaxis={'domain': [0, .85],
-    #                                 'mirror': False,
-    #                                 'showgrid': False,
-    #                                 'showline': False,
-    #                                 'zeroline': False,
-    #                                 'showticklabels': False,
-    #                                 'ticks': ""
-    #                         })
-    # # Edit yaxis2
-    # fig.update_layout(yaxis2={'domain':[.825, .975],
-    #                                 'mirror': False,
-    #                                 'showgrid': False,
-    #                                 'showline': False,
-    #                                 'zeroline': False,
-    #                                 'showticklabels': False,
-    #                                 'ticks':""})
+    fig1 = dashbio.Clustergram(
+                        data=tmp_df.loc[rows].values,
+                        row_labels=rows,
+                        column_labels=columns,
+                        height=750,
+                        width=1400,
+                        center_values=False,
+                        color_map= colorMap
+                    )
+    fig1.update_layout(showlegend=False)
 
 
     df['RackNo'] = df['rack_no'].apply(str)
@@ -394,8 +347,22 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no):
     fig3.update_layout(showlegend=False)
     fig3.update_layout(height=450)
 
+    df4 = df[['soh']].sort_values(by='soh', ascending=True)
+    df4['idx'] = range(1,len(df4)+1)
+    fig4 = px.scatter(df4, 
+                     x='idx', 
+                     y="soh"
+                    )
+    fig4.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
+    fig4.update_layout(showlegend=True)
+    fig4.update_layout(height=460)
 
-    return fig1 , fig2 , fig3
+
+    group_labels = ['SOH'] # name of the dataset
+    fig5 = ff.create_distplot([df.soh.values.tolist()], group_labels, bin_size=.05)
+    fig5.update_layout(height=460)     
+
+    return fig1 , fig2 , fig3, fig4, fig5
 
 
 
@@ -403,20 +370,18 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no):
 
 
 
-@app.callback(Output("cellsoh_modal_1"    , "is_open"),
-              Output("cellsoh_DT_1"       , "children"),
-              Input("btn_cellsoh_viewdata", "n_clicks"),
-              State("cellsoh_modal_1"     , "is_open"),
-              State("cellsoh_plot_1"      , "selectedData"))
-def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
-    if n_clicks is None:
+@app.callback(Output("cellsoh_modal_1"           , "is_open"),
+              Output("cellsoh_DT_1"              , "children"),
+              Input("btn_cellsoh_viewdata"       , "n_clicks"),
+              State("cellsoh_modal_1"            , "is_open"),
+              State("cellsoh_plot_1"             , "selectedData")
+              )
+def cb_cellsoh_toggle_modal(n_clicks,is_open, selectedData):
+    if n_clicks is None :
         raise PreventUpdate
-   
-    data= json.dumps(selectedData , indent=2)
 
     if len(selectedData['points']) > 0 :
         df = pd.DataFrame(selectedData['points'])
-
         ddata = df[['x','y']]
         cdata = pd.DataFrame(df['customdata'].tolist())
         data = pd.concat([ddata,cdata],axis=1)
@@ -432,7 +397,7 @@ def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
                             dict(id='rack_no' , name='Rack' , type='text'), 
                             dict(id='cell_no' , name='Cell' , type='text'), 
                             dict(id='soh'     , name='SOH'  , type='numeric'), 
-                          ]
+                        ]
 
     cellsoh_DataTable_1 = dash_table.DataTable(
                     data=data,
@@ -465,6 +430,69 @@ def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
 
     return not is_open, cellsoh_DataTable_1
 
+
+
+
+
+
+@app.callback(Output("cellsoh_modal_2"           , "is_open"),
+              Output("cellsoh_DT_2"              , "children"),
+              Input("btn_cellsoh_detail_dataview", "n_clicks"),
+              State("cellsoh_modal_2"            , "is_open"),
+              State("cellsoh_plot_2"             , "selectedData"),
+              )
+def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
+    if n_clicks is None :
+        raise PreventUpdate
+
+    if len(selectedData['points']) > 0 :
+        df = pd.DataFrame(selectedData['points'])
+        ddata = df[['x','y']]
+        cdata = pd.DataFrame(df['customdata'].tolist())
+        data = pd.concat([ddata,cdata],axis=1)
+        data = data.rename(columns={'x': 'cyc_date', 'y': 'soh', 0:'type', 1:'rack_no'})
+        data = data[['cyc_date','type', 'rack_no', 'soh']]
+        data = data.to_dict('rows')
+    else:
+        data = None
+
+
+    cellsoh_DT2_columns = [
+                            dict(id='type'    , name='Type' , type='text'), 
+                            dict(id='cyc_date', name='Date' , type='text'), 
+                            dict(id='rack_no' , name='Rack' , type='text'), 
+                            dict(id='soh'     , name='SOH'  , type='numeric'), 
+                        ]
+
+    cellsoh_DataTable_2 = dash_table.DataTable(
+                    data=data,
+                    columns = cellsoh_DT2_columns,
+                    editable=False,
+                    style_table={'height': '400px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'type'      }, 'textAlign': 'left'  }, 
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh'       }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return not is_open, cellsoh_DataTable_2
 
 
 
@@ -503,3 +531,9 @@ def cb_cellsoh_click_date(clickData):
         selectDate = "Selected Date : ____-__-__"
     
     return selectDate, selectRack, selectModule, selectCell, returnDate
+
+
+
+
+
+ 

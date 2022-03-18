@@ -213,7 +213,7 @@ cellsoh_control_3 = dbc.Card([
         ], width=1, style={'text-align':'left', 'padding-top':'7px', 'padding-left':'5px'}),
 
         dbc.Col(children=[
-            dbc.Button(html.Span(["Detail View", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_detailview", color="dark")
+            dbc.Button(html.Span(["Detail View", html.I(className="fas fa-arrow-alt-circle-down ml-2")]), id="btn_cellsoh_detailview", color="dark")
         ], width=2, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'}),
     ]),
     ],style={"height": "50px"},
@@ -241,12 +241,42 @@ cellsoh_control_4 = dbc.Card([
 )
 
 
+
+#--------------------------------------------------------------------------------------------------------------------
+# 하단 Predict 패널
+#--------------------------------------------------------------------------------------------------------------------
+cellsoh_control_5 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[dbc.Label("Predict Period")], width=2 ,style={'text-align':'right', 'padding-left': '20px', 'padding-top':'10px'},),
+        dbc.Col(children=[
+            dcc.DatePickerRange(
+                        id='pred_date_range_cellsoh',
+                        initial_visible_month=date.today()+timedelta(days=30),
+                        display_format='YYYY-MM-DD',
+                        style = {'width':'100%','font-size': '10px','display': 'inline','border-spacing' : '0'} 
+                    )  
+        ], width=8, style={ 'padding-top': '7px'}),
+        dbc.Col(children=[
+            dbc.Button(html.Span(["Predict", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_detail_predict", color="dark")
+        ], width=1, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'}),
+        dbc.Col(children=[
+            dbc.Button(html.I(className="fa fa-search") , id="btn_cellsoh_detail_dataview", color="dark"),
+            dbc.Tooltip(" Box select Data View!",target="btn_cellsoh_detail_dataview",),
+        ], width=1, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'}),
+    ]),
+    ],style={"height": "50px"},
+)
+
+ 
+
+
+
 #--------------------------------------------------------------------------------------------------------------------
 #  두번재 탭의 패널
 #--------------------------------------------------------------------------------------------------------------------
 cellsoh_control_21 = dbc.Card([
     dbc.Row([
-        dbc.Col(children=[dbc.Label("Seleted Date")], width=2 ,style={'text-align':'right', 'padding-left': '20px', 'padding-top':'10px'},),
+        dbc.Col(children=[dbc.Label("Date")], width=1 ,style={'text-align':'right', 'padding-left': '20px', 'padding-top':'10px'},),
         dbc.Col(children=[
             dcc.DatePickerSingle(
                             id='dtp_cellsoh_detail_date',
@@ -257,10 +287,34 @@ cellsoh_control_21 = dbc.Card([
                             display_format='YYYY-MM-DD' ,
                             style={"font-size": 8}
                         ) 
-        ], width=4, style={'text-align':'left','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+        ], width=2, style={'text-align':'left','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+        dbc.Col(children=[dbc.Label("Data Type")], width=1 ,style={'text-align':'right', 'padding-left': '20px', 'padding-top':'10px'},),
+        dbc.Col(children=[
+                   dcc.RadioItems(
+                       id='rdo_cellsoh_heatmaptype',
+                       options=[ 
+                                dict(label='Cell'  ,value='C'),
+                                dict(label='Module',value='M')
+                                ], 
+                       value='C' ,
+                       labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'20px'}
+                       )
+                ], width=2, style={'text-align':'left','padding-top': '12px'},),
+        dbc.Col(children=[dbc.Label("Color Type")], width=1 ,style={'text-align':'right', 'padding-left': '20px', 'padding-top':'10px'},),        
+        dbc.Col(children=[
+                   dcc.RadioItems(
+                       id='rdo_cellsoh_heatmap_color',
+                       options=[ 
+                                dict(label='Asc'  ,value='A'),
+                                dict(label='Desc' ,value='D')
+                                ], 
+                       value='D' ,
+                       labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'20px'}
+                       )
+                ], width=2, style={'text-align':'left','padding-top': '12px'},),        
         dbc.Col(children=[
             dbc.Button(html.Span(["Heatmap View", html.I(className="fas fa-arrow-alt-circle-down ml-2")]), id="btn_cellsoh_heatview", color="dark")
-        ], width=6, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+        ], width=3, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
     ]),
     ], style={"height":"50px"},
 )
@@ -272,14 +326,14 @@ cellsoh_control_22 = dbc.Card([
             dcc.Loading(id="cellsoh_plot_21_loading", type="dot",
                         children=dcc.Graph(
                             id="cellsoh_plot_21",
-                            figure={'layout': {'height': 600}},
+                            figure={'layout': {'height': 650}},
                             config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
                         )
                     )
         ], width=12),        
     ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
     ],
-    style={"height":"700px"},
+    style={"height":"720px"},
 )
 
 
@@ -326,6 +380,35 @@ cellsoh_control_24 = dbc.Card([
 
 
 #--------------------------------------------------------------------------------------------------------------------
+#  두번재 탭의 4,5번째 PLOT
+#--------------------------------------------------------------------------------------------------------------------
+cellsoh_control_25 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+            dcc.Loading(id="cellsoh_plot_24_loading", type="dot",
+                        children=dcc.Graph(
+                            id="cellsoh_plot_24",
+                            figure={'layout': {'height': 460}},
+                            config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
+                        )
+                    )
+        ], width=6),        
+        dbc.Col(children=[
+            dcc.Loading(id="cellsoh_plot_25_loading", type="dot",
+                        children=dcc.Graph(
+                            id="cellsoh_plot_25",
+                            figure={'layout': {'height': 460}},
+                            config={'modeBarButtons': [['zoom2d','pan2d','select2d','zoomIn2d','zoomOut2d','resetScale2d','toImage']]} 
+                        )
+                    )
+        ], width=6),        
+    ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
+    ],
+    style={"height":"500px"},
+    body=True,
+)
+
+#--------------------------------------------------------------------------------------------------------------------
 # 첫째 패널의 박스 선택 부분의 데이타 뷰 모달 팝업
 #--------------------------------------------------------------------------------------------------------------------
 cellsoh_dataview_popup = dbc.Modal(
@@ -337,6 +420,22 @@ cellsoh_dataview_popup = dbc.Modal(
             ]),
     ],
     id="cellsoh_modal_1",
+    size="lg",
+)
+
+
+#--------------------------------------------------------------------------------------------------------------------
+# 첫째 탭의 상세 패널의 박스 선택 부분의 데이타 뷰 모달 팝업
+#--------------------------------------------------------------------------------------------------------------------
+cellsoh_dataview_popup2 = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("View Data")),
+        dbc.ModalBody(
+            children=[
+                 html.H1(id='cellsoh_DT_2') ,
+            ]),
+    ],
+    id="cellsoh_modal_2",
     size="lg",
 )
 
@@ -358,9 +457,12 @@ content = dac.TabItem(id='content_cellsoh_pages',
                                                 dbc.Row([
                                                     dbc.Col([ 
                                                         cellsoh_dataview_popup,
+                                                        cellsoh_dataview_popup2,
                                                         cellsoh_control_2,
                                                         cellsoh_control_3,
-                                                        cellsoh_control_4
+                                                        cellsoh_control_4,
+                                                        cellsoh_control_5,
+                                                        html.Br(),html.Br()
                                                     ],md=12,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                                 ],),
                                             ],),  
@@ -374,7 +476,9 @@ content = dac.TabItem(id='content_cellsoh_pages',
                                                     cellsoh_control_21 ,
                                                     cellsoh_control_22 ,
                                                     cellsoh_control_23 ,
-                                                    cellsoh_control_24 
+                                                    cellsoh_control_24 ,
+                                                    cellsoh_control_25
+                                                    
                                                 ],md=12,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
                                             ],),
                                         ]),
@@ -384,39 +488,6 @@ content = dac.TabItem(id='content_cellsoh_pages',
 
 
                             ],),
-
-
-
-                            # dbc.Tabs([
-                            #     #------First Tab Start --------------------------------------------------------------------------
-                            #     dbc.Tab(label="SOH[Cell]", active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
-                            #         children=html.Div([
-                            #                 dbc.Row([
-                            #                     dbc.Col([ cellsoh_control_1 ],md=3,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
-                            #                     dbc.Col([ 
-                            #                         cellsoh_dataview_popup,
-                            #                         cellsoh_control_2,
-                            #                         cellsoh_control_3,
-                            #                         cellsoh_control_4
-                            #                      ],md=9,style={"padding-top": "10px","padding-left": "10px","padding-right": "10px", }, ),
-                            #                 ],),
-                            #             ],
-                            #         ),  
-                            #     ),
-                            #     #------First Tab End    --------------------------------------------------------------------------
-                            #     #------Second Tab Start --------------------------------------------------------------------------
-                            #     dbc.Tab(label='Second Page', active_label_class_name="fw-bold", tab_class_name="flex-grow-1 text-center",
-                            #     children=[
-                            #         dbc.Row([
-                            #             dbc.Col([
-                            #                   cellsoh_control_21 ,
-                            #                   cellsoh_control_22
-                            #             ],md=12, style={"height": "100%"},),
-                            #         ],),
-                            #     ]),
-                            #     #------Second Tab End   --------------------------------------------------------------------------
-                            # ])
-                               
 						] ,style={'width': '100%'} )
                             # className='flex-container'
          )                        

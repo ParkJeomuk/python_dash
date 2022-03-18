@@ -7,11 +7,12 @@ import dash_admin_components as dac
 import pandas as pd
 import plotly.io as pio
 import plotly.express as px
-import time
 import plotly.graph_objs as go
 import json
 import dash as html
 import dash_table
+import time
+
 
 from utils.server_function import *
 from pages.dash_pages.model import *
