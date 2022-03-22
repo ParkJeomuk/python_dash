@@ -168,26 +168,37 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
     data['cell_no'] = data['cell_no'].apply(str)
     
 
-    if uf_is_empty(rack_no)==False:
-        data = data[(data["rack_no"]==str(rack_no))]
+    
 
-    if uf_is_empty(module_no)==False:
-        data = data[(data["module_no"]==str(module_no))]
+    
 
-    if uf_is_empty(cell_no)==False:
-        data = data[(data["cell_no"]==str(cell_no))]
+    
 
     if view_type == 'R':
-      grp = ['cyc_date','rack_no']
-      sColor = 'rack_no'
-    elif view_type == 'M':
-      grp = ['cyc_date','rack_no','module_no']
-      sColor = 'module_no'
-    else:
-      grp = ['cyc_date','rack_no','module_no','cell_no']
-      sColor = 'cell_no'
+        if uf_is_empty(rack_no)==False:
+            data = data[(data["rack_no"]==str(rack_no))]
 
-    # data.groupby(['rack_no', 'module_no', 'cell_no']).mean()
+        grp = ['cyc_date','rack_no']
+        sColor = 'rack_no'
+    elif view_type == 'M':
+        if uf_is_empty(rack_no)==False:
+            data = data[(data["rack_no"]==str(rack_no))]
+        if uf_is_empty(module_no)==False:
+            data = data[(data["module_no"]==str(module_no))]
+
+        grp = ['cyc_date','rack_no','module_no']
+        sColor = 'module_no'
+    else:
+        if uf_is_empty(rack_no)==False:
+            data = data[(data["rack_no"]==str(rack_no))]
+        if uf_is_empty(module_no)==False:
+            data = data[(data["module_no"]==str(module_no))]
+        if uf_is_empty(cell_no)==False:
+            data = data[(data["cell_no"]==str(cell_no))]
+
+        grp = ['cyc_date','rack_no','module_no','cell_no']
+        sColor = 'cell_no'
+
     data =  pd.concat([data[grp], data['soh']], axis=1)
     data = data.groupby(grp, as_index=False).mean()
 
@@ -252,6 +263,8 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
               Output('cellsoh_plot_23'         , 'figure'     ),
               Output('cellsoh_plot_24'         , 'figure'     ),
               Output('cellsoh_plot_25'         , 'figure'     ),
+              Output('ds_cellsoh_good_df'      , 'data'       ),
+              Output('ds_cellsoh_bad_df'       , 'data'       ),
               Input('btn_cellsoh_heatview'     , 'n_clicks'   ),
               State('dtp_cellsoh_detail_date'  , 'date'       ), 
               State('date_range_cellsoh'       , 'start_date' ), 
@@ -347,12 +360,23 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     fig3.update_layout(showlegend=False)
     fig3.update_layout(height=450)
 
+    colList = ['cyc_date','bank_no','rack_no','module_no','cell_no','soh','q_a','q_u','cur_avg','n','u_vol','o_vol','gap']
+    good_df = df[colList].sort_values(by='soh', ascending=False).iloc[0:50,]
+    bad_df  = df[colList].sort_values(by='soh', ascending=True ).iloc[0:50,]
+    good_df['seq'] = range(1,51)
+    bad_df['seq'] = range(1,51)
+
+    good_line = good_df['soh'].iloc[49]
+    bad_line  = bad_df['soh'].iloc[49]
+
     df4 = df[['soh']].sort_values(by='soh', ascending=True)
     df4['idx'] = range(1,len(df4)+1)
     fig4 = px.scatter(df4, 
                      x='idx', 
                      y="soh"
                     )
+    fig4.add_hline(y=good_line , line_width=2, line_dash="dash", line_color="orange")
+    fig4.add_hline(y=bad_line, line_width=2, line_dash="dash", line_color="orange")
     fig4.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
     fig4.update_layout(showlegend=True)
     fig4.update_layout(height=460)
@@ -362,7 +386,7 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     fig5 = ff.create_distplot([df.soh.values.tolist()], group_labels, bin_size=.05)
     fig5.update_layout(height=460)     
 
-    return fig1 , fig2 , fig3, fig4, fig5
+    return fig1 , fig2 , fig3, fig4, fig5, good_df.to_json(date_format='iso',orient='split'), bad_df.to_json(date_format='iso',orient='split')
 
 
 
@@ -403,7 +427,7 @@ def cb_cellsoh_toggle_modal(n_clicks,is_open, selectedData):
                     data=data,
                     columns = cellsoh_DT1_columns,
                     editable=False,
-                    style_table={'height': '400px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_table={'height': '400px',  'overflowY': 'auto', 'overflowX': 'auto'},
                     style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
                     column_selectable="single",
                     selected_rows=[],
@@ -534,6 +558,127 @@ def cb_cellsoh_click_date(clickData):
 
 
 
+#------------ Good Cell View -----------------------------------------------------
+@app.callback(Output("cellsoh_modal_3"           , "is_open"  ),
+              Output("cellsoh_DT_3"              , "children" ),
+              Input("btn_cellsoh_good"           , "n_clicks" ),
+              State("cellsoh_modal_3"            , "is_open"  ),
+              State('ds_cellsoh_good_df'         , 'data'     )
+              )
+def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
+    if n_clicks is None :
+        raise PreventUpdate
+
+    
+    data = pd.read_json(ds_data, orient='split').to_dict('rows')
+
+    cellsoh_DT3_columns = [
+                            dict(id='seq'      , name='No'   , type='numeric'), 
+                            dict(id='cyc_date' , name='Date' , type='text'), 
+                            dict(id='rack_no'  , name='Rack' , type='text'), 
+                            dict(id='module_no', name='Module' , type='text'), 
+                            dict(id='cell_no'  , name='Cell' , type='text'), 
+                            dict(id='soh'      , name='SOH'  , type='numeric'), 
+                            dict(id='q_a'      , name='Q A'  , type='numeric'), 
+                            dict(id='q_u'      , name='Q U'  , type='numeric'), 
+                            dict(id='cur_avg'  , name='Current Avg'  , type='numeric'), 
+                            dict(id='n'        , name='N'      , type='numeric'), 
+                            dict(id='u_vol'    , name='U Vol'  , type='numeric'), 
+                            dict(id='o_vol'    , name='O Vol'  , type='numeric'), 
+                            dict(id='gap'      , name='Gap'    , type='numeric'), 
+                        ]
+
+    cellsoh_DataTable_3 = dash_table.DataTable(
+                    data=data,
+                    columns = cellsoh_DT3_columns,
+                    editable=False,
+                    style_table={'height': '800px','width':'800px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'textAlign': 'right' },
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'module_no' }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return not is_open, cellsoh_DataTable_3
+
 
 
  
+#------------ Bad Cell View -----------------------------------------------------
+@app.callback(Output("cellsoh_modal_4"    , "is_open"  ),
+              Output("cellsoh_DT_4"       , "children" ),
+              Input("btn_cellsoh_bad"     , "n_clicks" ),
+              State("cellsoh_modal_4"     , "is_open"  ),
+              State('ds_cellsoh_bad_df'   , 'data'     )
+              )
+def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
+    if n_clicks is None :
+        raise PreventUpdate
+
+    
+    data = pd.read_json(ds_data, orient='split').to_dict('rows')
+
+    cellsoh_DT4_columns = [
+                            dict(id='seq'      , name='No'   , type='numeric'), 
+                            dict(id='cyc_date' , name='Date' , type='text'), 
+                            dict(id='rack_no'  , name='Rack' , type='text'), 
+                            dict(id='module_no', name='Module' , type='text'), 
+                            dict(id='cell_no'  , name='Cell' , type='text'), 
+                            dict(id='soh'      , name='SOH'  , type='numeric'), 
+                            dict(id='q_a'      , name='Q A'  , type='numeric'), 
+                            dict(id='q_u'      , name='Q U'  , type='numeric'), 
+                            dict(id='cur_avg'  , name='Current Avg'  , type='numeric'), 
+                            dict(id='n'        , name='N'      , type='numeric'), 
+                            dict(id='u_vol'    , name='U Vol'  , type='numeric'), 
+                            dict(id='o_vol'    , name='O Vol'  , type='numeric'), 
+                            dict(id='gap'      , name='Gap'    , type='numeric'), 
+                        ]
+
+    cellsoh_DataTable_4 = dash_table.DataTable(
+                    data=data,
+                    columns = cellsoh_DT4_columns,
+                    editable=False,
+                    style_table={'height': '800px','width':'800px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'textAlign': 'right' },
+                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'module_no' }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return not is_open, cellsoh_DataTable_4
