@@ -41,24 +41,11 @@ dataset_DataTable_1 = dash_table.DataTable(
                 column_selectable="single",
                 row_selectable="multi",
                 selected_rows=[],
-                # page_action='custom',
-                # page_current=0,
-                # page_size=25,
-                # sort_action='custom',
-                # sort_mode='multi',
-                # sort_by=[],
-                # fixed_columns={'headers': True, 'data': 1}, 
-                # style_as_list_view=True,
-                
                 style_cell_conditional=[
-                    # { 'if': {'column_id': 'chk'     }, 'textAlign': 'center', 'width': '10%' },
                     { 'if': {'column_id': 'column'  }, 'textAlign': 'left',   'width': '100%' },
                 ],
-                style_data_conditional=[
-                    {
+                style_data_conditional=[{
                         'if': {'row_index': 0}, 'backgroundColor': '#FFF2CC'  ,
-                        # data_bars(dataTable_column, 'ChargeQ')  +
-                        # data_bars(dataTable_column, 'Voltage'),
                     },
                 ],
                 style_header={
@@ -67,7 +54,6 @@ dataset_DataTable_1 = dash_table.DataTable(
                     'textAlign': 'center',
                     'height':'40px'
                 },
-                # export_format='xlsx',
                 export_headers='display',
             )
 
@@ -223,7 +209,7 @@ dataset_control_1 = dbc.Card(
                    dbc.Button(html.Span(["Get Data Info", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="btn_dataset_datainfo",
                                color="dark")
-                    ], style={'align':'right', 'whiteSpace':'pre-line' })
+                    ], style={'text-align':'right',   'whiteSpace':'pre-line' })
             ],style={'padding-top': '5px', 'padding-bottom': '5px'},
         ),
         dbc.Row(
@@ -241,7 +227,7 @@ dataset_control_1 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=[
-                    html.Div(id='div_dataset_datasummary', style={'height':'170px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'scroll'})
+                    html.Div(id='div_dataset_datasummary', style={'height':'175px', 'whiteSpace':'pre-line','border':'1px #AEAFAF solid','overflow':'scroll'})
                 ], width=12)            
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
@@ -252,25 +238,21 @@ dataset_control_1 = dbc.Card(
 
 dataset_control_2 = dbc.Card(
     [
-        dbc.Row(
-            [
-                dbc.Col(children=[dbc.Label("Data Column Choice")], width=8),
+        dbc.Row([
+                dbc.Col(children=[dbc.Label("Data Column Choice")
+                ], width=8,style={'text-align':'left','padding-top': '12px', 'padding-bottom': '5px','padding-left': '20px'}),
                 dbc.Col(children=[
                    dbc.Button(html.Span(["Set Data", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="btn_dataset_set_data",
                                color="dark")
-                ], width=4),
-            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
-        ),
-        dbc.Row(
-            [
+                ], width=4 ,style={'text-align':'right','padding-top': '5px', 'padding-bottom': '5px'}),
+        ]),
+        dbc.Row([
                 dbc.Col(children=[
                     dataset_DataTable_1
-                ], width=12),
+                ], width=12,style={'padding-top': '5px', 'padding-bottom': '5px'},),
                 
-            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
-        ),
-
+        ]),
     ],
     style={"height": "370px",'padding-left': '10px', 'padding-right': '10px'},
     # body=True,
@@ -282,17 +264,19 @@ dataset_control_3 = dbc.Card(
             [
                 dbc.Col(children=[dbc.Label("Data View")], width=4),
                 dbc.Col(children=[
-                   dcc.RadioItems(
-                       id='rdo_dataset_dataview',
-                       options=[ 
-                                dict(label='Head'   ,value='H'),
-                                dict(label='Tail'   ,value='T'),
-                                dict(label='Custom' ,value='C')
-                                ], 
-                       value='H' ,
-                       labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'20px'}
-                       )
-                ], width=8),
+                   html.Div([
+                    dcc.RadioItems(
+                        id='rdo_dataset_dataview',
+                        options=[ 
+                                    dict(label='Head'   ,value='H'),
+                                    dict(label='Tail'   ,value='T'),
+                                    dict(label='Custom' ,value='C')
+                                    ], 
+                        value='H' ,
+                        labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'20px'}
+                        )
+                ],style={'height':'37px','width':'250px', 'whiteSpace':'pre-line','border':'1px #D3D3D3 solid', 'padding':'5px 5px 5px 10px','border-radius': '5px'})         
+                ], width=8 , style={'text-align':'right' }),
             ],style={'padding-left': '20px', 'padding-top': '5px', 'padding-bottom': '5px'}
         ),
         dbc.Row(
@@ -317,12 +301,12 @@ dataset_control_4 = dbc.Card(
                    dbc.Button(html.Span(["Data Split", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="btn_dataset_split_data",
                                color="dark")
-                ], width=3),
+                ], width=3, style={'text-align':'right'}),
                 dbc.Col(children=[
                    dbc.Button(html.Span(["Data View", html.I(className="fas fa-arrow-alt-circle-right ml-2")]),
                                id="btn_dataset_data_view",
                                color="dark")
-                ], width=3),
+                ], width=3, style={'text-align':'right'}),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
         dbc.Row(

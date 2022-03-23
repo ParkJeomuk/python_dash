@@ -265,15 +265,20 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
               Output('cellsoh_plot_25'         , 'figure'     ),
               Output('ds_cellsoh_good_df'      , 'data'       ),
               Output('ds_cellsoh_bad_df'       , 'data'       ),
+              Output('input_cellsoh_upper'     , 'value'      ),
+              Output('input_cellsoh_lower'     , 'value'      ),
               Input('btn_cellsoh_heatview'     , 'n_clicks'   ),
+              Input('btn_cellsoh_redraw'       , 'n_clicks'   ),
               State('dtp_cellsoh_detail_date'  , 'date'       ), 
               State('date_range_cellsoh'       , 'start_date' ), 
               State('date_range_cellsoh'       , 'end_date'   ), 
               State('cbo_cellsoh_bank'         , 'value'      ),
               State('rdo_cellsoh_heatmaptype'  , 'value'      ),
               State('rdo_cellsoh_heatmap_color', 'value'      ),
+              State('input_cellsoh_upper'      , 'value'      ),
+              State('input_cellsoh_lower'      , 'value'      ),
               )
-def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, s_data_type, s_color_type):
+def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_date, s_bank_no, s_data_type, s_color_type, n_upper_soh, n_lower_soh):
     if n_clicks is None:
         raise PreventUpdate
 
@@ -366,8 +371,18 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
     good_df['seq'] = range(1,51)
     bad_df['seq'] = range(1,51)
 
-    good_line = good_df['soh'].iloc[49]
-    bad_line  = bad_df['soh'].iloc[49]
+    
+    if n_upper_soh is None:
+        good_line = good_df['soh'].iloc[49]
+    else :
+        good_line = n_upper_soh
+
+    if n_lower_soh is None:
+        bad_line  = bad_df['soh'].iloc[49]
+    else :
+        bad_line = n_lower_soh
+
+    
 
     df4 = df[['soh']].sort_values(by='soh', ascending=True)
     df4['idx'] = range(1,len(df4)+1)
@@ -375,18 +390,20 @@ def cb_cellsoh_plot21_render(n_clicks, s_date, start_date, end_date, s_bank_no, 
                      x='idx', 
                      y="soh"
                     )
-    fig4.add_hline(y=good_line , line_width=2, line_dash="dash", line_color="orange")
-    fig4.add_hline(y=bad_line, line_width=2, line_dash="dash", line_color="orange")
+    fig4.add_hline(y=good_line , line_width=2, line_dash="dash", line_color="red")
+    fig4.add_hline(y=bad_line, line_width=2, line_dash="dash", line_color="red")
     fig4.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
     fig4.update_layout(showlegend=True)
     fig4.update_layout(height=460)
 
 
     group_labels = ['SOH'] # name of the dataset
-    fig5 = ff.create_distplot([df.soh.values.tolist()], group_labels, bin_size=.05)
+    fig5 = ff.create_distplot([df.soh.values.tolist()], group_labels, bin_size=.05, show_hist=False, show_rug=False)
+    fig5 = fig5.add_vline(x=bad_line,  line_width=2, line_dash="dash", line_color="red" )
+    fig5 = fig5.add_vline(x=good_line, line_width=2, line_dash="dash", line_color="red" )
     fig5.update_layout(height=460)     
 
-    return fig1 , fig2 , fig3, fig4, fig5, good_df.to_json(date_format='iso',orient='split'), bad_df.to_json(date_format='iso',orient='split')
+    return fig1 , fig2 , fig3, fig4, fig5, good_df.to_json(date_format='iso',orient='split'), bad_df.to_json(date_format='iso',orient='split'), good_line, bad_line
 
 
 
@@ -468,8 +485,8 @@ def cb_cellsoh_toggle_modal(n_clicks,is_open, selectedData):
 def cb_cellsoh_toggle_modal(n_clicks, is_open, selectedData):
     if n_clicks is None :
         raise PreventUpdate
-
-    if len(selectedData['points']) > 0 :
+    
+    if selectedData is not None and  len(selectedData['points']) > 0 :
         df = pd.DataFrame(selectedData['points'])
         ddata = df[['x','y']]
         cdata = pd.DataFrame(df['customdata'].tolist())
@@ -557,7 +574,7 @@ def cb_cellsoh_click_date(clickData):
     return selectDate, selectRack, selectModule, selectCell, returnDate
 
 
-
+ 
 #------------ Good Cell View -----------------------------------------------------
 @app.callback(Output("cellsoh_modal_3"           , "is_open"  ),
               Output("cellsoh_DT_3"              , "children" ),
@@ -569,8 +586,12 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
     if n_clicks is None :
         raise PreventUpdate
 
-    
-    data = pd.read_json(ds_data, orient='split').to_dict('rows')
+    if ds_data is None :
+        data = None
+        dt_style = {'height': '50px','overflowY': 'auto', 'overflowX': 'auto'}
+    else:
+        data = pd.read_json(ds_data, orient='split').to_dict('rows')
+        dt_style = {'height': '800px','overflowY': 'auto', 'overflowX': 'auto'}
 
     cellsoh_DT3_columns = [
                             dict(id='seq'      , name='No'   , type='numeric'), 
@@ -592,7 +613,7 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
                     data=data,
                     columns = cellsoh_DT3_columns,
                     editable=False,
-                    style_table={'height': '800px','width':'800px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_table=dt_style,
                     style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
                     column_selectable="single",
                     selected_rows=[],
@@ -617,9 +638,7 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
                     export_headers='display',
                 )
 
-    return not is_open, cellsoh_DataTable_3
-
-
+    return not is_open , cellsoh_DataTable_3
 
  
 #------------ Bad Cell View -----------------------------------------------------
@@ -633,8 +652,12 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
     if n_clicks is None :
         raise PreventUpdate
 
-    
-    data = pd.read_json(ds_data, orient='split').to_dict('rows')
+    if ds_data is None :
+        data = None
+        dt_style = {'height': '50px','overflowY': 'auto', 'overflowX': 'auto'}
+    else:
+        data = pd.read_json(ds_data, orient='split').to_dict('rows')
+        dt_style = {'height': '800px','overflowY': 'auto', 'overflowX': 'auto'}
 
     cellsoh_DT4_columns = [
                             dict(id='seq'      , name='No'   , type='numeric'), 
@@ -656,7 +679,7 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
                     data=data,
                     columns = cellsoh_DT4_columns,
                     editable=False,
-                    style_table={'height': '800px','width':'800px', 'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_table=dt_style,
                     style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
                     column_selectable="single",
                     selected_rows=[],

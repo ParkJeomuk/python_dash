@@ -413,14 +413,23 @@ cellsoh_control_25 = dbc.Card([
         dbc.Col(children=[
             dcc.Store(id='ds_cellsoh_good_df'    ,storage_type='memory'),
             dcc.Store(id='ds_cellsoh_bad_df'     ,storage_type='memory'),
+
+            dbc.Label("Upper Cut SOH", style={'padding':'5px 10px 0px 0px'}),
+            dbc.Input(type="number", min=0, max=2,   id='input_cellsoh_upper', style={'height':'36px', 'width':'100px'}),
+            
+            dbc.Label("Lower Cut SOH", style={'padding':'5px 10px 0px 30px'}),
+            dbc.Input(type="number", min=0, max=2,   id='input_cellsoh_lower', style={'height':'36px', 'width':'100px','padding-top':'1px'}),
+        ],className="input-group flex-nowrap", width=7,),
+        dbc.Col(children=[
+            dbc.Button(html.Span(["View Plot", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_redraw", color="dark"),
+        ], width=1, style={'padding-top': '0px'},),
+        dbc.Col(children=[
             dbc.Button(html.Span(["Good Cell 50", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_good", color="dark")
-        ], width=2, style={'padding-left': '20px', 'padding-right': '15px', 'padding-top': '7px'},),
+        ], width=2, style={'text-align':'right','padding-right': '20px', 'padding-top': '0px'},),
         dbc.Col(children=[
             dbc.Button(html.Span(["Bad Cell 50", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_bad", color="dark")
-        ], width=2, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
-        dbc.Col(children=[
-            html.Br()
-        ], width=8, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+        ], width=2, style={'text-align':'right','padding-right': '20px', 'padding-top': '0px'},),
+        
     ]),
     dbc.Row([
         dbc.Col(children=[
@@ -443,7 +452,7 @@ cellsoh_control_25 = dbc.Card([
         ], width=6),        
     ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
     ],
-    style={"height":"500px"},
+    style={"height":"560px"},
     body=True,
 )
 
@@ -461,7 +470,7 @@ cellsoh_dataview_popup = dbc.Modal(
             ]),
     ],
     id="cellsoh_modal_1",
-    size="lg",
+    className="modal-dialog modal-sm"
 )
 
 
@@ -477,7 +486,9 @@ cellsoh_dataview_popup2 = dbc.Modal(
             ]),
     ],
     id="cellsoh_modal_2",
-    size="lg",
+    centered=True,
+    is_open=False,
+    className="modal-dialog modal-lg"
 )
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -489,11 +500,13 @@ cellsoh_dataview_popup3 = dbc.Modal(
         dbc.ModalBody(
             children=[
                  html.H1(id='cellsoh_DT_3') ,
-            ]),
+            ]
+        ),
     ],
     id="cellsoh_modal_3",
     centered=True,
-    style={"max-width": "none", "width": "90%"}
+    is_open=False,
+    className="modal-dialog modal-lg"
 )
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -508,7 +521,9 @@ cellsoh_dataview_popup4 = dbc.Modal(
             ]),
     ],
     id="cellsoh_modal_4",
-    size="xl",
+    centered=True,
+    is_open=False,
+    className="modal-dialog modal-lg"
 )
 
 
@@ -559,6 +574,6 @@ content = dac.TabItem(id='content_cellsoh_pages',
 
 
                             ],),
-						] ,style={'width': '100%'} )
-                            # className='flex-container'
+						] ,style={'width': '100%'} ),
+                        className='flex-container'
          )                        
