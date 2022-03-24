@@ -21,6 +21,7 @@ def activate(input_id,
              linermd_pages, 
              automl_pages , 
              cellsoh_pages,
+             aging_pages,
              tab_cards, 
              basic_boxes, 
              value_boxes, 
@@ -44,6 +45,7 @@ def activate_page_content(dash_pages,
                           linermd_pages,
                           automl_pages, 
                           cellsoh_pages,
+                          aging_pages,
                           tab_cards, 
                           basic_boxes,
                           value_boxes, 
@@ -56,14 +58,14 @@ def activate_page_content(dash_pages,
     else:
         input_id = ctx.triggered[0]['prop_id'].split('.')[0]
     return activate(input_id, 
-                    dash_pages, dataset_pages, linermd_pages, automl_pages, cellsoh_pages, tab_cards, basic_boxes, value_boxes, gallery_1, tab_gallery_2)
+                    dash_pages, dataset_pages, linermd_pages, automl_pages, cellsoh_pages,aging_pages, tab_cards, basic_boxes, value_boxes, gallery_1, tab_gallery_2)
 
 @app.callback(
     Output('mybread', 'text'),
     [ Input(f"menu_{menu}", "n_clicks") for menu in MENU_ITEMS],
     [ State(f"menu_{menu}", "label")    for menu in MENU_ITEMS] )
-def update_breadcrumbs( nClick1, nClick2, nClick3, nClick4, nClick5, nClick6, nClick7, nClick8, nClick9, nClick10,
-    dash_pages, dataset_pages, linermd_pages, automl_pages, cellsoh_pages, tab_cards, basic_boxes, value_boxes, gallery_1, gallery_2): 
+def update_breadcrumbs( nClick1, nClick2, nClick3, nClick4, nClick5, nClick6, nClick7, nClick8, nClick9, nClick10, nClick11,
+    dash_pages, dataset_pages, linermd_pages, automl_pages, cellsoh_pages, aging_pages, tab_cards, basic_boxes, value_boxes, gallery_1, gallery_2): 
     ctx = dash.callback_context
     if not ctx.triggered:
         raise PreventUpdate

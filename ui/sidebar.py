@@ -6,28 +6,6 @@ import dash_admin_components as dac
 
 from utils.constants import MENU_ITEMS 
 
-
-
-# common_modal = dbc.Modal(
-#     [
-#         dbc.ModalHeader(dbc.ModalTitle(''), close_button=True),
-#         dbc.ModalBody(''),
-#         dbc.ModalFooter(
-#             dbc.Button(
-#                 "Close",
-#                 id="close-centered",
-#                 className="ms-auto",
-#                 n_clicks=0,
-#             )
-#         ),
-#     ],
-#     id="common_modal_popup",
-#     centered=True,
-#     is_open=False,
-# )
-
-
-
 # Sidebar
 subitems = [
     dac.SidebarMenuSubItem(id='menu_gallery_1', 
@@ -52,6 +30,7 @@ sideMenu = 	dac.SidebarMenu(
         dac.SidebarMenuItem(id='menu_linermd_pages'  ,label='Liner Model'     , icon='chart-line'),
         dac.SidebarMenuItem(id='menu_automl_pages'   ,label='H2O'             , icon='coins'),
         dac.SidebarMenuItem(id='menu_cellsoh_pages'  ,label='SOH'             , icon='battery-half'),
+        dac.SidebarMenuItem(id='menu_aging_pages'    ,label='Aging'           , icon='bolt'),
         dac.SidebarMenuItem(id='menu_tab_cards'      ,label='Tab cards'       , icon='image'),
 
         dac.SidebarHeader(children="Boxes"),

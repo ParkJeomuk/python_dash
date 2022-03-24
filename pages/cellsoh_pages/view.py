@@ -411,24 +411,32 @@ cellsoh_control_24 = dbc.Card([
 cellsoh_control_25 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
+            dbc.Label("Stand Date", style={'padding':'5px 10px 0px 0px'}),
+            dcc.DatePickerSingle(
+                            id='dtp_cellsoh_stand_date',
+                            min_date_allowed=date(2019, 12, 13),
+                            max_date_allowed=date.today(),
+                            initial_visible_month=date.today(),
+                            date = datetime.strptime('2020-01-08', '%Y-%m-%d').date(),
+                            display_format='YYYY-MM-DD' ,
+                            style={"font-size": 6, 'margin-left':'10px'}
+                        )   
+        ],className="input-group flex-nowrap", width=3,),
+        dbc.Col(children=[
             dcc.Store(id='ds_cellsoh_good_df'    ,storage_type='memory'),
             dcc.Store(id='ds_cellsoh_bad_df'     ,storage_type='memory'),
 
             dbc.Label("Upper Cut SOH", style={'padding':'5px 10px 0px 0px'}),
-            dbc.Input(type="number", min=0, max=2,   id='input_cellsoh_upper', style={'height':'36px', 'width':'100px'}),
+            dbc.Input(type="number", min=0, max=2,   id='input_cellsoh_upper', style={'height':'36px', 'width':'80px'}),
             
             dbc.Label("Lower Cut SOH", style={'padding':'5px 10px 0px 30px'}),
-            dbc.Input(type="number", min=0, max=2,   id='input_cellsoh_lower', style={'height':'36px', 'width':'100px','padding-top':'1px'}),
-        ],className="input-group flex-nowrap", width=7,),
+            dbc.Input(type="number", min=0, max=2,   id='input_cellsoh_lower', style={'height':'36px', 'width':'80px','padding-top':'1px'}),
+        ],className="input-group flex-nowrap", width=5,),
         dbc.Col(children=[
             dbc.Button(html.Span(["View Plot", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_redraw", color="dark"),
-        ], width=1, style={'padding-top': '0px'},),
-        dbc.Col(children=[
-            dbc.Button(html.Span(["Good Cell 50", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_good", color="dark")
-        ], width=2, style={'text-align':'right','padding-right': '20px', 'padding-top': '0px'},),
-        dbc.Col(children=[
+            dbc.Button(html.Span(["Good Cell 50", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_good", color="dark"),
             dbc.Button(html.Span(["Bad Cell 50", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_cellsoh_bad", color="dark")
-        ], width=2, style={'text-align':'right','padding-right': '20px', 'padding-top': '0px'},),
+        ],className="input-group flex-nowrap", width=4, style={'justify-content':'space-between', 'text-align':'right','padding-right': '0px', 'padding-top': '0px'},),
         
     ]),
     dbc.Row([

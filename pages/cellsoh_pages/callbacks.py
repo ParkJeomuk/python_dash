@@ -4,8 +4,7 @@ from dash.exceptions import PreventUpdate
 
 import dash_bio as dashbio
 
-from datetime import datetime
-from datetime import date,timedelta
+from datetime import date,timedelta, datetime
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -277,8 +276,9 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
               State('rdo_cellsoh_heatmap_color', 'value'      ),
               State('input_cellsoh_upper'      , 'value'      ),
               State('input_cellsoh_lower'      , 'value'      ),
+              State('dtp_cellsoh_stand_date'   , 'date'       )
               )
-def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_date, s_bank_no, s_data_type, s_color_type, n_upper_soh, n_lower_soh):
+def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_date, s_bank_no, s_data_type, s_color_type, n_upper_soh, n_lower_soh, stand_date):
     if n_clicks is None:
         raise PreventUpdate
 
@@ -288,6 +288,7 @@ def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_dat
     s_module_no = "" 
     s_cell_no = ""
     df = cellsoh_data_load(start_date, end_date, s_bank_no, s_rack_no, s_module_no, s_cell_no )
+    stand_df = df[df['cyc_date']== stand_date.replace('-','') ]
     df = df[df['cyc_date']== s_date.replace('-','') ]
     
     if s_data_type == "C":
@@ -371,7 +372,10 @@ def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_dat
     good_df['seq'] = range(1,51)
     bad_df['seq'] = range(1,51)
 
-    
+    if n_clicks is not None:
+        n_upper_soh = None
+        n_lower_soh = None
+
     if n_upper_soh is None:
         good_line = good_df['soh'].iloc[49]
     else :
@@ -386,19 +390,43 @@ def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_dat
 
     df4 = df[['soh']].sort_values(by='soh', ascending=True)
     df4['idx'] = range(1,len(df4)+1)
-    fig4 = px.scatter(df4, 
-                     x='idx', 
-                     y="soh"
+    stand_df = stand_df[['soh']].sort_values(by='soh', ascending=True)
+    stand_df['idx'] = range(1,len(stand_df)+1)
+
+    fig4 = go.Figure()
+    fig4.add_trace(go.Scatter(
+                        mode='markers',
+                        x=df4['idx'],
+                        y=df4['soh'],
+                        opacity=0.5,
+                        marker=dict(
+                            color='MediumPurple',
+                            size=12,
+                            line=dict(color='MediumPurple',width=0)
+                        ),
+                        name=s_date
                     )
+                )
+    fig4.add_trace(go.Scatter(x=stand_df['idx'],
+                              y=stand_df['soh'], 
+                              mode='markers',
+                              marker=dict(
+                                            color='red',
+                                            size=3,
+                                            line=dict(color='yellow',width=0)
+                                        ),
+                              name=stand_date
+                              )
+                              
+                   )
     fig4.add_hline(y=good_line , line_width=2, line_dash="dash", line_color="red")
     fig4.add_hline(y=bad_line, line_width=2, line_dash="dash", line_color="red")
-    fig4.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
     fig4.update_layout(showlegend=True)
     fig4.update_layout(height=460)
 
-
-    group_labels = ['SOH'] # name of the dataset
-    fig5 = ff.create_distplot([df.soh.values.tolist()], group_labels, bin_size=.05, show_hist=False, show_rug=False)
+    hist_data = [df.soh.values , stand_df.soh.values]
+    group_labels = [s_date, stand_date] # name of the dataset
+    fig5 = ff.create_distplot(hist_data, group_labels, bin_size=.05, show_hist=False, show_rug=False)
     fig5 = fig5.add_vline(x=bad_line,  line_width=2, line_dash="dash", line_color="red" )
     fig5 = fig5.add_vline(x=good_line, line_width=2, line_dash="dash", line_color="red" )
     fig5.update_layout(height=460)     

@@ -39,6 +39,7 @@ import pages.dataset_pages.view
 import pages.linermd_pages.view
 import pages.automl_pages.view
 import pages.cellsoh_pages.view
+import pages.aging_pages.view
 
 ### Cards ----
 import pages.tab_cards.view
@@ -61,6 +62,7 @@ body = dac.Body(
         pages.linermd_pages.view.content,
         pages.automl_pages.view.content,
         pages.cellsoh_pages.view.content,
+        pages.aging_pages.view.content,
         
         pages.tab_cards.view.content,
 
