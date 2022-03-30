@@ -478,7 +478,7 @@ cellsoh_dataview_popup = dbc.Modal(
             ]),
     ],
     id="cellsoh_modal_1",
-    className="modal-dialog modal-sm"
+    className="modal-dialog modal-lg"
 )
 
 

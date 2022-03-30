@@ -113,17 +113,27 @@ def cb_cellsoh_plot1_render( ts, data):
     fig2 = px.box(data, 
                   y="soh_gap" , 
                   points="all" ,
-                  hover_data=["rack_no","module_no","cell_no"]
+                  hover_data=["rack_no","module_no","cell_no"],
+                  labels={"soh_gap": "SOH Gap"}
                  )
     fig2.update_layout(showlegend=False)
 
     colList = ['rack_no','module_no','cell_no', 'soh_gap']
+    ds_colList = ['rack_no','module_no','cell_no','soh','q_a','q_u','cur_avg','n','u_vol','o_vol','gap','soh_gap']
     good_df = data.sort_values(by='soh_gap', ascending=False).iloc[0:25,]
+    good_df.rename(columns = {'soh_x':'soh','q_a_x':'q_a','q_u_x':'q_u',
+                              'cur_avg_x':'cur_avg','n_x':'n','u_vol_x':'u_vol',
+                              'o_vol_x':'o_vol','gap_x':'gap'} , inplace = True)
+    good_df = good_df[ds_colList]
     r_t_df  = good_df.to_json(date_format='iso',orient='split')
     good_df = good_df[colList]
 
 
     bad_df  = data.sort_values(by='soh_gap', ascending=True ).iloc[0:25,]
+    bad_df.rename(columns = {'soh_x':'soh','q_a_x':'q_a','q_u_x':'q_u',
+                             'cur_avg_x':'cur_avg','n_x':'n','u_vol_x':'u_vol',
+                             'o_vol_x':'o_vol','gap_x':'gap'} , inplace = True)
+    bad_df  = bad_df[ds_colList]
     r_b_df  = bad_df.to_json(date_format='iso',orient='split')
     bad_df  = bad_df[colList]
 
@@ -137,9 +147,8 @@ def cb_cellsoh_plot1_render( ts, data):
     fig3 = px.scatter(good_df, 
                       x="seq", 
                       y="soh_gap",
-                      hover_data=["rack_no","module_no","cell_no"]
-                    #   , 
-                    #   text='text'
+                      hover_data=["rack_no","module_no","cell_no"],
+                      labels={"seq": "Seq","soh_gap": "SOH Gap"}
                       )
     
 
@@ -147,7 +156,8 @@ def cb_cellsoh_plot1_render( ts, data):
     fig4 = px.scatter(bad_df, 
                       x="seq", 
                       y="soh_gap",
-                      hover_data=["rack_no","module_no","cell_no"]
+                      hover_data=["rack_no","module_no","cell_no"],
+                      labels={"seq": "Seq","soh_gap": "SOH Gap"}
                     #   , 
                     #   text='text'
                       )
@@ -162,13 +172,12 @@ def cb_cellsoh_plot1_render( ts, data):
 
 
 #------------ Top 25 View -----------------------------------------------------
-@app.callback(Output("aging_modal_1"   , "is_open"  ),
-              Output("aging_DT_1"      , "children" ),
-              Input("btn_cellsoh_good" , "n_clicks" ),
-              State("aging_modal_1"    , "is_open"  ),
-              State('ds_aging_top25'   , 'data'     )
-              )
-def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
+@app.callback(Output("aging_modal_1"       , "is_open"  ),
+              Output("aging_DT_1"          , "children" ),
+              Input("btn_aging_top25_data" , "n_clicks" ),
+              State("aging_modal_1"        , "is_open"  ),
+              State('ds_aging_top25'       , 'data'     ) )
+def cb_aging_good_modal(n_clicks, is_open, ds_data):
     if n_clicks is None :
         raise PreventUpdate
 
@@ -180,19 +189,18 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
         dt_style = {'height': '600px','overflowY': 'auto', 'overflowX': 'auto'}
 
     aging_DT1_columns = [
-                            dict(id='seq'      , name='No'   , type='numeric'), 
-                            dict(id='cyc_date' , name='Date' , type='text'), 
-                            dict(id='rack_no'  , name='Rack' , type='text'), 
-                            dict(id='module_no', name='Module' , type='text'), 
-                            dict(id='cell_no'  , name='Cell' , type='text'), 
-                            dict(id='soh'      , name='SOH'  , type='numeric'), 
-                            dict(id='q_a'      , name='Q A'  , type='numeric'), 
-                            dict(id='q_u'      , name='Q U'  , type='numeric'), 
+                            dict(id='rack_no'  , name='Rack'         , type='text'), 
+                            dict(id='module_no', name='Module'       , type='text'), 
+                            dict(id='cell_no'  , name='Cell'         , type='text'), 
+                            dict(id='soh'      , name='SOH'          , type='numeric'), 
+                            dict(id='q_a'      , name='Q A'          , type='numeric'), 
+                            dict(id='q_u'      , name='Q U'          , type='numeric'), 
                             dict(id='cur_avg'  , name='Current Avg'  , type='numeric'), 
-                            dict(id='n'        , name='N'      , type='numeric'), 
-                            dict(id='u_vol'    , name='U Vol'  , type='numeric'), 
-                            dict(id='o_vol'    , name='O Vol'  , type='numeric'), 
-                            dict(id='gap'      , name='Gap'    , type='numeric'), 
+                            dict(id='n'        , name='N'            , type='numeric'), 
+                            dict(id='u_vol'    , name='U Vol'        , type='numeric'), 
+                            dict(id='o_vol'    , name='O Vol'        , type='numeric'), 
+                            dict(id='gap'      , name='Gap'          , type='numeric'), 
+                            dict(id='soh_gap'  , name='SOH Gap'      , type='numeric'), 
                         ]
 
     aging_DataTable_1 = dash_table.DataTable(
@@ -208,7 +216,6 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
                     sort_by=[],
                     style_cell_conditional=[
                         { 'textAlign': 'right' },
-                        { 'if': {'column_id': 'cyc_date'  }, 'textAlign': 'center'},
                         { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
                         { 'if': {'column_id': 'module_no' }, 'textAlign': 'center'},
                         { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
@@ -227,5 +234,128 @@ def cb_cellsoh_view_good_modal(n_clicks, is_open, ds_data):
     return not is_open , aging_DataTable_1
 
  
+
+#------------ Bottom 25 View -----------------------------------------------------
+@app.callback(Output("aging_modal_2"          , "is_open"  ),
+              Output("aging_DT_2"             , "children" ),
+              Input("btn_aging_bottom25_data" , "n_clicks" ),
+              State("aging_modal_2"           , "is_open"  ),
+              State('ds_aging_bottom25'       , 'data'     )  )
+def cb_aging_bad_modal(n_clicks, is_open, ds_data):
+    if n_clicks is None :
+        raise PreventUpdate
+
+    if ds_data is None :
+        data = None
+        dt_style = {'height': '50px','overflowY': 'auto', 'overflowX': 'auto'}
+    else:
+        data = pd.read_json(ds_data, orient='split').to_dict('rows')
+        dt_style = {'height': '600px','overflowY': 'auto', 'overflowX': 'auto'}
+
+    aging_DT2_columns = [
+                            dict(id='rack_no'  , name='Rack'         , type='text'), 
+                            dict(id='module_no', name='Module'       , type='text'), 
+                            dict(id='cell_no'  , name='Cell'         , type='text'), 
+                            dict(id='soh'      , name='SOH'          , type='numeric'), 
+                            dict(id='q_a'      , name='Q A'          , type='numeric'), 
+                            dict(id='q_u'      , name='Q U'          , type='numeric'), 
+                            dict(id='cur_avg'  , name='Current Avg'  , type='numeric'), 
+                            dict(id='n'        , name='N'            , type='numeric'), 
+                            dict(id='u_vol'    , name='U Vol'        , type='numeric'), 
+                            dict(id='o_vol'    , name='O Vol'        , type='numeric'), 
+                            dict(id='gap'      , name='Gap'          , type='numeric'), 
+                            dict(id='soh_gap'  , name='SOH Gap'      , type='numeric'), 
+                        ]
+
+    aging_DataTable_2 = dash_table.DataTable(
+                    data=data,
+                    columns = aging_DT2_columns,
+                    editable=False,
+                    style_table=dt_style,
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'textAlign': 'right' },
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'module_no' }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return not is_open , aging_DataTable_2
+
+
+
+
+@app.callback(Output("aging_modal_3"           , "is_open" ),
+              Output("aging_DT_3"              , "children"),
+              Input("btn_aging_outlier_data"   , "n_clicks"),
+              State("aging_modal_3"            , "is_open" ),
+              State("aging_plot_2"             , "selectedData")
+              )
+def cb_aging_toggle_outlier_modal(n_clicks,is_open, selectedData):
+    if n_clicks is None :
+        raise PreventUpdate
+
+    if len(selectedData['points']) > 0 :
+        df = pd.DataFrame(selectedData['points'])
+        ddata = df[['y']]
+        cdata = pd.DataFrame(df['customdata'].tolist())
+        data = pd.concat([ddata,cdata],axis=1)
+        data = data.rename(columns={'y': 'soh_gap', 0:'rack_no', 1:'module_no', 2:'cell_no'})
+        data = data[['rack_no','module_no', 'cell_no', 'soh_gap']]
+        data = data.to_dict('rows')
+    else:
+        data = None
+
+    aging_DT3_columns = [
+                            dict(id='rack_no'   , name='Rack'    , type='text'), 
+                            dict(id='module_no' , name='Module'  , type='text'), 
+                            dict(id='cell_no'   , name='Cell'    , type='text'), 
+                            dict(id='soh_gap'   , name='SOH Gap' , type='numeric'), 
+                        ]
+
+    aging_DataTable_3 = dash_table.DataTable(
+                    data=data,
+                    columns = aging_DT3_columns,
+                    editable=False,
+                    style_table={'height': '400px',  'overflowY': 'auto', 'overflowX': 'auto'},
+                    style_cell={'padding-top':'2px','padding-bottom':'2px','padding-left':'5px','padding-right':'5px'},
+                    column_selectable="single",
+                    selected_rows=[],
+                    sort_action='custom',
+                    sort_mode='multi',
+                    sort_by=[],
+                    style_cell_conditional=[
+                        { 'if': {'column_id': 'rack_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'module_no' }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'cell_no'   }, 'textAlign': 'center'},
+                        { 'if': {'column_id': 'soh_gap'   }, 'textAlign': 'right' },
+                        {'fontSize' : '16px'},
+                    ],
+                    style_header={
+                        'backgroundColor': '#929494',
+                        'fontWeight': 'bold',
+                        'fontSize' : '16px',
+                        'textAlign': 'center',
+                        'height':'40px'
+                    },
+                    export_headers='display',
+                )
+
+    return not is_open, aging_DataTable_3
 
 

@@ -187,7 +187,7 @@ def cb_linerdm_plot1_render(ts, x_var, y_var, data , test_data ):
     if test_data is None:
         raise PreventUpdate    
     if x_var is None or x_var=='':
-        uf_set_modal('Error','X Variable Error')
+        # uf_set_modal('Error','X Variable Error')
         raise PreventUpdate
     if y_var is None or y_var=='':
         raise PreventUpdate    

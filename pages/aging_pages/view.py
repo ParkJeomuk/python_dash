@@ -16,7 +16,7 @@ aging_control_1 = dbc.Card(
         dbc.Row([ dbc.Col(children=[dbc.Label("Aging")], width=12), ],style={'padding-top': '5px', 'padding-bottom': '5px'}),
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Bank")], width=3),
+                dbc.Col(children=[dbc.Label("Bank", style={'padding-top':'5px'})], width=3),
                 dbc.Col(children=[
                    dcc.Dropdown(id="cbo_aging_bank",
                        options=[
@@ -29,7 +29,7 @@ aging_control_1 = dbc.Card(
         ),
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Rack")], width=3),
+                dbc.Col(children=[dbc.Label("Rack", style={'padding-top':'5px'})], width=3),
                 dbc.Col(children=[
                    dcc.Dropdown(id="cbo_aging_rack",
                        options=[
@@ -43,7 +43,7 @@ aging_control_1 = dbc.Card(
         ),
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Date1")], width=3),
+                dbc.Col(children=[dbc.Label("Date1", style={'padding-top':'5px'})], width=3),
                 dbc.Col(children=[    
                     dcc.DatePickerSingle(
                             id='dtp_aging_date_1',
@@ -59,7 +59,7 @@ aging_control_1 = dbc.Card(
         ),
         dbc.Row(
             [
-                dbc.Col(children=[dbc.Label("Date2")], width=3),
+                dbc.Col(children=[dbc.Label("Date2", style={'padding-top':'5px'})], width=3),
                 dbc.Col(children=[    
                     dcc.DatePickerSingle(
                             id='dtp_aging_date_2',
@@ -77,7 +77,7 @@ aging_control_1 = dbc.Card(
         dbc.Row(
             [
                 dbc.Col(children=html.Div([
-                    dcc.Store(id='ds_aging_df'             ,storage_type='memory'),
+                    dcc.Store(id='ds_aging_df' ,storage_type='memory'),
                     dcc.Loading(id="loading_aging_1", type="circle", children=html.Div(id="aging_loading_output1")),
                     html.Br(),
                     dbc.Button(html.Span(["Load Data", html.I(className="fas fa-arrow-alt-circle-right ml-2")]), id="btn_aging_dataload", color="dark")
@@ -109,7 +109,15 @@ aging_control_2 = dbc.Card([
 aging_control_3 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
-                    dbc.Label("Abnomal Outlier", style={'margin-left':'20px'}),
+            dbc.Label("Abnomal Outlier", style={'margin-left':'20px'})
+        ],width=8,style={'text-align':'left', 'padding-top':'7px', 'padding-left':'15px'},),            
+        dbc.Col(children=[
+            dbc.Button(  html.I(className="fa fa-search") , id="btn_aging_outlier_data", color="dark"),
+            dbc.Tooltip("Abnomal Outlier Data View!",target="btn_aging_outlier_data",),
+        ], width=4,style={'text-align':'right', 'padding-top':'7px', 'padding-right':'15px'},),            
+    ]),
+    dbc.Row([
+        dbc.Col(children=[
                     dcc.Loading(id="aging_plot_2_loading", type="dot",
                     children=dcc.Graph(
                         id="aging_plot_2",
@@ -153,7 +161,7 @@ aging_control_5 = dbc.Card([
         ],width=8,style={'text-align':'left', 'padding-top':'7px', 'padding-left':'15px'},),            
         dbc.Col(children=[
             dbc.Button(  html.I(className="fa fa-search") , id="btn_aging_bottom25_data", color="dark"),
-            dbc.Tooltip(" Top 25 Data View!",target="btn_aging_bottom25_data",),
+            dbc.Tooltip(" Bottom 25 Data View!",target="btn_aging_bottom25_data",),
         ], width=4,style={'text-align':'right', 'padding-top':'7px', 'padding-right':'15px'},),            
     ]),
     dbc.Row([
@@ -182,7 +190,7 @@ aging_top25_popup = dbc.Modal(
             ]),
     ],
     id="aging_modal_1",
-    className="modal-dialog modal-sm"
+    className="modal-dialog modal-lg"
 )
 
 #--------------------------------------------------------------------------------------------------------------------
@@ -197,8 +205,25 @@ aging_bottom25_popup = dbc.Modal(
             ]),
     ],
     id="aging_modal_2",
-    className="modal-dialog modal-sm"
+    className="modal-dialog modal-lg"
 )
+
+
+#--------------------------------------------------------------------------------------------------------------------
+# Abnomal Outlier Data Modal Popup
+#--------------------------------------------------------------------------------------------------------------------
+aging_outlier_popup = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Abnomal Outlier Data")),
+        dbc.ModalBody(
+            children=[
+                 html.H1(id='aging_DT_3') ,
+            ]),
+    ],
+    id="aging_modal_3",
+    className="modal-dialog modal-lg"
+)
+
 
 
 
@@ -221,6 +246,7 @@ content = dac.TabItem(id='content_aging_pages',
                                             dcc.Store(id='ds_aging_bottom25'   ,storage_type='memory'),
                                             aging_top25_popup,
                                             aging_bottom25_popup,
+                                            aging_outlier_popup,
                                             aging_control_3
                                         ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
                                         dbc.Col([
