@@ -68,7 +68,7 @@ aging_control_1 = dbc.Card(
                             initial_visible_month=date.today(),
                             date = datetime.strptime('2021-12-29', '%Y-%m-%d').date(),
                             display_format='YYYY-MM-DD' ,
-                            style={"font-size": 8, 'margin-left':'10px'}
+                            style={"font-size": 8, 'width':'100%'}
                         )
                 ], width=9),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
@@ -106,9 +106,100 @@ aging_control_2 = dbc.Card([
     ],style={"height": "1000px"},
 )
 
+aging_control_3 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+                    dbc.Label("Abnomal Outlier", style={'margin-left':'20px'}),
+                    dcc.Loading(id="aging_plot_2_loading", type="dot",
+                    children=dcc.Graph(
+                        id="aging_plot_2",
+                        figure={'layout': {'height': 440}}
+                    )
+                )
+        ], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
+    ]),
+    ],style={"height": "500px"},
+)
 
+
+aging_control_4 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+            dbc.Label("Top 25", style={'margin-left':'20px'})
+        ],width=8,style={'text-align':'left', 'padding-top':'7px', 'padding-left':'15px'},),            
+        dbc.Col(children=[
+            dbc.Button(  html.I(className="fa fa-search") , id="btn_aging_top25_data", color="dark"),
+            dbc.Tooltip(" Top 25 Data View!",target="btn_aging_top25_data",),
+        ], width=4,style={'text-align':'right', 'padding-top':'7px', 'padding-right':'15px'},),            
+    ]),
+    dbc.Row([
+        dbc.Col(children=[
+                    dcc.Loading(id="aging_plot_3_loading", type="dot",
+                    children=dcc.Graph(
+                        id="aging_plot_3",
+                        figure={'layout': {'height': 440}}
+                    )
+                )
+        ], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
+    ]),
+    ],style={"height": "500px"},
+)
+
+
+aging_control_5 = dbc.Card([
+    dbc.Row([
+        dbc.Col(children=[
+            dbc.Label("Bottom 25", style={'margin-left':'20px'})
+        ],width=8,style={'text-align':'left', 'padding-top':'7px', 'padding-left':'15px'},),            
+        dbc.Col(children=[
+            dbc.Button(  html.I(className="fa fa-search") , id="btn_aging_bottom25_data", color="dark"),
+            dbc.Tooltip(" Top 25 Data View!",target="btn_aging_bottom25_data",),
+        ], width=4,style={'text-align':'right', 'padding-top':'7px', 'padding-right':'15px'},),            
+    ]),
+    dbc.Row([
+        dbc.Col(children=[
+                    dcc.Loading(id="aging_plot_4_loading", type="dot",
+                    children=dcc.Graph(
+                        id="aging_plot_4",
+                        figure={'layout': {'height': 440}}
+                    )
+                )
+        ], width=12, style={'padding-left': '15px', 'padding-right': '15px', 'padding-top': '15px', 'padding-bottom': '15px'}),
+    ]),
+    ],style={"height": "500px"},
+)
 
  
+#--------------------------------------------------------------------------------------------------------------------
+# Top 25 Modal Popup
+#--------------------------------------------------------------------------------------------------------------------
+aging_top25_popup = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Top 25 Data")),
+        dbc.ModalBody(
+            children=[
+                 html.H1(id='aging_DT_1') ,
+            ]),
+    ],
+    id="aging_modal_1",
+    className="modal-dialog modal-sm"
+)
+
+#--------------------------------------------------------------------------------------------------------------------
+# Bottom 25 Modal Popup
+#--------------------------------------------------------------------------------------------------------------------
+aging_bottom25_popup = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("Bottom 25 Data")),
+        dbc.ModalBody(
+            children=[
+                 html.H1(id='aging_DT_2') ,
+            ]),
+    ],
+    id="aging_modal_2",
+    className="modal-dialog modal-sm"
+)
+
 
 
 
@@ -119,7 +210,26 @@ content = dac.TabItem(id='content_aging_pages',
                                     aging_control_1
                                 ],md=3, style={"padding-left": "10px","padding-right": "10px", },),    
                                 dbc.Col([
-                                    aging_control_2
+                                    dbc.Row([
+                                        dbc.Col([
+                                            aging_control_2
+                                        ],md=12, style={"padding-left": "10px","padding-right": "10px", },),    
+                                    ]),
+                                    dbc.Row([
+                                        dbc.Col([
+                                            dcc.Store(id='ds_aging_top25'      ,storage_type='memory'),
+                                            dcc.Store(id='ds_aging_bottom25'   ,storage_type='memory'),
+                                            aging_top25_popup,
+                                            aging_bottom25_popup,
+                                            aging_control_3
+                                        ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
+                                        dbc.Col([
+                                            aging_control_4
+                                        ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
+                                        dbc.Col([
+                                            aging_control_5
+                                        ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
+                                    ]),
                                 ],md=9, style={"padding-left": "10px","padding-right": "10px", },),    
                             ],),
                             
