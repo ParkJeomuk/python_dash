@@ -67,9 +67,11 @@ def cb_cellsoh_data_load(n_clicks, date1, date2, s_bank_no, s_rack_no):
               Output('ds_aging_top25'    , 'data'     ),
               Output('ds_aging_bottom25' , 'data'     ),
               Input('ds_aging_df'        , 'modified_timestamp'),
-              State('ds_aging_df'        , 'data'     )
+              State('ds_aging_df'        , 'data'     ),
+              Input('rdo_aging_heatmaptype'  , 'value'      ),
+              Input('rdo_aging_heatmap_color', 'value'      ),
               )
-def cb_cellsoh_plot1_render( ts, data):
+def cb_cellsoh_plot1_render( ts, data, s_data_type, s_color_type):
     if ts is None or data is None:
         fig =  blank_fig() 
         return fig, fig, fig, fig, None, None
@@ -90,9 +92,16 @@ def cb_cellsoh_plot1_render( ts, data):
         fig =  blank_fig() #px.scatter(x=None, y=None)        
         return fig , fig , fig, fig , None, None
     
-    tmp_df = data[['rack_no','cell_no','soh_gap']].pivot('cell_no','rack_no','soh_gap')
+    if s_data_type == "C":
+        tmp_df = data[['rack_no','cell_no','soh_gap']].pivot('cell_no','rack_no','soh_gap')
+    else:    
+        tmp_df = data[['rack_no','module_no','soh_gap']].groupby(['rack_no','module_no'],as_index=False).mean()
+        tmp_df = tmp_df[['rack_no','module_no','soh_gap']].pivot('module_no','rack_no','soh_gap')
 
-    colorMap =  [[0.0,'#FEFDFB'],[0.5, '#FCD82D'],[1,'#921205']]
+    if s_color_type == 'D':
+        colorMap =  [[0.0,'#FEFDFB'],[0.5, '#FCD82D'],[1,'#921205']]
+    else:    
+        colorMap =  [[0.0,'#921205'],[0.5, '#FCD82D'],[1,'#FEFDFB']]
 
     columns = list(tmp_df.columns.values)
     rows = list(tmp_df.index)

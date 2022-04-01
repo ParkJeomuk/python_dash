@@ -25,17 +25,19 @@ cellsoh_control_1 = dbc.Card(
             [
                 dcc.Store(id='ds_cellsoh_df'             ,storage_type='memory'),
                 dbc.Col(children=[dbc.Label("Period")], width=3),
-                dbc.Col(children=[    
-                    dcc.DatePickerRange(
-                        id='date_range_cellsoh',
-                        min_date_allowed=date(2019, 12, 13),
-                        max_date_allowed=date.today()-timedelta(days=1),
-                        initial_visible_month=date.today()-timedelta(days=30),
-                        start_date=datetime.strptime('2020-01-01', '%Y-%m-%d').date(),
-                        end_date  =datetime.strptime('2021-12-31', '%Y-%m-%d').date(),
-                        display_format='YYYY-MM-DD',
-                        style = {'width':'100%','font-size': '10px','display': 'inline','border-spacing' : '0'} 
-                    )
+                dbc.Col([    
+                    html.Div(children=[
+                        dcc.DatePickerRange(
+                            id='date_range_cellsoh',
+                            min_date_allowed=date(2019, 12, 13),
+                            max_date_allowed=date.today()-timedelta(days=1),
+                            initial_visible_month=date.today()-timedelta(days=30),
+                            start_date=datetime.strptime('2020-01-01', '%Y-%m-%d').date(),
+                            end_date  =datetime.strptime('2021-12-31', '%Y-%m-%d').date(),
+                            display_format='YYYY-MM-DD',
+                            className='date-range-picker'
+                        )
+                    ],style={'width': '100%'}),
                 ], width=9),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),

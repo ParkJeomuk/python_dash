@@ -302,7 +302,7 @@ def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_dat
     
     if df is None:
         fig =  blank_fig() #px.scatter(x=None, y=None)        
-        return fig
+        return fig, fig, fig, fig, fig, None, None, None, None
 
     if s_color_type == 'D':
         colorMap =  [[0.0, '#FEFDFB'],[0.2, '#FCD82D'],[1.0, '#921205']]

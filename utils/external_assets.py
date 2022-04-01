@@ -9,6 +9,7 @@ FONT_AWSOME = "https://use.fontawesome.com/releases/v5.8.1/css/all.css"
 # your custom style 
 EXTERNAL_STYLESHEETS = "https://codepen.io/chriddyp/pen/bWLwgP.css"
 
+
 ## File system  __file__  '~/my/git/dash-flask'
 
 ROOT = os.path.dirname(os.path.dirname(__file__)) + "/"

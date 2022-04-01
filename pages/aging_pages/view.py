@@ -27,20 +27,20 @@ aging_control_1 = dbc.Card(
                 ], width=9),
             ],style={'padding-top': '5px', 'padding-bottom': '5px'}
         ),
-        dbc.Row(
-            [
-                dbc.Col(children=[dbc.Label("Rack", style={'padding-top':'5px'})], width=3),
-                dbc.Col(children=[
-                   dcc.Dropdown(id="cbo_aging_rack",
-                       options=[
-                            {"label": col, "value": col} for col in df_rack().code
-                        ],
-                        value="1",
-                        multi=True
-                    )
-                ], width=9),
-            ],style={'padding-top': '5px', 'padding-bottom': '5px'}
-        ),
+        # dbc.Row(
+        #     [
+        #         dbc.Col(children=[dbc.Label("Rack", style={'padding-top':'5px'})], width=3),
+        #         dbc.Col(children=[
+        #            dcc.Dropdown(id="cbo_aging_rack",
+        #                options=[
+        #                     {"label": col, "value": col} for col in df_rack().code
+        #                 ],
+        #                 value="1",
+        #                 multi=True
+        #             )
+        #         ], width=9),
+        #     ],style={'padding-top': '5px', 'padding-bottom': '5px'}
+        # ),
         dbc.Row(
             [
                 dbc.Col(children=[dbc.Label("Date1", style={'padding-top':'5px'})], width=3),
@@ -91,10 +91,51 @@ aging_control_1 = dbc.Card(
 
 
 
-aging_control_2 = dbc.Card([
+aging_control_3 = dbc.Card([
+       dbc.Row([
+           dbc.Col(children=[
+            dbc.Label("Aging Gap", style={'padding':'5px 10px 0px 0px'})
+        ],className="input-group flex-nowrap", width=3, style={'padding':'7px 0px 0px 30px'}),
+
+        dbc.Col(children=[
+            dbc.Label("Data Type", style={'padding':'5px 10px 0px 0px'}),
+            html.Div([
+                   dcc.RadioItems(
+                       id='rdo_aging_heatmaptype',
+                       options=[ 
+                                dict(label='Cell'  ,value='C'),
+                                dict(label='Module',value='M')
+                                ], 
+                       value='C' ,
+                       labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'10px'}
+                       )
+            ],style={'height':'37px','width':'150px', 'whiteSpace':'pre-line','border':'1px #D3D3D3 solid', 'padding':'5px 5px 5px 10px','border-radius': '5px'})  
+        ],className="input-group flex-nowrap", width=3, style={'padding':'7px 0px 0px 20px'}),
+
+
+       dbc.Col(children=[
+            dbc.Label("Color Type", style={'padding':'5px 10px 0px 0px'}),
+            html.Div([
+                   dcc.RadioItems(
+                       id='rdo_aging_heatmap_color',
+                       options=[ 
+                                dict(label='Asc'  ,value='A'),
+                                dict(label='Desc' ,value='D')
+                                ], 
+                       value='D' ,
+                       labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'20px'}
+                       )
+            ],style={'height':'37px','width':'150px', 'whiteSpace':'pre-line','border':'1px #D3D3D3 solid', 'padding':'5px 5px 5px 10px','border-radius': '5px'})  
+        ],className="input-group flex-nowrap", width=3, style={'padding':'7px 0px 0px 20px'}),
+
+        dbc.Col(children=[
+            html.Br()
+        ], width=3, style={'text-align':'right','padding-left': '15px', 'padding-right': '15px', 'padding-top': '7px'},),
+    ]),
+
+
     dbc.Row([
         dbc.Col(children=[
-                    dbc.Label("Aging Gap", style={'margin-left':'20px'}),
                     dcc.Loading(id="aging_plot_1_loading", type="dot",
                     children=dcc.Graph(
                         id="aging_plot_1",
@@ -106,7 +147,10 @@ aging_control_2 = dbc.Card([
     ],style={"height": "1000px"},
 )
 
-aging_control_3 = dbc.Card([
+
+
+
+aging_control_4 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Abnomal Outlier", style={'margin-left':'20px'})
@@ -130,7 +174,7 @@ aging_control_3 = dbc.Card([
 )
 
 
-aging_control_4 = dbc.Card([
+aging_control_5 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Top 25", style={'margin-left':'20px'})
@@ -154,7 +198,7 @@ aging_control_4 = dbc.Card([
 )
 
 
-aging_control_5 = dbc.Card([
+aging_control_6 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
             dbc.Label("Bottom 25", style={'margin-left':'20px'})
@@ -237,7 +281,7 @@ content = dac.TabItem(id='content_aging_pages',
                                 dbc.Col([
                                     dbc.Row([
                                         dbc.Col([
-                                            aging_control_2
+                                            aging_control_3
                                         ],md=12, style={"padding-left": "10px","padding-right": "10px", },),    
                                     ]),
                                     dbc.Row([
@@ -247,13 +291,13 @@ content = dac.TabItem(id='content_aging_pages',
                                             aging_top25_popup,
                                             aging_bottom25_popup,
                                             aging_outlier_popup,
-                                            aging_control_3
-                                        ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
-                                        dbc.Col([
                                             aging_control_4
                                         ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
                                         dbc.Col([
                                             aging_control_5
+                                        ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
+                                        dbc.Col([
+                                            aging_control_6
                                         ],md=4, style={"padding-left": "10px","padding-right": "10px", },),    
                                     ]),
                                 ],md=9, style={"padding-left": "10px","padding-right": "10px", },),    
