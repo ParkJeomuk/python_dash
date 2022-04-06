@@ -171,7 +171,7 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
 
     
 
-    
+    mean_df = data[['cyc_date','soh']].groupby(['cyc_date'],as_index=False).mean()
 
     if view_type == 'R':
         if uf_is_empty(rack_no)==False:
@@ -208,8 +208,16 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
             raise PreventUpdate
         start = datetime.strptime(start_date, "%Y-%m-%d")
         end   = datetime.strptime(end_date  , "%Y-%m-%d")
-        p_data = pd.DataFrame([(start + timedelta(days=x)).strftime("%Y%m%d") for x in range(0, (end-start).days)])
-        p_data.rename(columns = {0 : 'cyc_date'}, inplace = True)
+
+        p_data = pd.DataFrame([[(start + timedelta(days=x)).strftime("%Y%m%d"), (start + timedelta(days=x)).weekday()] for x in range(0, (end-start).days)])
+        p_data.rename(columns = {0 : 'cyc_date', 1:'weekday'}, inplace = True)
+        p_data = pd.DataFrame(p_data[(p_data['weekday']==2)]['cyc_date']).reset_index(drop=True) #수요일 데이타만 사용함.
+
+        #수요일이 없을 경우 원래 데이타로 처리....
+        if p_data is None or len(p_data)==0:
+             p_data = pd.DataFrame([(start + timedelta(days=x)).strftime("%Y%m%d")  for x in range(0, (end-start).days)])
+             p_data.rename(columns = {0 : 'cyc_date'}, inplace = True)
+
         data_pred= pd.DataFrame(lm_model.predict(p_data))
         data_pred.rename(columns = {0 : 'soh'}, inplace = True)
         p_data['soh'] = data_pred['soh']
@@ -238,12 +246,12 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
                      hover_data=["type","rack_no","cyc_date","soh"]
                     )
     fig.update_traces(marker=dict(size=11, line=dict(width=0,color='DarkSlateGrey')), selector=dict(mode='markers'))
-    # if pred_clicks is not None :
-    #     fig.add_trace(go.Scatter(x=p_data['cyc_date'], y=p_data['soh'], 
-    #                 mode='markers',
-    #                 name='Predict SOH',
-    #                 hover_data=["type","rack_no","cyc_date","soh"] # add day column to hover data )
-    #                 ))
+
+    if mean_df is not None and len(mean_df) > 0 :
+        fig.add_trace(go.Scatter(x=mean_df['cyc_date'], y=mean_df['soh'], 
+                    mode='lines',
+                    name='Mean SOH'
+                    ))
 
     fig.update_layout(showlegend=True)
     fig.update_layout(height=460)
@@ -259,11 +267,12 @@ def cb_cellsoh_plot1_render(n_clicks, pred_clicks, view_type, rack_no, module_no
 ######################################################################################
 @app.callback(Output('cellsoh_plot_21'         , 'figure'     ),
               Output('cellsoh_plot_22'         , 'figure'     ),
-              Output('cellsoh_plot_23'         , 'figure'     ),
+            #   Output('cellsoh_plot_23'         , 'figure'     ),
               Output('cellsoh_plot_24'         , 'figure'     ),
               Output('cellsoh_plot_25'         , 'figure'     ),
               Output('ds_cellsoh_good_df'      , 'data'       ),
               Output('ds_cellsoh_bad_df'       , 'data'       ),
+              Output('ds_cellsoh_plot23_df'    , 'data'       ),              
               Output('input_cellsoh_upper'     , 'value'      ),
               Output('input_cellsoh_lower'     , 'value'      ),
               Input('btn_cellsoh_heatview'     , 'n_clicks'   ),
@@ -344,27 +353,31 @@ def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_dat
 
     sum_df['minmax'][sum_df['soh'].idxmax()] = 'MAX :' + str(sum_df['soh'].max())
     sum_df['minmax'][sum_df['soh'].idxmin()] = 'MIN :' + str(sum_df['soh'].min())
-    minmax_gap = str(sum_df['soh'].max() - sum_df['soh'].min())
+    # minmax_gap = str(sum_df['soh'].max() - sum_df['soh'].min())
     sum_df['rack_color'] = sum_df['rack_no']
     sum_df['rack_no'] = sum_df['rack_no'].apply(str)
 
-    fig3 =  px.line(sum_df, 
-                    x = 'rack_no',
-                    y = 'soh', 
-                    title='Rack Sums & Max Gap [ ' + minmax_gap + ' ]',
-                    labels={"rack_no": "Rack","soh": "SOH Sums"},
-                    text=sum_df['minmax']  
-                    ) 
-    fig3.add_scatter(x=sum_df['rack_no'], 
-                     y=sum_df['soh'], 
-                     mode='markers', 
-                     marker_color=sum_df['rack_color'], 
-                     marker_size=15)
-    # fig3.update_traces(marker=dict(size=18,opacity=0.5 ,line=dict(width=1)),selector=dict(mode='markers'))               
-    # fig3.update_traces(mode="lines")           
-    fig3.update_layout(hovermode="closest")
-    fig3.update_layout(showlegend=False)
-    fig3.update_layout(height=450)
+    # fig3 =  px.line(sum_df, 
+    #                 x = 'rack_no',
+    #                 y = 'soh', 
+    #                 title='Rack Sums & Max Gap [ ' + minmax_gap + ' ]',
+    #                 labels={"rack_no": "Rack","soh": "SOH Sums"},
+    #                 text=sum_df['minmax']  
+    #                 ) 
+    # fig3.add_scatter(x=sum_df['rack_no'], 
+    #                  y=sum_df['soh'], 
+    #                  mode='markers', 
+    #                  marker_color=sum_df['rack_color'], 
+    #                  marker_size=15)
+
+    
+    # min_y = min(sum_df['soh'])-5
+    # max_y = max(sum_df['soh'])+5
+    # fig3 = px.histogram(sum_df, x="rack_no", y="soh")
+    # fig3.update_layout(yaxis=dict(range=[min_y,max_y]))
+    # fig3.update_layout(hovermode="closest")
+    # fig3.update_layout(showlegend=False)
+    # fig3.update_layout(height=450)
 
     colList = ['cyc_date','bank_no','rack_no','module_no','cell_no','soh','q_a','q_u','cur_avg','n','u_vol','o_vol','gap']
     good_df = df[colList].sort_values(by='soh', ascending=False).iloc[0:50,]
@@ -431,10 +444,57 @@ def cb_cellsoh_plot21_render(n_clicks,redraw_clicks, s_date, start_date, end_dat
     fig5 = fig5.add_vline(x=good_line, line_width=2, line_dash="dash", line_color="red" )
     fig5.update_layout(height=460)     
 
-    return fig1 , fig2 , fig3, fig4, fig5, good_df.to_json(date_format='iso',orient='split'), bad_df.to_json(date_format='iso',orient='split'), good_line, bad_line
+    rtn_good_df = good_df.to_json(date_format='iso',orient='split')
+    rtn_bad_df  = bad_df.to_json(date_format='iso',orient='split')
+    rtn_sum_df  = sum_df.to_json(date_format='iso',orient='split')
+
+    return fig1 , fig2 , fig4, fig5, rtn_good_df, rtn_bad_df, rtn_sum_df,  good_line, bad_line
 
 
 
+
+######################################################################################
+## Render Plot 21
+######################################################################################
+@app.callback(Output('cellsoh_plot_23'           , 'figure'  ),
+              Input('rdo_cellsoh_tab2_plot_type' , 'value'   ),
+              Input('ds_cellsoh_plot23_df'       , 'data'    )
+              )
+def cb_cellsoh_plot21_render(plot_type,data):
+    if plot_type is None:
+        raise PreventUpdate
+    if data is None:
+        raise PreventUpdate
+
+    sum_df = pd.read_json(data, orient='split') 
+    sum_df['rack_no']    = sum_df['rack_no'].apply(str)
+    # sum_df['rack_color'] = sum_df['rack_color'].apply(str)
+
+    if plot_type == "B":
+        min_y = min(sum_df['soh'])-5
+        max_y = max(sum_df['soh'])+5
+        fig = px.histogram(sum_df, x="rack_no", y="soh", color="rack_color")
+        fig.update_layout(yaxis=dict(range=[min_y,max_y]))
+    else:
+        minmax_gap = str(sum_df['soh'].max() - sum_df['soh'].min())
+        fig =  px.line(sum_df, 
+                        x = 'rack_no',
+                        y = 'soh', 
+                        title='Rack Sums & Max Gap [ ' + minmax_gap + ' ]',
+                        labels={"rack_no": "Rack","soh": "SOH Sums"},
+                        text=sum_df['minmax']  
+                        ) 
+        fig.add_scatter(x=sum_df['rack_no'], 
+                        y=sum_df['soh'], 
+                        mode='markers', 
+                        marker_color=sum_df['rack_color'], 
+                        marker_size=15)
+    
+    fig.update_layout(hovermode="closest")
+    fig.update_layout(showlegend=False)
+    fig.update_layout(height=450)
+
+    return fig
 
 
 

@@ -318,7 +318,7 @@ cellsoh_control_21 = dbc.Card([
                                 dict(label='Cell'  ,value='C'),
                                 dict(label='Module',value='M')
                                 ], 
-                       value='C' ,
+                       value='M' ,
                        labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'10px'}
                        )
             ],style={'height':'37px','width':'150px', 'whiteSpace':'pre-line','border':'1px #D3D3D3 solid', 'padding':'5px 5px 5px 10px','border-radius': '5px'})  
@@ -371,6 +371,7 @@ cellsoh_control_22 = dbc.Card([
 cellsoh_control_23 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
+            
             dcc.Loading(id="cellsoh_plot_22_loading", type="dot",
                         children=dcc.Graph(
                             id="cellsoh_plot_22",
@@ -392,6 +393,26 @@ cellsoh_control_23 = dbc.Card([
 cellsoh_control_24 = dbc.Card([
     dbc.Row([
         dbc.Col(children=[
+            dbc.Label("Plot Type", style={'padding':'5px 10px 0px 0px'}),
+            html.Div([
+                   dcc.RadioItems(
+                       id='rdo_cellsoh_tab2_plot_type',
+                       options=[ 
+                                dict(label='Bar'        ,value='B'),
+                                dict(label='Line+Point' ,value='L')
+                                ], 
+                       value='B' ,
+                       labelStyle = {'display': 'inline', 'cursor': 'pointer',   'padding-right':'20px'}
+                       )
+            ],style={'height':'37px','width':'200px', 'whiteSpace':'pre-line','border':'1px #D3D3D3 solid', 'padding':'5px 5px 5px 10px','border-radius': '5px'})  
+        ],className="input-group flex-nowrap", width=4, style={'padding':'7px 0px 0px 20px'}),
+        dbc.Col([
+           html.Br()
+        ],className="input-group flex-nowrap", width=8, style={'padding':'7px 0px 0px 20px'}),
+    ]),
+    dbc.Row([
+        dbc.Col(children=[
+            dcc.Store(id='ds_cellsoh_plot23_df' ,storage_type='memory'),
             dcc.Loading(id="cellsoh_plot_23_loading", type="dot",
                         children=dcc.Graph(
                             id="cellsoh_plot_23",
@@ -402,7 +423,7 @@ cellsoh_control_24 = dbc.Card([
         ], width=12),        
     ],style={'padding-top': '5px', 'padding-bottom': '5px'},),
     ],
-    style={"height":"500px"},
+    style={"height":"530px"},
     body=True,
 )
 

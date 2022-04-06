@@ -70,8 +70,9 @@ def cb_cellsoh_data_load(n_clicks, date1, date2, s_bank_no, s_rack_no):
               State('ds_aging_df'        , 'data'     ),
               Input('rdo_aging_heatmaptype'  , 'value'      ),
               Input('rdo_aging_heatmap_color', 'value'      ),
+              Input('rdo_aging_plottype'     , 'value'      )
               )
-def cb_cellsoh_plot1_render( ts, data, s_data_type, s_color_type):
+def cb_cellsoh_plot1_render( ts, data, s_data_type, s_color_type, s_plot_type):
     if ts is None or data is None:
         fig =  blank_fig() 
         return fig, fig, fig, fig, None, None
@@ -80,9 +81,9 @@ def cb_cellsoh_plot1_render( ts, data, s_data_type, s_color_type):
     data = pd.read_json(data, orient='split')
     data = data.dropna(axis=0)
 
-    data['rack_no'] = data['rack_no'].apply(str)
-    data['module_no'] = data['module_no'].apply(str)
-    data['cell_no'] = data['cell_no'].apply(str)
+    # data['rack_no'] = data['rack_no'].apply(str)
+    # data['module_no'] = data['module_no'].apply(str)
+    # data['cell_no'] = data['cell_no'].apply(str)
     data['soh_gap'] = data.soh_x.values - data.soh_y.values
     
     pio.templates.default = "plotly_white"
@@ -98,24 +99,47 @@ def cb_cellsoh_plot1_render( ts, data, s_data_type, s_color_type):
         tmp_df = data[['rack_no','module_no','soh_gap']].groupby(['rack_no','module_no'],as_index=False).mean()
         tmp_df = tmp_df[['rack_no','module_no','soh_gap']].pivot('module_no','rack_no','soh_gap')
 
-    if s_color_type == 'D':
-        colorMap =  [[0.0,'#FEFDFB'],[0.5, '#FCD82D'],[1,'#921205']]
-    else:    
-        colorMap =  [[0.0,'#921205'],[0.5, '#FCD82D'],[1,'#FEFDFB']]
 
-    columns = list(tmp_df.columns.values)
-    rows = list(tmp_df.index)
 
-    fig1 = dashbio.Clustergram(
-                        data=tmp_df.loc[rows].values,
-                        row_labels=rows,
-                        column_labels=columns,
-                        height=950,
-                        width=1400,
-                        center_values=False,
-                        color_map= colorMap
-                    )
+    if s_plot_type == 'H':
+        if s_color_type == 'D':
+            revers_col = True
+        else:
+            revers_col = False
+
+        z = tmp_df.values.tolist()
+        x = tmp_df.columns.tolist()
+        y = tmp_df.index.tolist()
+
+        fig1 = go.Figure(data=go.Heatmap(
+                z=z,
+                x=x,
+                y=y,
+                colorscale='hot',
+                reversescale=revers_col))
+        fig1.update_layout(height=870)        
+    else:
+        if s_color_type == 'D':
+            colorMap =  [[0.0,'#FEFDFB'],[0.5, '#FCD82D'],[1,'#921205']]
+        else:    
+            colorMap =  [[0.0,'#921205'],[0.5, '#FCD82D'],[1,'#FEFDFB']]
+
+        columns = list(tmp_df.columns.values)
+        rows = list(tmp_df.index)
+
+        fig1 = dashbio.Clustergram(
+                            data=tmp_df.loc[rows].values,
+                            row_labels=rows,
+                            column_labels=columns,
+                            height=950,
+                            width=1400,
+                            center_values=False,
+                            color_map= colorMap
+                        )
+        
     fig1.update_layout(showlegend=False)
+
+
 
 
     
@@ -367,4 +391,61 @@ def cb_aging_toggle_outlier_modal(n_clicks,is_open, selectedData):
 
     return not is_open, aging_DataTable_3
 
+
+
+
+@app.callback(Output('aging_plot_5'         , 'figure'   ),
+              Input('aging_plot_1'          , 'clickData'),
+              State('dtp_aging_date_1'      , 'date'     ), 
+              State('dtp_aging_date_2'      , 'date'     ), 
+              State('cbo_cellsoh_bank'      , 'value'    ),
+              State('rdo_aging_heatmaptype' , 'value'    ),
+              State('rdo_aging_plottype'    , 'value'    )
+              
+             )
+def aging_plot1_click(clickData, sDate, eDate, sBankNo, sDataType, sPlotType):
+    if clickData is None :
+        raise PreventUpdate
+
+    # Clustergrame일 경우 현재  x,y 값이 안돼는 문제.... 
+    if sPlotType == 'C': 
+        fig =  blank_fig()
+        return fig 
+
+    x = clickData['points'][0]['x']
+    y = clickData['points'][0]['y']
+    
+    if sDataType == "C":
+        sRackNo = x 
+        sModuleNo = 0
+        sCellNo = y
+    else:
+        sRackNo = x 
+        sModuleNo = y
+        sCellNo = 0
+
+    df = aging_data_load(sDate, eDate, sDataType, sBankNo, sRackNo, sModuleNo, sCellNo) 
+    df = df.sort_values(["cell_no","cyc_date"],   ascending = True )
+    df = df.dropna(axis=0)
+    df = df.reset_index(drop=True)
+    soh_diff = df.groupby('cell_no')['soh'].diff().fillna(0)
+    df['gap_trend'] = soh_diff
+
+
+    if df is None:
+        fig =  blank_fig()
+        return fig 
+
+    fig = px.line(df, 
+                  x = 'cyc_date',
+                  y = 'gap_trend', 
+                  color = 'cell_no',
+                  line_group='cell_no',
+                  title = 'Cell SOH Gap Trend'
+                  )    
+
+    fig.update_traces(mode="markers+lines")   
+    fig.update_xaxes(showticklabels=False)
+    fig.update_layout(height=260)        
+    return fig 
 
