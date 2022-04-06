@@ -22,5 +22,5 @@ pip install -f http://h2o-release.s3.amazonaws.com/h2o/latest_stable_Py.html h2o
 <br>
 
 # Earth 설치<br>
-pip install earthengine-api<br>
+pip install sklearn-contrib-py-earth<br>
 
