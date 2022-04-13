@@ -10,12 +10,13 @@ from pages.gallery_2.callbacks import update_figure
 
 
 # Dash Page --------------------------------------------------------------------------------
-from pages.dash_pages.callbacks import *
+from pages.dash_pages.callbacks    import *
 from pages.dataset_pages.callbacks import *
 from pages.linermd_pages.callbacks import *
-from pages.automl_pages.callbacks import *
+from pages.automl_pages.callbacks  import *
 from pages.cellsoh_pages.callbacks import *
-from pages.aging_pages.callbacks import *
+from pages.aging_pages.callbacks   import *
+from pages.trend_pages.callbacks   import *
 
 # @app.callback(
 #     Output("page-content", "children"),

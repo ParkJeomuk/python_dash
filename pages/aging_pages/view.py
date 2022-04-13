@@ -13,7 +13,7 @@ from utils.server_function import *
 
 aging_control_1 = dbc.Card(
     [
-        dbc.Row([ dbc.Col(children=[dbc.Label("Aging")], width=12), ],style={'padding-top': '5px', 'padding-bottom': '5px'}),
+        dbc.Row([ dbc.Col(children=[dbc.Label("Aging Gap")], width=12), ],style={'padding-top': '5px', 'padding-bottom': '5px'}),
         dbc.Row(
             [
                 dbc.Col(children=[dbc.Label("Bank", style={'padding-top':'5px'})], width=3),
