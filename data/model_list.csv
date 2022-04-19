@@ -3,4 +3,5 @@
 1,lm_model_2022-02-23,./model/,lm_model_2022-02-23.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,,,,desc
 2,lm_model_2022-02-25,./model/,lm_model_2022-02-25.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,,,,desc
 3,lm_model_2022-03-02,./model/,lm_model_2022-03-02.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,,,,desc
-4,lm_model_2022-03-03,./model/,lm_model_2022-03-03.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,0.0009550359432976418,5.097771600197932e-06,0.0022578245282124853,desc
+4,lm_model_2022-03-03,./model/,lm_model_2022-03-03.sav,"cyc_date,q_u,cur_avg,n,u_vol,o_vol,gap",soh,0.0009550359432976,5.097771600197932e-06,0.0022578245282124,desc
+0,lm_model_2022-03-17,./model/,lm_model_2022-03-17.sav,cyc_date,soh,0.009315308712552392,0.00024187817157377502,0.01555243297924074,desc

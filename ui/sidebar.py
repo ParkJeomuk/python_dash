@@ -29,8 +29,9 @@ sideMenu = 	dac.SidebarMenu(
         dac.SidebarMenuItem(id='menu_linermd_pages'  ,label='Liner Model'     , icon='chart-line'),
         dac.SidebarMenuItem(id='menu_automl_pages'   ,label='H2O'             , icon='coins'),
         dac.SidebarMenuItem(id='menu_cellsoh_pages'  ,label='SOH'             , icon='battery-half'),
+        dac.SidebarMenuItem(id='menu_mars_pages'     ,label='AgingSpeed'      , icon='chart-bar'),
         dac.SidebarMenuItem(id='menu_aging_pages'    ,label='AgingGap'        , icon='bolt'),
-        dac.SidebarMenuItem(id='menu_trend_pages'    ,label='AgingTrend'      , icon='chart-bar'),
+        dac.SidebarMenuItem(id='menu_trend_pages'    ,label='AgingTrend'      , icon='chart-bar'),        
         dac.SidebarMenuItem(id='menu_tab_cards'      ,label='Tab cards'       , icon='image'),
 
         dac.SidebarHeader(children="Boxes"),

@@ -2,8 +2,6 @@ from apps import app
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 from datetime import date,timedelta,datetime
-from tkinter import *
-from tkinter import filedialog
 from dash import dash_table
 
 
@@ -23,6 +21,7 @@ import statsmodels.api as sm
 from math import dist
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.cluster.hierarchy import dendrogram, linkage, cut_tree 
+# from pyearth import Earth
 
 from utils.server_function import *
 from utils.constants  import *

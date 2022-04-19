@@ -17,6 +17,7 @@ from pages.automl_pages.callbacks  import *
 from pages.cellsoh_pages.callbacks import *
 from pages.aging_pages.callbacks   import *
 from pages.trend_pages.callbacks   import *
+from pages.mars_pages.callbacks    import *
 
 # @app.callback(
 #     Output("page-content", "children"),
