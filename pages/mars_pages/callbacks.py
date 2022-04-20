@@ -177,28 +177,28 @@ def cb_mars_plot1_render( ts, data, pie_data):
     # fig1.update_layout(yaxis_range=[3,7])
     fig1.update_layout(height=680)
 
-    labels =[pie_df.item_name.values]
+    labels =np.array(pie_df.item_name.values).tolist()
 
     specs = [[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}], [{'type':'domain'}, {'type':'domain'},{}]]
-    fig2 = make_subplots(rows=2, cols=3) #, specs=specs)
-    fig2.add_trace(go.Pie(labels=labels, values=[pie_df.iloc[0].values], name="Class 1"), 1, 1)
-    fig2.add_trace(go.Pie(labels=labels, values=[pie_df.iloc[1].values], name="Class 2"), 1, 2)
-    fig2.add_trace(go.Pie(labels=labels, values=[pie_df.iloc[2].values], name="Class 3"), 1, 3)
-    fig2.add_trace(go.Pie(labels=labels, values=[pie_df.iloc[3].values], name="Class 4"), 2, 1)
-    fig2.add_trace(go.Pie(labels=labels, values=[pie_df.iloc[4].values], name="Class 5"), 2, 2)
+    fig2 = make_subplots(rows=2, cols=3, specs=specs)
+    fig2.add_trace(go.Pie(labels=labels, values=np.array(pie_df.iloc[:,0].values).tolist(), name="Class 1"), 1, 1)
+    fig2.add_trace(go.Pie(labels=labels, values=np.array(pie_df.iloc[:,1].values).tolist(), name="Class 2"), 1, 2)
+    fig2.add_trace(go.Pie(labels=labels, values=np.array(pie_df.iloc[:,2].values).tolist(), name="Class 3"), 1, 3)
+    fig2.add_trace(go.Pie(labels=labels, values=np.array(pie_df.iloc[:,3].values).tolist(), name="Class 4"), 2, 1)
+    fig2.add_trace(go.Pie(labels=labels, values=np.array(pie_df.iloc[:,4].values).tolist(), name="Class 5"), 2, 2)
 
 
     # Use `hole` to create a donut-like pie chart
-    # fig.update_traces(hole=.4, hoverinfo="label+percent+name")
+    fig2.update_traces(hole=.4, hoverinfo="label+percent+name")
 
     fig2.update_layout(
         title_text="Detail Variable",
         # Add annotations in the center of the donut pies.
-        annotations=[dict(text='Class1', x=0.18, y=0.5, font_size=20, showarrow=False),
-                     dict(text='Class2', x=0.82, y=0.5, font_size=20, showarrow=False),
-                     dict(text='Class3', x=0.82, y=0.5, font_size=20, showarrow=False),
-                     dict(text='Class4', x=0.82, y=0.5, font_size=20, showarrow=False),
-                     dict(text='Class5', x=0.82, y=0.5, font_size=20, showarrow=False)
+        annotations=[dict(text='Class1', x=0.12, y=0.82, font_size=18, showarrow=False),
+                     dict(text='Class2', x=0.50, y=0.82, font_size=18, showarrow=False),
+                     dict(text='Class3', x=0.88, y=0.82, font_size=18, showarrow=False),
+                     dict(text='Class4', x=0.12, y=0.18, font_size=18, showarrow=False),
+                     dict(text='Class5', x=0.50, y=0.18, font_size=18, showarrow=False)
                     ])
 
 
