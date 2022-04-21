@@ -159,7 +159,8 @@ def cb_mars_plot1_render( ts, data, pie_data):
 
     data['cyc_date'] = pd.to_datetime(data['cyc_date'], format='%Y%m%d')
 
-    data_cuts = (18619,18619,18815,18500,18717)
+    data_cuts = (1,18500,18619,18717,18815)
+    # data_cuts = (18619,18619,18815,18500,18717)
 
     fig1 = px.scatter(data, 
                       x="cyc_date", 
@@ -170,9 +171,36 @@ def cb_mars_plot1_render( ts, data, pie_data):
     
     fig1.update_layout(hovermode="closest")
     fig1.update_layout(showlegend=False)
+
+    date_cnt = 0
     for i in data_cuts:
-        t_date = datetime.strptime("1970-01-01", "%Y-%m-%d") + timedelta(days=i)
-        fig1.add_vline(x=t_date, line_width=2, line_dash="dash", line_color="green")
+        date_cnt = date_cnt + 1
+        if date_cnt == 1 :
+            t_date = data.loc[0,'cyc_date']
+        else:
+            t_date = datetime.strptime("1970-01-01", "%Y-%m-%d") + timedelta(days=i)
+
+        ann_text = "Class" + str(date_cnt)
+
+        fig1.add_vline(x=t_date, 
+                       line_width=2, 
+                       line_dash="dash", 
+                       line_color="green" )
+
+        fig1.add_annotation(
+            x=t_date + timedelta(days=20) ,
+            y=max(data.soh.values),
+            text= ann_text ,
+            font=dict(size=24,color="#ffffff"),
+            align="right",
+            bordercolor="#c7c7c7",
+            borderwidth=2,
+            borderpad=4,
+            bgcolor="#ff7f0e",
+            opacity=0.8
+            )
+
+    # fig1.update_layout(annotations=[{**a, **{"y":.5}}  for a in fig.to_dict()["layout"]["annotations"]])    
     
     # fig1.update_layout(yaxis_range=[3,7])
     fig1.update_layout(height=680)
